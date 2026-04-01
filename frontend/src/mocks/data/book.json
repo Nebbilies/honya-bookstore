@@ -1,0 +1,467 @@
+[
+    {
+        "id": 1,
+        "title": "Suzume No Tojimari",
+        "description": "A touching novel adaptation of Makoto Shinkai’s acclaimed film, *Suzume No Tojimari* follows the life of a spirited high school girl whose ordinary world is turned upside down when she discovers a mysterious door standing alone in a forgotten ruin. When opened, it releases powerful forces that threaten to bring disasters upon Japan. Determined to protect her world, Suzume embarks on a journey across the country, closing these dangerous portals one by one. Along the way, she encounters strangers, kind souls, and memories of loss that shape her understanding of connection, love, and the meaning of letting go. Blending magical realism with emotional storytelling, the novel paints a vivid picture of Japan’s landscapes and the fragile balance between the human heart and nature’s mysteries. Both heartwarming and melancholic, *Suzume No Tojimari* is a story about healing, courage, and finding the doors that lead us home.",
+        "author": "Makoto Shinkai",
+        "price": 14.99,
+        "pageCount": 320,
+        "yearPublished": 2023,
+        "category": [
+            "Novel"
+        ],
+        "publisher": "Yen Press",
+        "weight": 0.45,
+        "coverImageUrl": "images/books/Novel1.png",
+        "imageUrls": ["images/books/Science1.png", "images/books/Science2.png", "images/books/Science3.png", "images/books/Novel1.png"],
+        "stock": 120,
+        "sold": 560,
+        "dateAdded": "2025-10-26T14:41:19.852Z"
+    },
+    {
+        "id": 2,
+        "title": "How To Think Like Einstein",
+        "description": "In *How to Think Like Einstein*, Scott Thorpe invites readers to unlock their own creativity by stepping into the mind of one of history’s greatest geniuses. Drawing from Einstein’s revolutionary approach to science and problem-solving, the book explores practical techniques for challenging assumptions, reimagining familiar concepts, and seeing the world from entirely new perspectives. Thorpe breaks down Einstein’s thinking patterns into accessible, real-world applications that can transform how we tackle everyday challenges — from work and education to personal growth. Through anecdotes, exercises, and examples from scientific breakthroughs to ordinary life, readers learn how to think freely, embrace curiosity, and cultivate imagination as a tool for innovation. Engaging, inspiring, and insightful, this book reminds us that creativity is not an inherited gift but a mindset anyone can develop with the right attitude toward questioning and discovery.",
+        "author": "Scott Thorpe",
+        "price": 18.5,
+        "pageCount": 256,
+        "yearPublished": 2015,
+        "category": [
+            "Science"
+        ],
+        "publisher": "Sourcebooks",
+        "weight": 0.38,
+        "coverImageUrl": "images/books/Science1.png",
+        "imageUrls": [],
+        "stock": 85,
+        "sold": 32,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 3,
+        "title": "Only Murder",
+        "description": "In this gripping psychological thriller, Detective Daniel Cross is summoned to a small, snowbound town to investigate a series of brutal murders that shake the quiet community. As he follows the trail of evidence, every clue seems to point closer to his own buried past — a past he has spent years trying to forget. Haunted by guilt and paranoia, Cross must navigate a web of lies, small-town secrets, and hidden motives, where no one can be trusted and nothing is what it seems. *Only Murder* masterfully weaves suspense and emotion into a chilling narrative of redemption and obsession. Lisa Matthews delivers a taut, atmospheric story that explores how trauma shapes memory and how far someone will go to uncover the truth — even when the truth could destroy them. Fans of Gillian Flynn and Paula Hawkins will find this a must-read that lingers long after the final page.",
+        "author": "Lisa Matthews",
+        "price": 21,
+        "pageCount": 390,
+        "yearPublished": 2021,
+        "category": [
+            "Thriller"
+        ],
+        "publisher": "HarperCollins",
+        "weight": 0.52,
+        "coverImageUrl": "images/books/Thriller1.png",
+        "imageUrls": [],
+        "stock": 60,
+        "sold": 44,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 4,
+        "title": "The Love Hypothesis",
+        "description": "A rom-com novel about a young scientist navigating fake dating and unexpected love in academia.",
+        "author": "Ali Hazelwood",
+        "price": 17.99,
+        "pageCount": 384,
+        "yearPublished": 2021,
+        "category": [
+            "Romance"
+        ],
+        "publisher": "Berkley Books",
+        "weight": 0.4,
+        "coverImageUrl": "images/books/Romance1.png",
+        "imageUrls": [],
+        "stock": 150,
+        "sold": 102,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 5,
+        "title": "It's a Funny Thing",
+        "description": "A light-hearted exploration of humor and human nature through witty stories and real-life anecdotes.",
+        "author": "James Corbin",
+        "price": 15,
+        "pageCount": 280,
+        "yearPublished": 2018,
+        "category": [
+            "Comedy"
+        ],
+        "publisher": "Penguin Books",
+        "weight": 0.36,
+        "coverImageUrl": "images/books/Comedy1.png",
+        "imageUrls": [],
+        "stock": 95,
+        "sold": 40,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 6,
+        "title": "The Nature Of Technology",
+        "description": "An insightful analysis of how technology evolves and shapes society, exploring the logic behind invention and innovation.",
+        "author": "W. Brian Arthur",
+        "price": 22,
+        "pageCount": 284,
+        "yearPublished": 2009,
+        "category": [
+            "Science"
+        ],
+        "publisher": "Free Press",
+        "weight": 0.48,
+        "coverImageUrl": "images/books/Science2.png",
+        "imageUrls": [],
+        "stock": 70,
+        "sold": 50,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 7,
+        "title": "Tomorrow Most Likely",
+        "description": "A delightful children’s book that imagines all the wonderful things tomorrow might bring, encouraging curiosity and imagination.",
+        "author": "Dave Eggers",
+        "price": 12.99,
+        "pageCount": 48,
+        "yearPublished": 2019,
+        "category": [
+            "Children"
+        ],
+        "publisher": "Chronicle Books",
+        "weight": 0.28,
+        "coverImageUrl": "images/books/Children1.png",
+        "imageUrls": [],
+        "stock": 130,
+        "sold": 75,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 8,
+        "title": "Fundamentals Of Business",
+        "description": "A comprehensive introduction to modern business concepts, including management, marketing, finance, and entrepreneurship.",
+        "author": "Stephen J. Skripak",
+        "price": 24.99,
+        "pageCount": 410,
+        "yearPublished": 2020,
+        "category": [
+            "Business"
+        ],
+        "publisher": "OpenStax",
+        "weight": 0.6,
+        "coverImageUrl": "images/books/Business1.png",
+        "imageUrls": [],
+        "stock": 110,
+        "sold": 68,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 9,
+        "title": "The Mind Of A Leader",
+        "description": "An exploration of leadership inspired by the philosophies of ancient thinkers and modern psychology.",
+        "author": "Rasmus Hougaard",
+        "price": 20,
+        "pageCount": 320,
+        "yearPublished": 2018,
+        "category": [
+            "Business"
+        ],
+        "publisher": "Harvard Business Review Press",
+        "weight": 0.46,
+        "coverImageUrl": "images/books/Business2.png",
+        "imageUrls": [],
+        "stock": 90,
+        "sold": 42,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 10,
+        "title": "The Business Of The Future",
+        "description": "A visionary look at how science and technology are reshaping the business landscape of tomorrow.",
+        "author": "Elena G. Meyer",
+        "price": 26,
+        "pageCount": 350,
+        "yearPublished": 2024,
+        "category": [
+            "Business",
+            "Science",
+            "Technology"
+        ],
+        "publisher": "MIT Press",
+        "weight": 0.55,
+        "coverImageUrl": "images/books/Business3.png",
+        "imageUrls": [],
+        "stock": 75,
+        "sold": 25,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 11,
+        "title": "Journey To The Stars",
+        "description": "An imaginative children’s story about a young astronaut’s journey through the galaxy to discover friendship and courage.",
+        "author": "Emily Carter",
+        "price": 13.5,
+        "pageCount": 64,
+        "yearPublished": 2020,
+        "category": [
+            "Children"
+        ],
+        "publisher": "Little Planet Books",
+        "weight": 0.3,
+        "coverImageUrl": "images/books/Children2.png",
+        "imageUrls": [],
+        "stock": 140,
+        "sold": 80,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 12,
+        "title": "Green Thumb Poppy",
+        "description": "A charming children’s book about a young gardener who learns to care for plants and people alike.",
+        "author": "Harper Lane",
+        "price": 11.99,
+        "pageCount": 52,
+        "yearPublished": 2022,
+        "category": [
+            "Children"
+        ],
+        "publisher": "Bloom House Publishing",
+        "weight": 0.25,
+        "coverImageUrl": "images/books/Children3.png",
+        "imageUrls": [],
+        "stock": 125,
+        "sold": 68,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 13,
+        "title": "I Can't Make This Up",
+        "description": "A hilarious and honest memoir from comedian Kevin Hart, full of stories about resilience and laughter.",
+        "author": "Kevin Hart",
+        "price": 19.99,
+        "pageCount": 400,
+        "yearPublished": 2017,
+        "category": [
+            "Comedy"
+        ],
+        "publisher": "Atria Books",
+        "weight": 0.5,
+        "coverImageUrl": "images/books/Comedy2.png",
+        "imageUrls": [],
+        "stock": 100,
+        "sold": 70,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 14,
+        "title": "A Calling For Charlie Barnes",
+        "description": "A darkly humorous story of one man’s life, his regrets, and the absurdity of chasing success.",
+        "author": "Joshua Ferris",
+        "price": 16.99,
+        "pageCount": 352,
+        "yearPublished": 2021,
+        "category": [
+            "Comedy"
+        ],
+        "publisher": "Little, Brown and Company",
+        "weight": 0.42,
+        "coverImageUrl": "images/books/Comedy3.png",
+        "imageUrls": [],
+        "stock": 80,
+        "sold": 47,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 15,
+        "title": "The Thing In The Snow",
+        "description": "A surreal novel blending thriller and existential mystery set in an isolated research station buried in snow.",
+        "author": "Sean Adams",
+        "price": 23,
+        "pageCount": 320,
+        "yearPublished": 2023,
+        "category": [
+            "Novel",
+            "Thriller"
+        ],
+        "publisher": "William Morrow",
+        "weight": 0.48,
+        "coverImageUrl": "images/books/Novel2.png",
+        "imageUrls": [],
+        "stock": 65,
+        "sold": 33,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 16,
+        "title": "Bloom Into You",
+        "description": "A tender and emotional coming-of-age romance between two girls discovering love for the first time. ",
+        "author": "Nakatani Nio",
+        "price": 13.99,
+        "pageCount": 180,
+        "yearPublished": 2018,
+        "category": [
+            "Novel",
+            "Romance"
+        ],
+        "publisher": "Seven Seas Entertainment",
+        "weight": 0.35,
+        "coverImageUrl": "images/books/Novel3.png",
+        "imageUrls": [],
+        "stock": 90,
+        "sold": 640,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 17,
+        "title": "The America Roommate Experiment",
+        "description": "A romantic comedy about two writers sharing an apartment and discovering love in unexpected ways.",
+        "author": "Elena Armas",
+        "price": 17.99,
+        "pageCount": 400,
+        "yearPublished": 2022,
+        "category": [
+            "Romance",
+            "Novel"
+        ],
+        "publisher": "Atria Books",
+        "weight": 0.44,
+        "coverImageUrl": "images/books/Romance2.png",
+        "imageUrls": [],
+        "stock": 100,
+        "sold": 77,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 18,
+        "title": "Technically Yours",
+        "description": "A tech-driven love story about two software engineers navigating code, deadlines, and desire.",
+        "author": "Denise Williams",
+        "price": 16.99,
+        "pageCount": 360,
+        "yearPublished": 2024,
+        "category": [
+            "Romance"
+        ],
+        "publisher": "Berkley",
+        "weight": 0.43,
+        "coverImageUrl": "images/books/Romance3.png",
+        "imageUrls": [],
+        "stock": 95,
+        "sold": 52,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 19,
+        "title": "The Science Of Science",
+        "description": "An exploration of the data-driven patterns behind how science itself progresses and evolves.",
+        "author": "Dashun Wang",
+        "price": 25,
+        "pageCount": 300,
+        "yearPublished": 2021,
+        "category": [
+            "Science",
+            "Technology"
+        ],
+        "publisher": "Stanford University Press",
+        "weight": 0.47,
+        "coverImageUrl": "images/books/Science3.png",
+        "imageUrls": [],
+        "stock": 70,
+        "sold": 40,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 20,
+        "title": "This New Ocean",
+        "description": "A sweeping chronicle of humanity’s ventures into space, blending science, history, and vision.",
+        "author": "William E. Burrows",
+        "price": 24,
+        "pageCount": 736,
+        "yearPublished": 1999,
+        "category": [
+            "Science"
+        ],
+        "publisher": "Random House",
+        "weight": 0.68,
+        "coverImageUrl": "images/books/Science3.png",
+        "imageUrls": [],
+        "stock": 60,
+        "sold": 28,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 21,
+        "title": "How AI Ate The World",
+        "description": "A deep dive into how artificial intelligence transformed industries, culture, and our understanding of humanity.",
+        "author": "Sam Altier",
+        "price": 27.5,
+        "pageCount": 360,
+        "yearPublished": 2025,
+        "category": [
+            "Technology",
+            "Science"
+        ],
+        "publisher": "TechSphere Publishing",
+        "weight": 0.5,
+        "coverImageUrl": "images/books/Technology1.png",
+        "imageUrls": [],
+        "stock": 85,
+        "sold": 39,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 22,
+        "title": "The Worlds I See",
+        "description": "An inspiring memoir and vision of AI’s potential by a leading scientist shaping the future of technology.",
+        "author": "Fei-Fei Li",
+        "price": 26.99,
+        "pageCount": 352,
+        "yearPublished": 2023,
+        "category": [
+            "Technology",
+            "Science"
+        ],
+        "publisher": "Flatiron Books",
+        "weight": 0.49,
+        "coverImageUrl": "images/books/Technology2.png",
+        "imageUrls": [],
+        "stock": 90,
+        "sold": 54,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 23,
+        "title": "The Girls In The Cabin",
+        "description": "A psychological thriller about four friends trapped in a remote cabin with a killer among them.",
+        "author": "Megan Brooks",
+        "price": 22.99,
+        "pageCount": 370,
+        "yearPublished": 2024,
+        "category": [
+            "Thriller",
+            "Novel"
+        ],
+        "publisher": "Penguin Random House",
+        "weight": 0.51,
+        "coverImageUrl": "images/books/Thriller2.png",
+        "imageUrls": [],
+        "stock": 75,
+        "sold": 46,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    },
+    {
+        "id": 24,
+        "title": "The Girls They Fear",
+        "description": "A gripping thriller following a journalist uncovering a string of murders linked to a secret society.",
+        "author": "Rebecca Barrow",
+        "price": 19.99,
+        "pageCount": 400,
+        "yearPublished": 2023,
+        "category": [
+            "Thriller"
+        ],
+        "publisher": "Sourcebooks Fire",
+        "weight": 0.5,
+        "coverImageUrl": "images/books/Thriller3.png",
+        "imageUrls": [],
+        "stock": 65,
+        "sold": 35,
+        "dateAdded": "2025-10-26T14:41:19.854Z"
+    }
+]

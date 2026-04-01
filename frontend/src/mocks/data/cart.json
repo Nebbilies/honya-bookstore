@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "title": "Suzume No Tojimari",
+    "description": "A touching novel adaptation of Makoto Shinkai’s film, following Suzume’s journey to close mysterious doors that unleash disasters across Japan.",
+    "author": "Makoto Shinkai",
+    "price": 14.99,
+    "pageCount": 320,
+    "yearPublished": 2023,
+    "category": ["Novel"],
+    "publisher": "Yen Press",
+    "weight": 0.45,
+    "coverImageUrl": "images/books/Novel1.png",
+    "imageUrls": [],
+    "stock": 120,
+    "sold": 560,
+    "quantity": 2,
+    "dateAdded": "2024-06-10T14:20:00Z"
+  },
+  {
+    "id": 2,
+    "title": "How To Think Like Einstein",
+    "description": "A guide to developing creative thinking and problem-solving skills inspired by Albert Einstein’s unique approach to science and life.",
+    "author": "Scott Thorpe",
+    "price": 18.50,
+    "pageCount": 256,
+    "yearPublished": 2015,
+    "category": ["Science"],
+    "publisher": "Sourcebooks",
+    "weight": 0.38,
+    "coverImageUrl": "images/books/Science1.png",
+    "imageUrls": [],
+    "stock": 85,
+    "sold": 32,
+    "quantity": 1,
+    "dateAdded": "2024-06-15T10:30:00Z"
+  }
+]

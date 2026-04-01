@@ -1,0 +1,8 @@
+{
+  "name": "honya-bookstore-workspace",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}

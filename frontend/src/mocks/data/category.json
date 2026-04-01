@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Novel",
+    "description": "Fictional works that explore stories, emotions, and imagination through long-form narrative writing.",
+    "slug": "novel"
+  },
+  {
+    "name": "Science",
+    "description": "Books that explore scientific concepts, discoveries, and ways of thinking about the natural world.",
+    "slug": "science"
+  },
+  {
+    "name": "Thriller",
+    "description": "Fast-paced stories filled with suspense, twists, and high-stakes conflicts that keep readers on edge.",
+    "slug": "thriller"
+  },
+  {
+    "name": "Romance",
+    "description": "Stories that focus on love, relationships, and the emotional journey between characters.",
+    "slug": "romance"
+  },
+  {
+    "name": "Comedy",
+    "description": "Light-hearted books filled with humor, wit, and entertaining stories that make readers laugh.",
+    "slug": "comedy"
+  },
+  {
+    "name": "Children",
+    "description": "Engaging and imaginative books written for young readers, encouraging curiosity and creativity.",
+    "slug": "children"
+  },
+  {
+    "name": "Business",
+    "description": "Guides, case studies, and analyses that explore entrepreneurship, management, and leadership.",
+    "slug": "business"
+  },
+  {
+    "name": "Technology",
+    "description": "Books examining technological innovations, digital transformation, and the impact of tech on society.",
+    "slug": "technology"
+  }
+]

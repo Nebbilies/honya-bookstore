@@ -1,0 +1,48 @@
+[
+  {
+    "id": "1",
+    "bookId": "1",
+    "userId": "1",
+    "rating": 5,
+    "content": "An excellent read! The story is engaging from start to finish, with characters that feel real and well-developed. Highly recommended for anyone who enjoys thoughtful and emotional narratives.",
+    "createdAt": "2025-11-03T07:10:00Z",
+    "updatedAt": "2025-11-03T07:10:00Z"
+  },
+  {
+    "id": "2",
+    "bookId": "1",
+    "userId": "1",
+    "rating": 4,
+    "content": "Really liked it! Some chapters felt a bit slow, but overall the message and writing style made up for it.",
+    "createdAt": "2025-11-03T07:12:00Z",
+    "updatedAt": "2025-11-03T07:12:00Z"
+  },
+  {
+    "id": "3",
+    "bookId": "1",
+    "userId": "1",
+    "rating": 3,
+    "content": "It was okay. Not bad, but not great either. The pacing was inconsistent and the ending felt rushed.",
+    "createdAt": "2025-11-03T07:14:00Z",
+    "updatedAt": "2025-11-03T07:14:00Z"
+  },
+  {
+    "id": "4",
+    "bookId": "1",
+    "userId": "1",
+    "rating": 2,
+    "content": "Disappointing. The premise was interesting, but the execution fell short. Characters lacked depth.",
+    "createdAt": "2025-11-03T07:16:00Z",
+    "updatedAt": "2025-11-03T07:16:00Z"
+  },
+  {
+    "id": "5",
+    "bookId": "1",
+    "userId": "1",
+    "rating": 5,
+    "content": "Loved every page. Beautifully written, emotional, and inspiring. Will definitely reread.",
+    "createdAt": "2025-11-03T07:18:00Z",
+    "updatedAt": "2025-11-03T07:18:00Z"
+  }
+]
+
