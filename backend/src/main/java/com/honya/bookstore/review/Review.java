@@ -1,4 +1,4 @@
-package com.honya.bookstore.domain.entity;
+package com.honya.bookstore.review;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,11 +14,9 @@ public class Review {
     private Integer voteCount;
     private String content;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User author;
+    @Column(name = "user_id")
+    private UUID authorId;
 
-    @ManyToOne
-    @JoinColumn(name = "book_id")
-    private Book book;
+    @Column(name = "book_id")
+    private UUID bookId;
 }

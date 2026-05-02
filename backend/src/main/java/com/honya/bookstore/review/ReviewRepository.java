@@ -1,6 +1,6 @@
-package com.honya.bookstore.repository;
+package com.honya.bookstore.review;
 
-import com.honya.bookstore.domain.entity.Review;
+import com.honya.bookstore.review.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.UUID;
