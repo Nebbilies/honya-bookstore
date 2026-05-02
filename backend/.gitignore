@@ -3,6 +3,7 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/main/resources/application.yaml
+backend/src/main/resources/application.yaml
 !**/src/test/**/target/
 
 ### STS ###
