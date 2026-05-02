@@ -1,4 +1,4 @@
-package com.honya.bookstore.domain.entity;
+package com.honya.bookstore.cart;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,9 +14,8 @@ public class Cart {
     private UUID id;
     private OffsetDateTime updatedAt;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User owner;
+    @Column(name = "user_id")
+    private UUID ownerId;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items;

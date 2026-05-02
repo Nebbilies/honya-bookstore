@@ -1,4 +1,4 @@
-package com.honya.bookstore.domain.entity;
+package com.honya.bookstore.cart;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,9 +15,8 @@ public class CartItem {
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
-    @ManyToOne
-    @JoinColumn(name = "book_id")
-    private Book book;
+    @Column(name = "book_id")
+    private UUID bookId;
 
     private Integer quantity;
 }
