@@ -1,6 +1,6 @@
-package com.honya.bookstore.domain.entity;
+package com.honya.bookstore.discount;
 
-import com.honya.bookstore.domain.enums.*;
+import com.honya.bookstore.discount.enums.*;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;

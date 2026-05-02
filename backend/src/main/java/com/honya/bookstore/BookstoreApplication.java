@@ -1,13 +1,13 @@
-package com.honyabookstore.app;
+package com.honya.bookstore;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AppApplication {
+public class BookstoreApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AppApplication.class, args);
+		SpringApplication.run(BookstoreApplication.class, args);
 	}
 
 }

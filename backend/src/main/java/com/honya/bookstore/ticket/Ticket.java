@@ -1,9 +1,10 @@
-package com.honya.bookstore.domain.entity;
+package com.honya.bookstore.ticket;
 
-import com.honya.bookstore.domain.enums.*;
+import com.honya.bookstore.ticket.enums.*;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.OffsetDateTime;
+import java.util.UUID; // Added UUID import
 
 @Entity
 @Table(name = "tickets")
@@ -26,11 +27,9 @@ public class Ticket {
     private OffsetDateTime createdAt;
     private OffsetDateTime respondedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "placed_by_id")
-    private User placedBy;
+    @Column(name = "placed_by_id")
+    private UUID placedById;
 
-    @ManyToOne
-    @JoinColumn(name = "respondent_id")
-    private User respondent;
+    @Column(name = "respondent_id")
+    private UUID respondentId;
 }

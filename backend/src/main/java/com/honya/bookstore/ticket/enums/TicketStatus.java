@@ -1,2 +1,2 @@
-package com.honya.bookstore.domain.enums;
+package com.honya.bookstore.ticket.enums;
 public enum TicketStatus { open, closed }

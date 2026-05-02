@@ -1,4 +1,4 @@
-package com.honya.bookstore.domain.entity;
+package com.honya.bookstore.article;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,6 +11,7 @@ import java.util.UUID;
 public class Article {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
     private String slug;
     private String title;
 
@@ -20,11 +21,11 @@ public class Article {
     @ElementCollection
     private List<String> tags;
 
-    @ManyToOne
-    @JoinColumn(name = "author_id")
-    private User author;
 
-    @OneToOne
-    @JoinColumn(name = "media_id")
-    private Media thumbnail;
+    @Column(name = "author_id")
+    private UUID authorId;
+
+
+    @Column(name = "media_id")
+    private UUID thumbnailId;
 }
