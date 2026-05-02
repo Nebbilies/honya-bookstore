@@ -1,2 +1,2 @@
-package com.honya.bookstore.domain.enums;
+package com.honya.bookstore.discount;
 public enum DiscountType { percentage, fixed }
