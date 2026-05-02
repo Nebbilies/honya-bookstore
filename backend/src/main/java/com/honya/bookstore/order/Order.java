@@ -1,6 +1,6 @@
-package com.honya.bookstore.domain.entity;
+package com.honya.bookstore.order;
 
-import com.honya.bookstore.domain.enums.*;
+import com.honya.bookstore.order.enums.*; // Assuming you moved the enums into an 'enums' subfolder
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -26,9 +26,8 @@ public class Order {
     private Boolean isPaid;
     private Integer totalAmount;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User placedBy;
+    @Column(name = "user_id")
+    private UUID userId;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> items;

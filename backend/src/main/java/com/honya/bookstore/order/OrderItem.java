@@ -1,4 +1,4 @@
-package com.honya.bookstore.domain.entity;
+package com.honya.bookstore.order;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,9 +15,8 @@ public class OrderItem {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    @ManyToOne
-    @JoinColumn(name = "book_id")
-    private Book book;
+    @Column(name = "book_id")
+    private UUID bookId;
 
     private Integer quantity;
     private Integer price;

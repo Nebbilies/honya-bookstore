@@ -1,6 +1,6 @@
-package com.honya.bookstore.repository;
+package com.honya.bookstore.order;
 
-import com.honya.bookstore.domain.entity.OrderItem;
+import com.honya.bookstore.order.OrderItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.UUID;

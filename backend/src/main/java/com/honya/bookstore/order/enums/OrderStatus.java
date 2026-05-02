@@ -1,2 +1,2 @@
-package com.honya.bookstore.order;
-public enum OrderStatus { Pending, Processing, Shipped, Delivered, Cancelled }
+package com.honya.bookstore.order.enums;
+public enum OrderStatus { PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED }
