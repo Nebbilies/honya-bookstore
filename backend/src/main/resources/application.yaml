@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: honya-bookstore
+
+  datasource:
+    url: jdbc:postgresql://aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres?user=postgres.gwlbjonaktgdqzlwmsdp
+    username: postgres.gwlbjonaktgdqzlwmsdp
+    password: FravityGalls
+    driver-class-name: org.postgresql.Driver
+
+  security:
+    user:
+      name: admin
+      password: 123456
+
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8081
