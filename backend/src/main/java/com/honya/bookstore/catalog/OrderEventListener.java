@@ -1,6 +1,6 @@
 package com.honya.bookstore.catalog;
 
-import com.honya.bookstore.order.event.OrderPlacedEvent;
+import com.honya.bookstore.order.api.event.OrderPlacedEvent;
 import com.honya.bookstore.catalog.service.BookService;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;

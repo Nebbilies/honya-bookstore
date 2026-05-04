@@ -1,8 +1,8 @@
 package com.honya.bookstore.order;
 
 import com.honya.bookstore.order.enums.OrderStatus;
-import com.honya.bookstore.order.event.OrderItemEventDTO;
-import com.honya.bookstore.order.event.OrderPlacedEvent;
+import com.honya.bookstore.order.api.event.OrderItemEventDTO;
+import com.honya.bookstore.order.api.event.OrderPlacedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

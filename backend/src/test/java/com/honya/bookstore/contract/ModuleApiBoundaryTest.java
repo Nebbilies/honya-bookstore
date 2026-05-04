@@ -7,7 +7,7 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class Phase2ModuleStructureTest {
+class ModuleApiBoundaryTest {
 
     @Test
     void catalogApiContractMustExist() throws Exception {

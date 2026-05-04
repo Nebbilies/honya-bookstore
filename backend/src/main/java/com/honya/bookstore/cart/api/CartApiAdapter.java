@@ -16,4 +16,9 @@ public class CartApiAdapter implements CartApi {
     public void clearCart(UUID userId) {
         cartService.clearCart(userId);
     }
+
+    @Override
+    public void addItemToCart(String userId, UUID bookId, Integer quantity) {
+        cartService.addItemToCart(userId, bookId, quantity);
+    }
 }

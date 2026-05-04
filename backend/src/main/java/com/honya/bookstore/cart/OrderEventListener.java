@@ -1,6 +1,6 @@
 package com.honya.bookstore.cart;
 
-import com.honya.bookstore.order.event.OrderPlacedEvent;
+import com.honya.bookstore.order.api.event.OrderPlacedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
