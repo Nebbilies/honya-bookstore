@@ -1,6 +1,5 @@
-package com.honya.bookstore.service;
+package com.honya.bookstore.user;
 
-import com.honya.bookstore.domain.entity.User;
 import java.util.List;
 
 public interface UserService {

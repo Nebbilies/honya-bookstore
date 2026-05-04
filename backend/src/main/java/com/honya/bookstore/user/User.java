@@ -1,4 +1,4 @@
-package com.honya.bookstore.domain.entity;
+package com.honya.bookstore.user;
 
 import jakarta.persistence.*;
 import lombok.*;
