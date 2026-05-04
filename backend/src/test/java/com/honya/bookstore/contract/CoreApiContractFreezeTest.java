@@ -13,11 +13,13 @@ import com.honya.bookstore.cart.CartController;
 import com.honya.bookstore.cart.CartItem;
 import com.honya.bookstore.cart.CartService;
 import com.honya.bookstore.cart.dto.request.AddItemRequestDTO;
+import com.honya.bookstore.checkout.CheckoutController;
+import com.honya.bookstore.checkout.CheckoutRequestDTO;
+import com.honya.bookstore.checkout.CheckoutService;
 import com.honya.bookstore.order.Order;
 import com.honya.bookstore.order.OrderController;
 import com.honya.bookstore.order.OrderItem;
 import com.honya.bookstore.order.OrderService;
-import com.honya.bookstore.order.dto.OrderRequestDTO;
 import com.honya.bookstore.order.enums.OrderProvider;
 import com.honya.bookstore.order.enums.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +54,7 @@ class CoreApiContractFreezeTest {
     private CategoryService categoryService;
     private CartService cartService;
     private OrderService orderService;
+    private CheckoutService checkoutService;
 
     @BeforeEach
     void setUp() {
@@ -59,17 +62,20 @@ class CoreApiContractFreezeTest {
         categoryService = mock(CategoryService.class);
         cartService = mock(CartService.class);
         orderService = mock(OrderService.class);
+        checkoutService = mock(CheckoutService.class);
 
         BookController bookController = new BookController(bookService, categoryService);
         CategoryController categoryController = new CategoryController(categoryService);
         CartController cartController = new CartController(cartService);
         OrderController orderController = new OrderController(orderService);
+        CheckoutController checkoutController = new CheckoutController(checkoutService);
 
         mockMvc = MockMvcBuilders.standaloneSetup(
                 bookController,
                 categoryController,
                 cartController,
-                orderController
+                orderController,
+                checkoutController
         ).build();
     }
 
@@ -495,9 +501,9 @@ class CoreApiContractFreezeTest {
         String userId = UUID.randomUUID().toString();
         Order created = sampleOrder(UUID.fromString(userId));
 
-        when(orderService.createOrder(eq(userId), any(Order.class))).thenReturn(created);
+        when(checkoutService.checkout(eq(userId), any(CheckoutRequestDTO.class))).thenReturn(created);
 
-        OrderRequestDTO request = new OrderRequestDTO();
+        CheckoutRequestDTO request = new CheckoutRequestDTO();
         request.setFirstName("John");
         request.setLastName("Doe");
         request.setAddress("Street 1");
@@ -523,7 +529,7 @@ class CoreApiContractFreezeTest {
 
     @Test
     void checkoutWithoutHeaderReturns400() throws Exception {
-        OrderRequestDTO request = new OrderRequestDTO();
+        CheckoutRequestDTO request = new CheckoutRequestDTO();
         request.setFirstName("John");
         request.setLastName("Doe");
         request.setAddress("Street 1");

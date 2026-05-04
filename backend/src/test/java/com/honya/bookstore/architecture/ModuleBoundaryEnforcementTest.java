@@ -37,6 +37,7 @@ class ModuleBoundaryEnforcementTest {
         assertNoInternalDependency(classes, "com.honya.bookstore.catalog", "com.honya.bookstore.order", "com.honya.bookstore.order.api");
         assertNoInternalDependency(classes, "com.honya.bookstore.cart", "com.honya.bookstore.order", "com.honya.bookstore.order.api");
         assertNoInternalDependency(classes, "com.honya.bookstore.order", "com.honya.bookstore.catalog", "com.honya.bookstore.catalog.api");
+        assertNoInternalDependency(classes, "com.honya.bookstore.order", "com.honya.bookstore.cart", "com.honya.bookstore.cart.api");
     }
 
     private void assertNoInternalDependency(JavaClasses classes, String sourcePackage, String targetPackage, String allowedTargetPackage) {

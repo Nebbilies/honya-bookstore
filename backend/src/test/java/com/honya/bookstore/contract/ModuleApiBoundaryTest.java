@@ -47,4 +47,13 @@ class ModuleApiBoundaryTest {
         assertEquals("com.honya.bookstore.cart.api", cartAdapter.getPackageName());
         assertEquals("com.honya.bookstore.order.api", orderAdapter.getPackageName());
     }
+
+    @Test
+    void cartApiSnapshotTypesMustExist() throws Exception {
+        Class<?> cartSnapshot = Class.forName("com.honya.bookstore.cart.api.CartSnapshot");
+        Class<?> cartItemSnapshot = Class.forName("com.honya.bookstore.cart.api.CartItemSnapshot");
+
+        assertEquals("com.honya.bookstore.cart.api", cartSnapshot.getPackageName());
+        assertEquals("com.honya.bookstore.cart.api", cartItemSnapshot.getPackageName());
+    }
 }
