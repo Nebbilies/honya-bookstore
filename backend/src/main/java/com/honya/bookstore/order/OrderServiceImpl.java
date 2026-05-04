@@ -3,8 +3,8 @@ package com.honya.bookstore.order;
 import com.honya.bookstore.order.enums.OrderStatus;
 import com.honya.bookstore.order.api.event.OrderItemEventDTO;
 import com.honya.bookstore.order.api.event.OrderPlacedEvent;
+import com.honya.bookstore.order.outbox.OrderOutboxWriter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final ApplicationEventPublisher eventPublisher;
+    private final OrderOutboxWriter outboxWriter;
 
     @Override
     @Transactional
@@ -35,7 +35,7 @@ class OrderServiceImpl implements OrderService {
                 .map(item -> new OrderItemEventDTO(item.getBookId(), item.getQuantity()))
                 .collect(Collectors.toList());
 
-        eventPublisher.publishEvent(new OrderPlacedEvent(
+        outboxWriter.enqueue(new OrderPlacedEvent(
                 savedOrder.getId(),
                 UUID.fromString(userId),
                 eventItems

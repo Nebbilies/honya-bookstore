@@ -1,9 +1,9 @@
 package com.honya.bookstore.order;
 
 import com.honya.bookstore.order.api.event.OrderPlacedEvent;
+import com.honya.bookstore.order.outbox.OrderOutboxWriter;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,9 +18,9 @@ import static org.mockito.Mockito.when;
 class OrderServiceImplTest {
 
     @Test
-    void createOrderLinksItemsAndPublishesOrderEvent() {
+    void createOrderLinksItemsAndEnqueuesOrderEvent() {
         OrderRepository orderRepository = mock(OrderRepository.class);
-        ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+        OrderOutboxWriter outboxWriter = mock(OrderOutboxWriter.class);
         UUID userId = UUID.randomUUID();
         UUID bookId = UUID.randomUUID();
         Order orderDetails = Order.builder()
@@ -41,14 +41,14 @@ class OrderServiceImplTest {
             return order;
         });
 
-        Order createdOrder = new OrderServiceImpl(orderRepository, eventPublisher)
+        Order createdOrder = new OrderServiceImpl(orderRepository, outboxWriter)
                 .createOrder(userId.toString(), orderDetails);
 
         assertEquals(userId, createdOrder.getUserId());
         assertSame(createdOrder, createdOrder.getItems().get(0).getOrder());
 
         ArgumentCaptor<OrderPlacedEvent> eventCaptor = ArgumentCaptor.forClass(OrderPlacedEvent.class);
-        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        verify(outboxWriter).enqueue(eventCaptor.capture());
         assertEquals(createdOrder.getId(), eventCaptor.getValue().getOrderId());
         assertEquals(userId, eventCaptor.getValue().getUserId());
         assertEquals(bookId, eventCaptor.getValue().getItems().get(0).getBookId());

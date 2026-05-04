@@ -38,6 +38,8 @@ class ModuleBoundaryEnforcementTest {
         assertNoInternalDependency(classes, "com.honya.bookstore.cart", "com.honya.bookstore.order", "com.honya.bookstore.order.api");
         assertNoInternalDependency(classes, "com.honya.bookstore.order", "com.honya.bookstore.catalog", "com.honya.bookstore.catalog.api");
         assertNoInternalDependency(classes, "com.honya.bookstore.order", "com.honya.bookstore.cart", "com.honya.bookstore.cart.api");
+        assertNoDependency(classes, "com.honya.bookstore.catalog", "com.honya.bookstore.order.outbox");
+        assertNoDependency(classes, "com.honya.bookstore.cart", "com.honya.bookstore.order.outbox");
     }
 
     private void assertNoInternalDependency(JavaClasses classes, String sourcePackage, String targetPackage, String allowedTargetPackage) {
@@ -50,6 +52,20 @@ class ModuleBoundaryEnforcementTest {
                 String target = dependency.getTargetClass().getName();
                 assertFalse(target.startsWith(targetPackage) && !target.startsWith(allowedTargetPackage),
                         source.getName() + " depends on internal module type " + target);
+            }
+        }
+    }
+
+    private void assertNoDependency(JavaClasses classes, String sourcePackage, String targetPackage) {
+        for (JavaClass source : classes) {
+            if (!source.getPackageName().startsWith(sourcePackage)) {
+                continue;
+            }
+
+            for (Dependency dependency : source.getDirectDependenciesFromSelf()) {
+                String target = dependency.getTargetClass().getName();
+                assertFalse(target.startsWith(targetPackage),
+                        source.getName() + " depends on forbidden module type " + target);
             }
         }
     }
