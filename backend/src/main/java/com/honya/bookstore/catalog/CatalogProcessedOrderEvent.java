@@ -15,7 +15,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "catalog_processed_order_events")
+@Table(name = "catalog_processed_order_events", schema = "catalog")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

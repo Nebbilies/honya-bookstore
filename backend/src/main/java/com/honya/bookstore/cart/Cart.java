@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "carts")
+@Table(name = "carts", schema = "cart")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class Cart {
     @Id @GeneratedValue(strategy = GenerationType.UUID)

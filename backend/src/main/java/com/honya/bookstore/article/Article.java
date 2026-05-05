@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "articles")
+@Table(name = "articles", schema = "article")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class Article {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
@@ -19,6 +19,8 @@ public class Article {
     private String content;
 
     @ElementCollection
+    @CollectionTable(name = "article_tags", schema = "article", joinColumns = @JoinColumn(name = "article_id"))
+    @Column(name = "tags")
     private List<String> tags;
 
 

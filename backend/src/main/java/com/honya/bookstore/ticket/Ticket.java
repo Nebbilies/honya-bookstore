@@ -7,7 +7,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID; // Added UUID import
 
 @Entity
-@Table(name = "tickets")
+@Table(name = "tickets", schema = "ticket")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class Ticket {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

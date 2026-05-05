@@ -5,7 +5,7 @@ import lombok.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "reviews")
+@Table(name = "reviews", schema = "review")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class Review {
     @Id @GeneratedValue(strategy = GenerationType.UUID)

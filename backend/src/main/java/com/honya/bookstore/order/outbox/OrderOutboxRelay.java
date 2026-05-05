@@ -49,6 +49,8 @@ public class OrderOutboxRelay {
         }
     }
 
+
+    // shorten error msg
     private String shortError(RuntimeException ex) {
         String message = ex.getMessage() == null ? ex.getClass().getSimpleName() : ex.getMessage();
         return message.length() > 500 ? message.substring(0, 500) : message;

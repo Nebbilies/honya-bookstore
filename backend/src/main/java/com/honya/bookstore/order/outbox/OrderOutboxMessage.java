@@ -6,7 +6,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+import jakarta.persistence.Column;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +17,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "order_outbox_messages")
+@Table(name = "order_outbox_messages", schema = "\"order\"")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,7 +30,7 @@ public class OrderOutboxMessage {
     private String eventType;
     private UUID aggregateId;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String payload;
 
     @Enumerated(EnumType.STRING)

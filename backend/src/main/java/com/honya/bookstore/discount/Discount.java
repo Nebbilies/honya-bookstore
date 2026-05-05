@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Entity
-@Table(name = "discounts")
+@Table(name = "discounts", schema = "discount")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class Discount {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,5 +27,7 @@ public class Discount {
     private DiscountOperator operator;
 
     @ElementCollection
+    @CollectionTable(name = "discount_condition_value", schema = "discount", joinColumns = @JoinColumn(name = "discount_id"))
+    @Column(name = "condition_value")
     private List<String> conditionValue;
 }

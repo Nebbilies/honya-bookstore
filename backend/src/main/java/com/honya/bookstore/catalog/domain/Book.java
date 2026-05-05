@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "books")
+@Table(name = "books", schema = "catalog")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class Book {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
@@ -26,6 +26,7 @@ public class Book {
     @ManyToMany
     @JoinTable(
             name = "book_categories",
+            schema = "catalog",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )

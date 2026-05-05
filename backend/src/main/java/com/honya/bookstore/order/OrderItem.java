@@ -5,7 +5,7 @@ import lombok.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "order_items")
+@Table(name = "order_items", schema = "\"order\"")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class OrderItem {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
