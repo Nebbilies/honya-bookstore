@@ -3,6 +3,7 @@ package com.honya.bookstore.catalog.service.impl;
 import com.honya.bookstore.catalog.domain.Category;
 import com.honya.bookstore.catalog.repo.CategoryRepository;
 import com.honya.bookstore.catalog.service.CategoryService;
+import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +23,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category getCategoryById(UUID id) {
-        // In Phase 5, we will replace this generic RuntimeException with a custom Global Exception Handler
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", id));
     }
 
     @Override

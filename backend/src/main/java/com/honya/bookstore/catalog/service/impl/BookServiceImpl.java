@@ -3,6 +3,8 @@ package com.honya.bookstore.catalog.service.impl;
 import com.honya.bookstore.catalog.domain.Book;
 import com.honya.bookstore.catalog.repo.BookRepository;
 import com.honya.bookstore.catalog.service.BookService;
+import com.honya.bookstore.shared.error.InsufficientStockException;
+import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +25,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public Book getBookById(UUID id) {
         return bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Book", id));
     }
 
     @Override
@@ -57,7 +59,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public Integer getBookPrice(UUID bookId) {
         return bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found"))
+                .orElseThrow(() -> new ResourceNotFoundException("Book", bookId))
                 .getPrice();
     }
 
@@ -67,7 +69,7 @@ public class BookServiceImpl implements BookService {
         Book book = getBookById(bookId);
 
         if (book.getStockQuantity() < quantity) {
-            throw new RuntimeException("Insufficient stock for book: " + book.getTitle());
+            throw new InsufficientStockException(book.getId(), book.getTitle(), quantity, book.getStockQuantity());
         }
 
         book.setStockQuantity(book.getStockQuantity() - quantity);

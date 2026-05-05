@@ -1,5 +1,6 @@
 package com.honya.bookstore.cart;
 
+import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,7 +76,7 @@ class CartServiceImpl implements CartService {
     @Transactional
     public void clearCart(UUID userId) {
         Cart cart = cartRepository.findByOwnerId(userId)
-                .orElseThrow(() -> new RuntimeException("Cart not found for user: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart", userId));
         cart.getItems().clear();
         cart.setUpdatedAt(OffsetDateTime.now());
         cartRepository.save(cart);
