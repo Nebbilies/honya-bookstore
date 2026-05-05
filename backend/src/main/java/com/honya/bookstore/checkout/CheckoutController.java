@@ -1,6 +1,6 @@
 package com.honya.bookstore.checkout;
 
-import com.honya.bookstore.order.Order;
+import com.honya.bookstore.order.api.OrderResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +17,7 @@ public class CheckoutController {
     private final CheckoutService checkoutService;
 
     @PostMapping("/checkout")
-    public ResponseEntity<Order> checkout(
+    public ResponseEntity<OrderResponse> checkout(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody CheckoutRequestDTO request) {
         return ResponseEntity.ok(checkoutService.checkout(userId, request));

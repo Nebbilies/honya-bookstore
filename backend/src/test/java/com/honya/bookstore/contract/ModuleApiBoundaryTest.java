@@ -29,11 +29,11 @@ class ModuleApiBoundaryTest {
 
     @Test
     void serviceInterfacesMustNotExtendApiContracts() {
-        assertTrue(Arrays.stream(com.honya.bookstore.order.OrderService.class.getInterfaces())
+        assertTrue(Arrays.stream(com.honya.bookstore.order.application.OrderService.class.getInterfaces())
                 .noneMatch(type -> type.getName().equals("com.honya.bookstore.order.api.OrderApi")));
-        assertTrue(Arrays.stream(com.honya.bookstore.cart.CartService.class.getInterfaces())
+        assertTrue(Arrays.stream(com.honya.bookstore.cart.application.CartService.class.getInterfaces())
                 .noneMatch(type -> type.getName().equals("com.honya.bookstore.cart.api.CartApi")));
-        assertTrue(Arrays.stream(com.honya.bookstore.catalog.service.BookService.class.getInterfaces())
+        assertTrue(Arrays.stream(com.honya.bookstore.catalog.application.BookService.class.getInterfaces())
                 .noneMatch(type -> type.getName().equals("com.honya.bookstore.catalog.api.CatalogStockApi")));
     }
 

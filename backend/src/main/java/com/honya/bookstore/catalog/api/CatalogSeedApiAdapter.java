@@ -2,8 +2,8 @@ package com.honya.bookstore.catalog.api;
 
 import com.honya.bookstore.catalog.domain.Book;
 import com.honya.bookstore.catalog.domain.Category;
-import com.honya.bookstore.catalog.repo.BookRepository;
-import com.honya.bookstore.catalog.repo.CategoryRepository;
+import com.honya.bookstore.catalog.infrastructure.persistence.BookRepository;
+import com.honya.bookstore.catalog.infrastructure.persistence.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

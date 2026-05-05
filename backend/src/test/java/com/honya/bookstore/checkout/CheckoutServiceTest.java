@@ -4,8 +4,10 @@ import com.honya.bookstore.cart.api.CartApi;
 import com.honya.bookstore.cart.api.CartItemSnapshot;
 import com.honya.bookstore.cart.api.CartSnapshot;
 import com.honya.bookstore.catalog.api.CatalogStockApi;
-import com.honya.bookstore.order.Order;
 import com.honya.bookstore.order.api.OrderApi;
+import com.honya.bookstore.order.api.OrderItemRequest;
+import com.honya.bookstore.order.api.OrderRequest;
+import com.honya.bookstore.order.api.OrderResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -42,27 +44,30 @@ class CheckoutServiceTest {
         )));
         when(catalogStockApi.getBookPrice(firstBookId)).thenReturn(100);
         when(catalogStockApi.getBookPrice(secondBookId)).thenReturn(250);
-        when(orderApi.createOrder(org.mockito.ArgumentMatchers.eq(userId.toString()), any(Order.class))).thenAnswer(invocation -> invocation.getArgument(1));
+        OrderResponse response = new OrderResponse(UUID.randomUUID(), "Ada", "Lovelace", "12 Example Street", "London", null, null, null, 450, userId, List.of());
+        when(orderApi.createOrder(org.mockito.ArgumentMatchers.eq(userId.toString()), any(OrderRequest.class))).thenReturn(response);
 
-        Order createdOrder = new CheckoutService(orderApi, cartApi, catalogStockApi)
+        OrderResponse createdOrder = new CheckoutService(orderApi, cartApi, catalogStockApi)
                 .checkout(userId.toString(), request);
 
-        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+        ArgumentCaptor<OrderRequest> orderCaptor = ArgumentCaptor.forClass(OrderRequest.class);
         verify(orderApi).createOrder(org.mockito.ArgumentMatchers.eq(userId.toString()), orderCaptor.capture());
-        Order order = orderCaptor.getValue();
-        assertSame(order, createdOrder);
-        assertEquals("Ada", order.getFirstName());
-        assertEquals("Lovelace", order.getLastName());
-        assertEquals("12 Example Street", order.getAddress());
-        assertEquals("London", order.getCity());
-        assertEquals(450, order.getTotalAmount());
-        assertEquals(2, order.getItems().size());
-        assertEquals(firstBookId, order.getItems().get(0).getBookId());
-        assertEquals(2, order.getItems().get(0).getQuantity());
-        assertEquals(100, order.getItems().get(0).getPrice());
-        assertEquals(secondBookId, order.getItems().get(1).getBookId());
-        assertEquals(1, order.getItems().get(1).getQuantity());
-        assertEquals(250, order.getItems().get(1).getPrice());
+        OrderRequest order = orderCaptor.getValue();
+        assertSame(response, createdOrder);
+        assertEquals("Ada", order.firstName());
+        assertEquals("Lovelace", order.lastName());
+        assertEquals("12 Example Street", order.address());
+        assertEquals("London", order.city());
+        assertEquals(450, order.totalAmount());
+        assertEquals(2, order.items().size());
+        OrderItemRequest firstItem = order.items().get(0);
+        OrderItemRequest secondItem = order.items().get(1);
+        assertEquals(firstBookId, firstItem.bookId());
+        assertEquals(2, firstItem.quantity());
+        assertEquals(100, firstItem.price());
+        assertEquals(secondBookId, secondItem.bookId());
+        assertEquals(1, secondItem.quantity());
+        assertEquals(250, secondItem.price());
         verify(cartApi, never()).clearCart(any(UUID.class));
     }
 }

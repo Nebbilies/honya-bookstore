@@ -1,7 +1,7 @@
 package com.honya.bookstore.cart.api;
 
-import com.honya.bookstore.cart.Cart;
-import com.honya.bookstore.cart.CartService;
+import com.honya.bookstore.cart.domain.Cart;
+import com.honya.bookstore.cart.application.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

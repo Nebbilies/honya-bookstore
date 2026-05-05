@@ -1,0 +1,23 @@
+package com.honya.bookstore.order.domain;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.UUID;
+
+@Entity
+@Table(name = "order_items", schema = "\"order\"")
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
+public class OrderItem {
+    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
+
+    @Column(name = "book_id")
+    private UUID bookId;
+
+    private Integer quantity;
+    private Integer price;
+}

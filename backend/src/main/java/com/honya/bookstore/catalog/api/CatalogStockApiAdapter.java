@@ -1,6 +1,6 @@
 package com.honya.bookstore.catalog.api;
 
-import com.honya.bookstore.catalog.service.BookService;
+import com.honya.bookstore.catalog.application.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -1,8 +1,8 @@
 package com.honya.bookstore.contract;
 
-import com.honya.bookstore.catalog.controller.BookController;
-import com.honya.bookstore.catalog.service.BookService;
-import com.honya.bookstore.catalog.service.CategoryService;
+import com.honya.bookstore.catalog.web.BookController;
+import com.honya.bookstore.catalog.application.BookService;
+import com.honya.bookstore.catalog.application.CategoryService;
 import com.honya.bookstore.shared.error.InsufficientStockException;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import com.honya.bookstore.shared.web.ProblemDetailsHandler;

@@ -1,27 +1,29 @@
 package com.honya.bookstore.contract;
 
-import com.honya.bookstore.catalog.controller.BookController;
-import com.honya.bookstore.catalog.controller.CategoryController;
+import com.honya.bookstore.catalog.web.BookController;
+import com.honya.bookstore.catalog.web.CategoryController;
 import com.honya.bookstore.catalog.domain.Book;
 import com.honya.bookstore.catalog.domain.Category;
-import com.honya.bookstore.catalog.dto.request.BookRequestDTO;
-import com.honya.bookstore.catalog.dto.request.CategoryRequestDTO;
-import com.honya.bookstore.catalog.service.BookService;
-import com.honya.bookstore.catalog.service.CategoryService;
-import com.honya.bookstore.cart.Cart;
-import com.honya.bookstore.cart.CartController;
-import com.honya.bookstore.cart.CartItem;
-import com.honya.bookstore.cart.CartService;
-import com.honya.bookstore.cart.dto.request.AddItemRequestDTO;
+import com.honya.bookstore.catalog.web.dto.request.BookRequestDTO;
+import com.honya.bookstore.catalog.web.dto.request.CategoryRequestDTO;
+import com.honya.bookstore.catalog.application.BookService;
+import com.honya.bookstore.catalog.application.CategoryService;
+import com.honya.bookstore.cart.domain.Cart;
+import com.honya.bookstore.cart.web.CartController;
+import com.honya.bookstore.cart.domain.CartItem;
+import com.honya.bookstore.cart.application.CartService;
+import com.honya.bookstore.cart.web.dto.request.AddItemRequestDTO;
 import com.honya.bookstore.checkout.CheckoutController;
 import com.honya.bookstore.checkout.CheckoutRequestDTO;
 import com.honya.bookstore.checkout.CheckoutService;
-import com.honya.bookstore.order.Order;
-import com.honya.bookstore.order.OrderController;
-import com.honya.bookstore.order.OrderItem;
-import com.honya.bookstore.order.OrderService;
-import com.honya.bookstore.order.enums.OrderProvider;
-import com.honya.bookstore.order.enums.OrderStatus;
+import com.honya.bookstore.order.api.OrderItemResponse;
+import com.honya.bookstore.order.api.OrderResponse;
+import com.honya.bookstore.order.domain.Order;
+import com.honya.bookstore.order.web.OrderController;
+import com.honya.bookstore.order.domain.OrderItem;
+import com.honya.bookstore.order.application.OrderService;
+import com.honya.bookstore.order.domain.OrderProvider;
+import com.honya.bookstore.order.domain.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -499,7 +501,7 @@ class CoreApiContractFreezeTest {
     @Test
     void checkoutWithHeaderReturns200AndExpectedFields() throws Exception {
         String userId = UUID.randomUUID().toString();
-        Order created = sampleOrder(UUID.fromString(userId));
+        OrderResponse created = sampleOrderResponse(UUID.fromString(userId));
 
         when(checkoutService.checkout(eq(userId), any(CheckoutRequestDTO.class))).thenReturn(created);
 
@@ -594,6 +596,22 @@ class CoreApiContractFreezeTest {
         }
         sb.append("}");
         return sb.toString();
+    }
+
+    private OrderResponse sampleOrderResponse(UUID userId) {
+        return new OrderResponse(
+                UUID.randomUUID(),
+                "John",
+                "Doe",
+                "Street 1",
+                "City",
+                "COD",
+                "PENDING",
+                false,
+                1234,
+                userId,
+                List.of(new OrderItemResponse(UUID.randomUUID(), UUID.randomUUID(), 2, 617))
+        );
     }
 
     private Order sampleOrder(UUID userId) {
