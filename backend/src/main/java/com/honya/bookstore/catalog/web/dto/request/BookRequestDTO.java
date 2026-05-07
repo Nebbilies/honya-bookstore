@@ -21,5 +21,6 @@ public class BookRequestDTO {
     private String publisher;
     private Float weight;
     private Integer stockQuantity;
-    private List<UUID> categoryIds; // We only need the IDs to link categories when creating a book
+    private List<UUID> categoryIds;
+    private List<BookMediaRequestDTO> media;
 }
