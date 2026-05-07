@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class CreateMediaRequestDTO {
     private String altText;
     private String key;
+    private Integer order;
 }

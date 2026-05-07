@@ -2,6 +2,8 @@ package com.honya.bookstore.catalog.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -12,4 +14,11 @@ public class Media {
     private UUID id;
     private String url;
     private String altText;
+    private String key;
+
+    @Column(name = "display_order")
+    private Integer order;
+
+    private OffsetDateTime createdAt;
+    private OffsetDateTime deletedAt;
 }
