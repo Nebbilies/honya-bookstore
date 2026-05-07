@@ -3,6 +3,8 @@ package com.honya.bookstore.order.domain;
 import com.honya.bookstore.order.domain.*; // Assuming you moved the enums into an 'enums' subfolder
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,6 +18,10 @@ public class Order {
     private String lastName;
     private String address;
     private String city;
+    private String phone;
+    private String email;
+    private String paymentUrl;
+    private OffsetDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
     private OrderProvider provider;
