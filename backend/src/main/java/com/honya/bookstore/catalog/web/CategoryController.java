@@ -6,8 +6,15 @@ import com.honya.bookstore.catalog.web.dto.response.CategoryResponseDTO;
 
 import com.honya.bookstore.catalog.application.CategoryService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Tag(name = "Categories", description = "Endpoints for managing book categories in the catalog")
 @RestController
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
@@ -22,6 +30,10 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
+    @Operation(summary = "Get all categories", description = "Retrieve all categories in catalog")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Categories retrieved")
+    })
     @GetMapping
     public ResponseEntity<List<CategoryResponseDTO>> getAllCategories() {
         List<CategoryResponseDTO> categories = categoryService.getAllCategories().stream()
@@ -30,12 +42,24 @@ public class CategoryController {
         return ResponseEntity.ok(categories);
     }
 
+    @Operation(summary = "Get category by id", description = "Retrieve one category by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Category retrieved"),
+            @ApiResponse(responseCode = "404", description = "Category not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
     @GetMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> getCategoryById(@PathVariable UUID id) {
         Category category = categoryService.getCategoryById(id);
         return ResponseEntity.ok(mapToResponseDTO(category));
     }
 
+    @Operation(summary = "Create category", description = "Create new category in catalog")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Category created"),
+            @ApiResponse(responseCode = "400", description = "Invalid request",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
     @PostMapping
     public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody CategoryRequestDTO requestDTO) {
         Category category = Category.builder()
@@ -48,6 +72,14 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponseDTO(savedCategory));
     }
 
+    @Operation(summary = "Update category", description = "Update existing category by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Category updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid request",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404", description = "Category not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> updateCategory(@PathVariable UUID id, @RequestBody CategoryRequestDTO requestDTO) {
         Category categoryDetails = Category.builder()
@@ -60,6 +92,12 @@ public class CategoryController {
         return ResponseEntity.ok(mapToResponseDTO(updatedCategory));
     }
 
+    @Operation(summary = "Delete category", description = "Delete category by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Category deleted"),
+            @ApiResponse(responseCode = "404", description = "Category not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable UUID id) {
         categoryService.deleteCategory(id);
