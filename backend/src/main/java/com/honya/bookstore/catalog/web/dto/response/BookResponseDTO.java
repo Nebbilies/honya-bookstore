@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,5 +26,9 @@ public class BookResponseDTO {
     private Integer stockQuantity;
     private Integer purchaseCount;
     private Float rating;
-    private List<CategoryResponseDTO> categories; // Return the full category details to the frontend
+    private List<CategoryResponseDTO> categories;
+    private List<BookMediaResponseDTO> media;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+    private OffsetDateTime deletedAt;
 }

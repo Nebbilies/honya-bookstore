@@ -2,6 +2,8 @@ package com.honya.bookstore.catalog.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +24,9 @@ public class Book {
     private Integer stockQuantity;
     private Integer purchaseCount;
     private Float rating;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+    private OffsetDateTime deletedAt;
 
     @ManyToMany
     @JoinTable(

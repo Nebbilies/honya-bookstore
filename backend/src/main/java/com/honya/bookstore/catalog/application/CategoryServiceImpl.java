@@ -28,6 +28,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public Category getCategoryBySlug(String slug) {
+        return categoryRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "slug", slug));
+    }
+
+    @Override
     public Category createCategory(Category category) {
         return categoryRepository.save(category);
     }

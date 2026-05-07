@@ -14,4 +14,13 @@ public class ResourceNotFoundException extends ApplicationException {
                 resourceName + " not found with ID: " + id
         );
     }
+
+    public ResourceNotFoundException(String resourceName, String fieldName, String fieldValue) {
+        super(
+                HttpStatus.NOT_FOUND,
+                "Resource not found",
+                "RESOURCE_NOT_FOUND",
+                resourceName + " not found with " + fieldName + ": " + fieldValue
+        );
+    }
 }

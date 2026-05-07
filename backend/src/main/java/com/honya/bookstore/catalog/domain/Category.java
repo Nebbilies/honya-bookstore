@@ -2,6 +2,8 @@ package com.honya.bookstore.catalog.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -13,4 +15,7 @@ public class Category {
     private String slug;
     private String name;
     private String description;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+    private OffsetDateTime deletedAt;
 }

@@ -5,19 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryResponseDTO {
+public class BookMediaResponseDTO {
     private UUID id;
-    private String name;
-    private String slug;
-    private String description;
-    private OffsetDateTime createdAt;
-    private OffsetDateTime updatedAt;
-    private OffsetDateTime deletedAt;
+    private Boolean isCover;
 }
