@@ -2,6 +2,8 @@ package com.honya.bookstore.order.web;
 
 import com.honya.bookstore.order.application.OrderService;
 import com.honya.bookstore.order.domain.Order;
+import com.honya.bookstore.shared.web.dto.PageMetaDTO;
+import com.honya.bookstore.shared.web.dto.PagedResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,8 +31,29 @@ public class OrderController {
             @ApiResponse(responseCode = "200", description = "Orders retrieved")
     })
     @GetMapping
-    public ResponseEntity<List<Order>> getMyOrders(@RequestHeader("X-User-Id") String userId) {
-        return ResponseEntity.ok(orderService.getOrdersByUserId(userId));
+    public ResponseEntity<PagedResponseDTO<Order>> getMyOrders(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit) {
+        List<Order> orders = orderService.getOrdersByUserId(userId);
+
+        int safePage = Math.max(page, 1);
+        int safeLimit = Math.max(limit, 1);
+        int totalItems = orders.size();
+        int fromIndex = Math.min((safePage - 1) * safeLimit, totalItems);
+        int toIndex = Math.min(fromIndex + safeLimit, totalItems);
+        List<Order> pageData = orders.subList(fromIndex, toIndex);
+        int totalPages = totalItems == 0 ? 0 : (int) Math.ceil((double) totalItems / safeLimit);
+
+        PageMetaDTO meta = new PageMetaDTO(
+                safePage,
+                safeLimit,
+                pageData.size(),
+                totalItems,
+                totalPages
+        );
+
+        return ResponseEntity.ok(new PagedResponseDTO<>(pageData, meta));
     }
 
     @Operation(summary = "Get order by id", description = "Retrieve one order by id")

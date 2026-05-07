@@ -2,12 +2,16 @@ package com.honya.bookstore.catalog.web;
 
 import com.honya.bookstore.catalog.domain.Book;
 import com.honya.bookstore.catalog.domain.Category;
+import com.honya.bookstore.catalog.web.dto.request.BookMediaRequestDTO;
 import com.honya.bookstore.catalog.web.dto.request.BookRequestDTO;
+import com.honya.bookstore.catalog.web.dto.response.BookMediaResponseDTO;
 import com.honya.bookstore.catalog.web.dto.response.BookResponseDTO;
 import com.honya.bookstore.catalog.web.dto.response.CategoryResponseDTO;
 
 import com.honya.bookstore.catalog.application.BookService;
 import com.honya.bookstore.catalog.application.CategoryService;
+import com.honya.bookstore.shared.web.dto.PageMetaDTO;
+import com.honya.bookstore.shared.web.dto.PagedResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,11 +43,30 @@ public class BookController {
             @ApiResponse(responseCode = "200", description = "Books retrieved")
     })
     @GetMapping
-    public ResponseEntity<List<BookResponseDTO>> getAllBooks() {
+    public ResponseEntity<PagedResponseDTO<BookResponseDTO>> getAllBooks(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit) {
         List<BookResponseDTO> books = bookService.getAllBooks().stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(books);
+
+        int safePage = Math.max(page, 1);
+        int safeLimit = Math.max(limit, 1);
+        int totalItems = books.size();
+        int fromIndex = Math.min((safePage - 1) * safeLimit, totalItems);
+        int toIndex = Math.min(fromIndex + safeLimit, totalItems);
+        List<BookResponseDTO> pageData = books.subList(fromIndex, toIndex);
+        int totalPages = totalItems == 0 ? 0 : (int) Math.ceil((double) totalItems / safeLimit);
+
+        PageMetaDTO meta = new PageMetaDTO(
+                safePage,
+                safeLimit,
+                pageData.size(),
+                totalItems,
+                totalPages
+        );
+
+        return ResponseEntity.ok(new PagedResponseDTO<>(pageData, meta));
     }
 
     @Operation(summary = "Get book by id", description = "Retrieve one book by id")
@@ -86,7 +109,9 @@ public class BookController {
                 .build();
 
         Book savedBook = bookService.createBook(book);
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponseDTO(savedBook));
+        BookResponseDTO responseDTO = mapToResponseDTO(savedBook);
+        responseDTO.setMedia(mapRequestMedia(requestDTO));
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     @Operation(summary = "Update book", description = "Update existing book by id")
@@ -97,7 +122,7 @@ public class BookController {
             @ApiResponse(responseCode = "404", description = "Book or category not found",
                     content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
-    @PutMapping("/{id}")
+    @RequestMapping(value = "/{id}", method = {RequestMethod.PUT, RequestMethod.PATCH})
     public ResponseEntity<BookResponseDTO> updateBook(@PathVariable UUID id, @RequestBody BookRequestDTO requestDTO) {
         List<Category> categories = requestDTO.getCategoryIds().stream()
                 .map(categoryService::getCategoryById)
@@ -117,7 +142,9 @@ public class BookController {
                 .build();
 
         Book updatedBook = bookService.updateBook(id, bookDetails);
-        return ResponseEntity.ok(mapToResponseDTO(updatedBook));
+        BookResponseDTO responseDTO = mapToResponseDTO(updatedBook);
+        responseDTO.setMedia(mapRequestMedia(requestDTO));
+        return ResponseEntity.ok(responseDTO);
     }
 
     @Operation(summary = "Delete book", description = "Delete book by id")
@@ -133,6 +160,19 @@ public class BookController {
     }
 
     // Helper method to convert Entity to DTO
+    private List<BookMediaResponseDTO> mapRequestMedia(BookRequestDTO requestDTO) {
+        if (requestDTO.getMedia() == null) {
+            return List.of();
+        }
+
+        return requestDTO.getMedia().stream()
+                .map(media -> BookMediaResponseDTO.builder()
+                        .id(media.getMediaId())
+                        .isCover(media.getIsCover())
+                        .build())
+                .toList();
+    }
+
     private BookResponseDTO mapToResponseDTO(Book book) {
         List<CategoryResponseDTO> categoryDTOs = book.getCategories() != null ?
                 book.getCategories().stream()
@@ -141,6 +181,9 @@ public class BookController {
                                 .name(c.getName())
                                 .slug(c.getSlug())
                                 .description(c.getDescription())
+                                .createdAt(c.getCreatedAt())
+                                .updatedAt(c.getUpdatedAt())
+                                .deletedAt(c.getDeletedAt())
                                 .build())
                         .collect(Collectors.toList())
                 : null;
@@ -159,6 +202,10 @@ public class BookController {
                 .purchaseCount(book.getPurchaseCount())
                 .rating(book.getRating())
                 .categories(categoryDTOs)
+                .media(List.<BookMediaResponseDTO>of())
+                .createdAt(book.getCreatedAt())
+                .updatedAt(book.getUpdatedAt())
+                .deletedAt(book.getDeletedAt())
                 .build();
     }
 }

@@ -5,6 +5,8 @@ import com.honya.bookstore.catalog.web.dto.request.CategoryRequestDTO;
 import com.honya.bookstore.catalog.web.dto.response.CategoryResponseDTO;
 
 import com.honya.bookstore.catalog.application.CategoryService;
+import com.honya.bookstore.shared.web.dto.PageMetaDTO;
+import com.honya.bookstore.shared.web.dto.PagedResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,11 +37,30 @@ public class CategoryController {
             @ApiResponse(responseCode = "200", description = "Categories retrieved")
     })
     @GetMapping
-    public ResponseEntity<List<CategoryResponseDTO>> getAllCategories() {
+    public ResponseEntity<PagedResponseDTO<CategoryResponseDTO>> getAllCategories(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit) {
         List<CategoryResponseDTO> categories = categoryService.getAllCategories().stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(categories);
+
+        int safePage = Math.max(page, 1);
+        int safeLimit = Math.max(limit, 1);
+        int totalItems = categories.size();
+        int fromIndex = Math.min((safePage - 1) * safeLimit, totalItems);
+        int toIndex = Math.min(fromIndex + safeLimit, totalItems);
+        List<CategoryResponseDTO> pageData = categories.subList(fromIndex, toIndex);
+        int totalPages = totalItems == 0 ? 0 : (int) Math.ceil((double) totalItems / safeLimit);
+
+        PageMetaDTO meta = new PageMetaDTO(
+                safePage,
+                safeLimit,
+                pageData.size(),
+                totalItems,
+                totalPages
+        );
+
+        return ResponseEntity.ok(new PagedResponseDTO<>(pageData, meta));
     }
 
     @Operation(summary = "Get category by id", description = "Retrieve one category by id")
@@ -51,6 +72,12 @@ public class CategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> getCategoryById(@PathVariable UUID id) {
         Category category = categoryService.getCategoryById(id);
+        return ResponseEntity.ok(mapToResponseDTO(category));
+    }
+
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<CategoryResponseDTO> getCategoryBySlug(@PathVariable String slug) {
+        Category category = categoryService.getCategoryBySlug(slug);
         return ResponseEntity.ok(mapToResponseDTO(category));
     }
 
@@ -111,6 +138,9 @@ public class CategoryController {
                 .name(category.getName())
                 .slug(category.getSlug())
                 .description(category.getDescription())
+                .createdAt(category.getCreatedAt())
+                .updatedAt(category.getUpdatedAt())
+                .deletedAt(category.getDeletedAt())
                 .build();
     }
 }
