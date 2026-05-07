@@ -6,6 +6,7 @@ import com.honya.bookstore.catalog.domain.Book;
 import com.honya.bookstore.catalog.domain.Category;
 import com.honya.bookstore.catalog.web.dto.request.BookRequestDTO;
 import com.honya.bookstore.catalog.web.dto.request.CategoryRequestDTO;
+import com.honya.bookstore.catalog.api.CatalogStockApi;
 import com.honya.bookstore.catalog.application.BookService;
 import com.honya.bookstore.catalog.application.CategoryService;
 import com.honya.bookstore.cart.domain.Cart;
@@ -68,7 +69,9 @@ class CoreApiContractFreezeTest {
 
         BookController bookController = new BookController(bookService, categoryService);
         CategoryController categoryController = new CategoryController(categoryService);
-        CartController cartController = new CartController(cartService);
+        CatalogStockApi catalogStockApi = mock(CatalogStockApi.class);
+        when(catalogStockApi.getBookPrice(any(UUID.class))).thenReturn(1000);
+        CartController cartController = new CartController(cartService, catalogStockApi);
         OrderController orderController = new OrderController(orderService);
         CheckoutController checkoutController = new CheckoutController(checkoutService);
 
@@ -113,22 +116,24 @@ class CoreApiContractFreezeTest {
         mockMvc.perform(get("/api/books"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].id").exists())
-                .andExpect(jsonPath("$[0].title").value("Book A"))
-                .andExpect(jsonPath("$[0].description").value("Desc"))
-                .andExpect(jsonPath("$[0].author").value("Author"))
-                .andExpect(jsonPath("$[0].price").value(100))
-                .andExpect(jsonPath("$[0].pagesCount").value(200))
-                .andExpect(jsonPath("$[0].yearPublished").value(2020))
-                .andExpect(jsonPath("$[0].publisher").value("Pub"))
-                .andExpect(jsonPath("$[0].weight").value(1.5))
-                .andExpect(jsonPath("$[0].stockQuantity").value(10))
-                .andExpect(jsonPath("$[0].purchaseCount").value(5))
-                .andExpect(jsonPath("$[0].rating").value(4.5))
-                .andExpect(jsonPath("$[0].categories[0].id").exists())
-                .andExpect(jsonPath("$[0].categories[0].name").value("Fiction"))
-                .andExpect(jsonPath("$[0].categories[0].slug").value("fiction"))
-                .andExpect(jsonPath("$[0].categories[0].description").value("Fiction books"));
+                .andExpect(jsonPath("$.meta.currentPage").value(1))
+                .andExpect(jsonPath("$.meta.totalItems").value(1))
+                .andExpect(jsonPath("$.data[0].id").exists())
+                .andExpect(jsonPath("$.data[0].title").value("Book A"))
+                .andExpect(jsonPath("$.data[0].description").value("Desc"))
+                .andExpect(jsonPath("$.data[0].author").value("Author"))
+                .andExpect(jsonPath("$.data[0].price").value(100))
+                .andExpect(jsonPath("$.data[0].pagesCount").value(200))
+                .andExpect(jsonPath("$.data[0].yearPublished").value(2020))
+                .andExpect(jsonPath("$.data[0].publisher").value("Pub"))
+                .andExpect(jsonPath("$.data[0].weight").value(1.5))
+                .andExpect(jsonPath("$.data[0].stockQuantity").value(10))
+                .andExpect(jsonPath("$.data[0].purchaseCount").value(5))
+                .andExpect(jsonPath("$.data[0].rating").value(4.5))
+                .andExpect(jsonPath("$.data[0].categories[0].id").exists())
+                .andExpect(jsonPath("$.data[0].categories[0].name").value("Fiction"))
+                .andExpect(jsonPath("$.data[0].categories[0].slug").value("fiction"))
+                .andExpect(jsonPath("$.data[0].categories[0].description").value("Fiction books"));
     }
 
     @Test
@@ -265,10 +270,12 @@ class CoreApiContractFreezeTest {
         mockMvc.perform(get("/api/categories"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].id").exists())
-                .andExpect(jsonPath("$[0].name").value("Cat"))
-                .andExpect(jsonPath("$[0].slug").value("cat"))
-                .andExpect(jsonPath("$[0].description").value("Cat Desc"));
+                .andExpect(jsonPath("$.meta.currentPage").value(1))
+                .andExpect(jsonPath("$.meta.totalItems").value(1))
+                .andExpect(jsonPath("$.data[0].id").exists())
+                .andExpect(jsonPath("$.data[0].name").value("Cat"))
+                .andExpect(jsonPath("$.data[0].slug").value("cat"))
+                .andExpect(jsonPath("$.data[0].description").value("Cat Desc"));
     }
 
     @Test

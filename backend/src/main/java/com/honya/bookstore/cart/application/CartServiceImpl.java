@@ -66,6 +66,20 @@ class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
+    public Cart updateItemQuantity(String userId, UUID cartItemId, Integer quantity) {
+        Cart cart = getCartByUserId(userId);
+
+        cart.getItems().stream()
+                .filter(item -> item.getId().equals(cartItemId))
+                .findFirst()
+                .ifPresent(item -> item.setQuantity(quantity));
+
+        cart.setUpdatedAt(OffsetDateTime.now());
+        return cartRepository.save(cart);
+    }
+
+    @Override
+    @Transactional
     public Cart removeItemFromCart(String userId, UUID cartItemId) {
         Cart cart = getCartByUserId(userId);
 
