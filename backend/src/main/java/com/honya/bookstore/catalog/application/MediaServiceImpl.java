@@ -9,7 +9,7 @@ import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.Http;
 import io.minio.MinioClient;
 import io.minio.errors.MinioException;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,17 +18,24 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class MediaServiceImpl implements MediaService {
 
-    private final MinioClient minioClient;
+    private final MinioClient presignMinioClient;
     private final MediaRepository mediaRepository;
+
+    public MediaServiceImpl(
+            @Qualifier("publicMinioClient") MinioClient presignMinioClient,
+            MediaRepository mediaRepository
+    ) {
+        this.presignMinioClient = presignMinioClient;
+        this.mediaRepository = mediaRepository;
+    }
 
     @Value("${spring.minio.media-bucket-name}")
     private String bucketName;
 
-    @Value("${spring.minio.url}")
-    private String minioUrl;
+    @Value("${spring.minio.public-url}")
+    private String minioPublicUrl;
 
     @Override
     public UploadImageURLResponseDTO generateUploadURL() throws MinioException {
@@ -40,7 +47,7 @@ public class MediaServiceImpl implements MediaService {
                 .object(mediaKey)
                 .build();
 
-        String url = minioClient.getPresignedObjectUrl(args);
+        String url = presignMinioClient.getPresignedObjectUrl(args);
         return UploadImageURLResponseDTO.builder()
                 .key(mediaKey)
                 .url(url)
@@ -81,6 +88,6 @@ public class MediaServiceImpl implements MediaService {
     }
 
     private String buildPublicUrl(String key) {
-        return minioUrl + "/" + bucketName + "/" + key;
+        return minioPublicUrl + "/" + bucketName + "/" + key;
     }
 }

@@ -7,8 +7,11 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MinioConfig {
-    @Value("${spring.minio.url}")
-    private String url;
+    @Value("${spring.minio.internal-url}")
+    private String internalUrl;
+
+    @Value("${spring.minio.public-url}")
+    private String publicUrl;
 
     @Value("${spring.minio.access-key}")
     private String accessKey;
@@ -16,10 +19,20 @@ public class MinioConfig {
     @Value("${spring.minio.secret-key}")
     private String secretKey;
 
-    @Bean
-    public MinioClient minioClient() {
+    // cause: when running inside docker, minio generate presign url using
+    // internal url: minio:9000 --> public cannot reach --> separate client endpoints
+    @Bean("internalMinioClient")
+    public MinioClient internalMinioClient() {
         return MinioClient.builder()
-                .endpoint(url)
+                .endpoint(internalUrl)
+                .credentials(accessKey, secretKey)
+                .build();
+    }
+
+    @Bean("publicMinioClient")
+    public MinioClient publicMinioClient() {
+        return MinioClient.builder()
+                .endpoint(publicUrl)
                 .credentials(accessKey, secretKey)
                 .build();
     }
