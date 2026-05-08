@@ -1,4 +1,4 @@
-package com.honya.bookstore.shared.web.dto;
+package com.honya.bookstore.shared;
 
 public record PageMetaDTO(
         int currentPage,

@@ -1,4 +1,4 @@
-package com.honya.bookstore.shared.web.dto;
+package com.honya.bookstore.shared;
 
 import java.util.List;
 
