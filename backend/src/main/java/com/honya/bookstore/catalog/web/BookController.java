@@ -2,7 +2,6 @@ package com.honya.bookstore.catalog.web;
 
 import com.honya.bookstore.catalog.domain.Book;
 import com.honya.bookstore.catalog.domain.Category;
-import com.honya.bookstore.catalog.web.dto.request.BookMediaRequestDTO;
 import com.honya.bookstore.catalog.web.dto.request.BookRequestDTO;
 import com.honya.bookstore.catalog.web.dto.response.BookMediaResponseDTO;
 import com.honya.bookstore.catalog.web.dto.response.BookResponseDTO;
@@ -10,8 +9,8 @@ import com.honya.bookstore.catalog.web.dto.response.CategoryResponseDTO;
 
 import com.honya.bookstore.catalog.application.BookService;
 import com.honya.bookstore.catalog.application.CategoryService;
-import com.honya.bookstore.shared.web.dto.PageMetaDTO;
-import com.honya.bookstore.shared.web.dto.PagedResponseDTO;
+import com.honya.bookstore.shared.PageMetaDTO;
+import com.honya.bookstore.shared.PagedResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

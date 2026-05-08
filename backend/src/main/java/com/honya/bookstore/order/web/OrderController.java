@@ -2,8 +2,8 @@ package com.honya.bookstore.order.web;
 
 import com.honya.bookstore.order.application.OrderService;
 import com.honya.bookstore.order.domain.Order;
-import com.honya.bookstore.shared.web.dto.PageMetaDTO;
-import com.honya.bookstore.shared.web.dto.PagedResponseDTO;
+import com.honya.bookstore.shared.PageMetaDTO;
+import com.honya.bookstore.shared.PagedResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

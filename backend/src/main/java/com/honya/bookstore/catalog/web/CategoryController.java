@@ -5,8 +5,8 @@ import com.honya.bookstore.catalog.web.dto.request.CategoryRequestDTO;
 import com.honya.bookstore.catalog.web.dto.response.CategoryResponseDTO;
 
 import com.honya.bookstore.catalog.application.CategoryService;
-import com.honya.bookstore.shared.web.dto.PageMetaDTO;
-import com.honya.bookstore.shared.web.dto.PagedResponseDTO;
+import com.honya.bookstore.shared.PageMetaDTO;
+import com.honya.bookstore.shared.PagedResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
