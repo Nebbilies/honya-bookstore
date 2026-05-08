@@ -32,6 +32,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
   minio:
     image: quay.io/minio/minio:latest
     container_name: minio
@@ -49,6 +50,31 @@ services:
       retries: 5
     volumes:
       - minio_data:/data
+
+  backend:
+    build:
+      context: ./backend
+    container_name: honya_backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_FLYWAY_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
+      SPRING_FLYWAY_USER: ${DB_USER}
+      SPRING_FLYWAY_PASSWORD: ${DB_PASSWORD}
+      SPRING_MINIO_INTERNAL_URL: http://minio:9000
+      SPRING_MINIO_PUBLIC_URL: http://host.docker.internal:9000
+      SPRING_MINIO_ACCESS_KEY: minioadmin
+      SPRING_MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
 
 volumes:
   postgres_data:
