@@ -1,5 +1,6 @@
 package com.honya.bookstore.contract;
 
+import com.honya.bookstore.catalog.application.BookSearchCriteria;
 import com.honya.bookstore.catalog.application.BookService;
 import com.honya.bookstore.catalog.application.CategoryService;
 import com.honya.bookstore.catalog.domain.Book;
@@ -15,6 +16,12 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -38,7 +45,8 @@ class FrontendBooksContractTest {
 
     @Test
     void getBooks_returns_data_meta_and_book_media_fields() throws Exception {
-        when(bookService.getAllBooks()).thenReturn(List.of(sampleBook()));
+        Page<Book> page = new PageImpl<>(List.of(sampleBook()), PageRequest.of(0, 10), 1);
+        when(bookService.getAllBooks(any(BookSearchCriteria.class), any(Pageable.class))).thenReturn(page);
 
         mockMvc.perform(get("/api/books?page=1&limit=10"))
                 .andExpect(status().isOk())
@@ -52,7 +60,8 @@ class FrontendBooksContractTest {
 
     @Test
     void getBooks_returns_frontend_pagination_meta_values() throws Exception {
-        when(bookService.getAllBooks()).thenReturn(List.of(sampleBook()));
+        Page<Book> page = new PageImpl<>(List.of(sampleBook()), PageRequest.of(0, 10), 1);
+        when(bookService.getAllBooks(any(BookSearchCriteria.class), any(Pageable.class))).thenReturn(page);
 
         mockMvc.perform(get("/api/books?page=1&limit=10"))
                 .andExpect(status().isOk())
@@ -60,6 +69,22 @@ class FrontendBooksContractTest {
                 .andExpect(jsonPath("$.meta.itemsPerPage").value(10))
                 .andExpect(jsonPath("$.meta.totalPages").isNumber())
                 .andExpect(jsonPath("$.meta.totalItems").isNumber());
+    }
+
+    @Test
+    void getBooks_accepts_filter_query_params() throws Exception {
+        Page<Book> page = new PageImpl<>(List.of(sampleBook()), PageRequest.of(0, 10), 1);
+        when(bookService.getAllBooks(any(BookSearchCriteria.class), any(Pageable.class))).thenReturn(page);
+
+        mockMvc.perform(get("/api/books?page=1&limit=10&year=2020&sort_price=asc&sort_rating=desc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.meta.currentPage").value(1));
+    }
+
+    @Test
+    void getBooks_returns_400_when_min_price_gt_max_price() throws Exception {
+        mockMvc.perform(get("/api/books?min_price=200&max_price=100"))
+                .andExpect(status().isBadRequest());
     }
 
     private Book sampleBook() {
