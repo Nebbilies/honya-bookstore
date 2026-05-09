@@ -7,6 +7,7 @@ import com.honya.bookstore.catalog.domain.Category;
 import com.honya.bookstore.catalog.web.dto.request.BookRequestDTO;
 import com.honya.bookstore.catalog.web.dto.request.CategoryRequestDTO;
 import com.honya.bookstore.catalog.api.CatalogStockApi;
+import com.honya.bookstore.catalog.application.BookSearchCriteria;
 import com.honya.bookstore.catalog.application.BookService;
 import com.honya.bookstore.catalog.application.CategoryService;
 import com.honya.bookstore.cart.domain.Cart;
@@ -27,6 +28,10 @@ import com.honya.bookstore.order.domain.OrderProvider;
 import com.honya.bookstore.order.domain.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -111,7 +116,8 @@ class CoreApiContractFreezeTest {
                 .categories(List.of(category))
                 .build();
 
-        when(bookService.getAllBooks()).thenReturn(List.of(book));
+        Page<Book> page = new PageImpl<>(List.of(book), PageRequest.of(0, 10), 1);
+        when(bookService.getAllBooks(any(BookSearchCriteria.class), any(Pageable.class))).thenReturn(page);
 
         mockMvc.perform(get("/api/books"))
                 .andExpect(status().isOk())
