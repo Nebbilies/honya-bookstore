@@ -8,6 +8,7 @@ import com.honya.bookstore.cart.web.dto.response.CartItemBookResponseDTO;
 import com.honya.bookstore.cart.web.dto.response.CartItemResponseDTO;
 import com.honya.bookstore.cart.web.dto.response.CartResponseDTO;
 import com.honya.bookstore.catalog.api.CatalogStockApi;
+import com.honya.bookstore.security.CustomerOnly;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,6 +24,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Tag(name = "Cart", description = "Endpoints for managing the shopping cart")
+@CustomerOnly
 @RestController
 @RequestMapping("/api/cart")
 @RequiredArgsConstructor

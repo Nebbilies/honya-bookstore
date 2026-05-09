@@ -1,6 +1,7 @@
 package com.honya.bookstore.checkout;
 
 import com.honya.bookstore.order.api.OrderResponse;
+import com.honya.bookstore.security.CustomerOnly;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Checkout", description = "Endpoints for processing the checkout of the shopping cart and placing orders")
+@CustomerOnly
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor

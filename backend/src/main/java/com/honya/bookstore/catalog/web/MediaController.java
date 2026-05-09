@@ -4,6 +4,8 @@ import com.honya.bookstore.catalog.application.MediaService;
 import com.honya.bookstore.catalog.web.dto.request.CreateMediaRequestDTO;
 import com.honya.bookstore.catalog.web.dto.response.MediaResponseDTO;
 import com.honya.bookstore.catalog.web.dto.response.UploadImageURLResponseDTO;
+import com.honya.bookstore.security.CustomerOnly;
+import com.honya.bookstore.security.StaffOrAdmin;
 import com.honya.bookstore.shared.PageMetaDTO;
 import com.honya.bookstore.shared.PagedResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,6 +30,7 @@ public class MediaController {
     private final MediaService mediaService;
 
     @Operation(summary = "Get media", description = "Retrieve media items")
+    @CustomerOnly
     @GetMapping
     public ResponseEntity<PagedResponseDTO<MediaResponseDTO>> getMedia(
             @RequestParam(defaultValue = "1") int page,
@@ -54,6 +57,7 @@ public class MediaController {
     }
 
     @Operation(summary = "Create media", description = "Create media metadata record")
+    @StaffOrAdmin
     @PostMapping
     public ResponseEntity<MediaResponseDTO> createMedia(@RequestBody CreateMediaRequestDTO requestDTO) {
         MediaResponseDTO response = mediaService.createMedia(requestDTO);
@@ -61,6 +65,7 @@ public class MediaController {
     }
 
     @Operation(summary = "Generate upload URL", description = "Generate pre-signed URL for uploading media files")
+    @StaffOrAdmin
     @GetMapping("/images/upload-url")
     public ResponseEntity<UploadImageURLResponseDTO> generateUploadURL() {
         try {

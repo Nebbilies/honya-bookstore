@@ -2,6 +2,7 @@ package com.honya.bookstore.order.web;
 
 import com.honya.bookstore.order.application.OrderService;
 import com.honya.bookstore.order.domain.Order;
+import com.honya.bookstore.security.CustomerOnly;
 import com.honya.bookstore.shared.PageMetaDTO;
 import com.honya.bookstore.shared.PagedResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Orders", description = "Endpoints for managing user orders and retrieving order history")
+@CustomerOnly
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor

@@ -9,6 +9,8 @@ import com.honya.bookstore.catalog.web.dto.response.CategoryResponseDTO;
 
 import com.honya.bookstore.catalog.application.BookService;
 import com.honya.bookstore.catalog.application.CategoryService;
+import com.honya.bookstore.security.CustomerOnly;
+import com.honya.bookstore.security.StaffOrAdmin;
 import com.honya.bookstore.shared.PageMetaDTO;
 import com.honya.bookstore.shared.PagedResponseDTO;
 
@@ -38,6 +40,7 @@ public class BookController {
     private final CategoryService categoryService;
 
     @Operation(summary = "Get all books", description = "Retrieve all books in catalog")
+    @CustomerOnly
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Books retrieved")
     })
@@ -69,6 +72,7 @@ public class BookController {
     }
 
     @Operation(summary = "Get book by id", description = "Retrieve one book by id")
+    @CustomerOnly
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Book retrieved"),
             @ApiResponse(responseCode = "404", description = "Book not found",
@@ -81,6 +85,7 @@ public class BookController {
     }
 
     @Operation(summary = "Create book", description = "Create new book in catalog")
+    @StaffOrAdmin
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Book created"),
             @ApiResponse(responseCode = "400", description = "Invalid request",
@@ -114,6 +119,7 @@ public class BookController {
     }
 
     @Operation(summary = "Update book", description = "Update existing book by id")
+    @StaffOrAdmin
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Book updated"),
             @ApiResponse(responseCode = "400", description = "Invalid request",
@@ -147,6 +153,7 @@ public class BookController {
     }
 
     @Operation(summary = "Delete book", description = "Delete book by id")
+    @StaffOrAdmin
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Book deleted"),
             @ApiResponse(responseCode = "404", description = "Book not found",

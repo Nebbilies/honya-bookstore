@@ -21,8 +21,10 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,14 +52,7 @@ class ApiCsrfSecurityTest {
                 .deletedAt(OffsetDateTime.now())
                 .build());
 
-        when(jwtDecoder.decode("valid-token")).thenReturn(Jwt.withTokenValue("valid-token")
-                .header("alg", "RS256")
-                .claim("sub", "admin1")
-                .claim("aud", List.of("honya-api"))
-                .claim("realm_access", java.util.Map.of("roles", List.of("ADMIN")))
-                .issuedAt(Instant.now())
-                .expiresAt(Instant.now().plusSeconds(3600))
-                .build());
+        when(jwtDecoder.decode("valid-token")).thenReturn(buildToken("valid-token", "ADMIN", "admin1"));
 
         mockMvc.perform(post("/api/media")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer valid-token")
@@ -69,6 +64,39 @@ class ApiCsrfSecurityTest {
     }
 
     @Test
+    void postMediaWithCustomerRoleShouldBeForbidden() throws Exception {
+        when(jwtDecoder.decode("customer-token")).thenReturn(buildToken("customer-token", "CUSTOMER", "customer1"));
+
+        mockMvc.perform(post("/api/media")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer customer-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"altText":"images/e748fa9d-7a8d-4c2a-bc21-3bb2fd29c5a1","key":"test_image_1","order":0}
+                                """))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getMediaWithCustomerRoleShouldSucceed() throws Exception {
+        when(jwtDecoder.decode("customer-token")).thenReturn(buildToken("customer-token", "CUSTOMER", "customer1"));
+        when(mediaService.getMedia(anyInt(), anyInt())).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/media")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer customer-token"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getMediaWithAdminRoleShouldSucceed() throws Exception {
+        when(jwtDecoder.decode("admin-token")).thenReturn(buildToken("admin-token", "ADMIN", "admin1"));
+        when(mediaService.getMedia(anyInt(), anyInt())).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/media")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer admin-token"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void postMediaWithHttpBasicShouldBeUnauthorized() throws Exception {
         mockMvc.perform(post("/api/media")
                         .with(httpBasic("admin", "123456"))
@@ -77,5 +105,16 @@ class ApiCsrfSecurityTest {
                                 {"altText":"images/e748fa9d-7a8d-4c2a-bc21-3bb2fd29c5a1","key":"test_image_1","order":0}
                                 """))
                 .andExpect(status().isUnauthorized());
+    }
+
+    private Jwt buildToken(String tokenValue, String role, String subject) {
+        return Jwt.withTokenValue(tokenValue)
+                .header("alg", "RS256")
+                .claim("sub", subject)
+                .claim("aud", List.of("honya-api"))
+                .claim("realm_access", java.util.Map.of("roles", List.of(role)))
+                .issuedAt(Instant.now())
+                .expiresAt(Instant.now().plusSeconds(3600))
+                .build();
     }
 }

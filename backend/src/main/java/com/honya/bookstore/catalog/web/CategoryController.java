@@ -5,6 +5,8 @@ import com.honya.bookstore.catalog.web.dto.request.CategoryRequestDTO;
 import com.honya.bookstore.catalog.web.dto.response.CategoryResponseDTO;
 
 import com.honya.bookstore.catalog.application.CategoryService;
+import com.honya.bookstore.security.CustomerOnly;
+import com.honya.bookstore.security.StaffOrAdmin;
 import com.honya.bookstore.shared.PageMetaDTO;
 import com.honya.bookstore.shared.PagedResponseDTO;
 
@@ -33,6 +35,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @Operation(summary = "Get all categories", description = "Retrieve all categories in catalog")
+    @CustomerOnly
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Categories retrieved")
     })
@@ -64,6 +67,7 @@ public class CategoryController {
     }
 
     @Operation(summary = "Get category by id", description = "Retrieve one category by id")
+    @CustomerOnly
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Category retrieved"),
             @ApiResponse(responseCode = "404", description = "Category not found",
@@ -75,6 +79,7 @@ public class CategoryController {
         return ResponseEntity.ok(mapToResponseDTO(category));
     }
 
+    @CustomerOnly
     @GetMapping("/slug/{slug}")
     public ResponseEntity<CategoryResponseDTO> getCategoryBySlug(@PathVariable String slug) {
         Category category = categoryService.getCategoryBySlug(slug);
@@ -82,6 +87,7 @@ public class CategoryController {
     }
 
     @Operation(summary = "Create category", description = "Create new category in catalog")
+    @StaffOrAdmin
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Category created"),
             @ApiResponse(responseCode = "400", description = "Invalid request",
@@ -100,6 +106,7 @@ public class CategoryController {
     }
 
     @Operation(summary = "Update category", description = "Update existing category by id")
+    @StaffOrAdmin
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Category updated"),
             @ApiResponse(responseCode = "400", description = "Invalid request",
@@ -120,6 +127,7 @@ public class CategoryController {
     }
 
     @Operation(summary = "Delete category", description = "Delete category by id")
+    @StaffOrAdmin
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Category deleted"),
             @ApiResponse(responseCode = "404", description = "Category not found",
