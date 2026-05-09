@@ -1,11 +1,14 @@
 package com.honya.bookstore.catalog.application;
 
 import com.honya.bookstore.catalog.domain.Book;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.UUID;
 
 public interface BookService {
-    List<Book> getAllBooks();
+    Page<Book> getAllBooks(BookSearchCriteria criteria, Pageable pageable);
     Book getBookById(UUID id);
     Book createBook(Book book);
     Book updateBook(UUID id, Book book);
