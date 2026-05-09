@@ -7,6 +7,7 @@ import com.honya.bookstore.catalog.web.dto.response.BookMediaResponseDTO;
 import com.honya.bookstore.catalog.web.dto.response.BookResponseDTO;
 import com.honya.bookstore.catalog.web.dto.response.CategoryResponseDTO;
 
+import com.honya.bookstore.catalog.application.BookSearchCriteria;
 import com.honya.bookstore.catalog.application.BookService;
 import com.honya.bookstore.catalog.application.CategoryService;
 import com.honya.bookstore.security.CustomerOnly;
@@ -21,12 +22,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -35,6 +42,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/books")
 @RequiredArgsConstructor
 public class BookController {
+    public enum sortOrder {
+        asc, desc
+    }
 
     private final BookService bookService;
     private final CategoryService categoryService;
@@ -46,26 +56,46 @@ public class BookController {
     })
     @GetMapping
     public ResponseEntity<PagedResponseDTO<BookResponseDTO>> getAllBooks(
+            @RequestParam() Optional<Integer> min_price,
+            @RequestParam() Optional<Integer> max_price,
+            @RequestParam() Optional<String> publisher,
+            @RequestParam() Optional<ArrayList<UUID>> category_ids,
+            @RequestParam() Optional<sortOrder> sort_price,
+            @RequestParam() Optional<sortOrder> sort_rating,
+            @RequestParam() Optional<Integer> year,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit) {
-        List<BookResponseDTO> books = bookService.getAllBooks().stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+
+        if (min_price.isPresent() && max_price.isPresent() && min_price.get() > max_price.get()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "min_price must be <= max_price");
+        }
 
         int safePage = Math.max(page, 1);
         int safeLimit = Math.max(limit, 1);
-        int totalItems = books.size();
-        int fromIndex = Math.min((safePage - 1) * safeLimit, totalItems);
-        int toIndex = Math.min(fromIndex + safeLimit, totalItems);
-        List<BookResponseDTO> pageData = books.subList(fromIndex, toIndex);
-        int totalPages = totalItems == 0 ? 0 : (int) Math.ceil((double) totalItems / safeLimit);
+
+        BookSearchCriteria criteria = new BookSearchCriteria(
+                min_price.orElse(null),
+                max_price.orElse(null),
+                publisher.orElse(null),
+                category_ids.filter(ids -> !ids.isEmpty()).map(List::copyOf).orElse(null),
+                year.orElse(null),
+                sort_price.orElse(null),
+                sort_rating.orElse(null)
+        );
+
+        Pageable pageable = PageRequest.of(safePage - 1, safeLimit);
+        Page<Book> bookPage = bookService.getAllBooks(criteria, pageable);
+
+        List<BookResponseDTO> pageData = bookPage.getContent().stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
 
         PageMetaDTO meta = new PageMetaDTO(
                 safePage,
                 safeLimit,
                 pageData.size(),
-                totalItems,
-                totalPages
+                bookPage.getTotalElements(),
+                bookPage.getTotalPages()
         );
 
         return ResponseEntity.ok(new PagedResponseDTO<>(pageData, meta));
