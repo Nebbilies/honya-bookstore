@@ -8,8 +8,9 @@ export const metadata: Metadata = {
 }
 
 export default async function CategoryEditPage({ searchParams }: { searchParams: Promise<{ slug: string }> }) {
+    const apiBaseUrl = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
     const { slug } = await searchParams;
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/${slug}`, {
+    const res = await fetch(`${apiBaseUrl}/categories/${slug}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

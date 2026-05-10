@@ -9,12 +9,13 @@ export const metadata: Metadata = {
 }
 
 async function getOrders(page: number): Promise<OrderResponse> {
+    const apiBaseUrl = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
     const session = await auth();
     const params = new URLSearchParams();
     params.set('page', page.toString());
     params.set('limit', '10');
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders?${params.toString()}`, {
+    const res = await fetch(`${apiBaseUrl}/orders?${params.toString()}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

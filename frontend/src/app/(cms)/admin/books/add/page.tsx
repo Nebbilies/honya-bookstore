@@ -10,7 +10,8 @@ export const metadata: Metadata = {
 
 export default async function AddBookPage() {
     const session = await auth;
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`, {
+    const apiBaseUrl = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
+    const res = await fetch(`${apiBaseUrl}/categories`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

@@ -13,13 +13,14 @@ export const metadata: Metadata = {
 }
 
 async function getMedia(search: string, page: number = 1, limit: number = 10) {
+    const apiBaseUrl = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
     const session = await auth();
     const params = new URLSearchParams();
     if (search) params.set('search', search);
     params.set('page', page.toString());
     params.set('limit', limit.toString());
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/media?${params.toString()}`, {
+    const res = await fetch(`${apiBaseUrl}/media?${params.toString()}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

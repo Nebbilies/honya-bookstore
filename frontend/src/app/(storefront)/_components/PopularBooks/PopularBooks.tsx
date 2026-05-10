@@ -7,7 +7,8 @@ interface PopularBooksProps {
 }
 
 export default async function PopularBooks({ books }: PopularBooksProps) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`, {cache: "no-store"});
+    const apiBaseUrl = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
+    const res = await fetch(`${apiBaseUrl}/categories`, {cache: "no-store"});
     const categoriesData: CategoryResponse = await res.json();
     const categories: Category[] = categoriesData.data;
     categories.unshift({

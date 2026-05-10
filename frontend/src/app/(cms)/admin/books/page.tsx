@@ -12,12 +12,13 @@ export const metadata: Metadata = {
 }
 
 async function getBooks(search: string, page: number): Promise<BookResponse> {
+    const apiBaseUrl = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
     const params = new URLSearchParams();
     if (search) params.set('search', search);
     params.set('page', page.toString());
     params.set('limit', '10');
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/books?${params.toString()}`, {
+    const res = await fetch(`${apiBaseUrl}/books?${params.toString()}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

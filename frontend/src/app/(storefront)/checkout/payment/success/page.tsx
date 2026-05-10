@@ -17,6 +17,7 @@ interface PaymentSuccessPageProps {
 export default async function PaymentSuccessPage(
     { searchParams }: PaymentSuccessPageProps
 ) {
+    const apiBaseUrl = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
     const session = await auth();
     const params = await searchParams;
     const { vnp_TxnRef, orderId } = params;
@@ -31,7 +32,7 @@ export default async function PaymentSuccessPage(
             </section>
         )
     } else {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${orderIdFromParam}`, {
+        const res = await fetch(`${apiBaseUrl}/orders/${orderIdFromParam}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

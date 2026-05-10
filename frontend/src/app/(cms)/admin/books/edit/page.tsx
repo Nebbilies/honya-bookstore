@@ -10,9 +10,10 @@ export const metadata: Metadata = {
 }
 
 export default async function BookEditPage({ searchParams } : { searchParams: Promise<{ id: string }> }) {
+    const apiBaseUrl = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
     const session = await auth();
     const { id } = await searchParams;
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/books/${id}`, {
+    const res = await fetch(`${apiBaseUrl}/books/${id}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

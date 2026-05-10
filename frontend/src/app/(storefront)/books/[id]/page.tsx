@@ -8,8 +8,9 @@ import { Metadata } from "next";
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params : { id: number } }): Promise<Metadata> {
+    const apiBaseUrl = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
     const { id } = await params;
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/books/${id}`, { cache: 'no-store' });
+    const res = await fetch(`${apiBaseUrl}/books/${id}`, { cache: 'no-store' });
     if (!res.ok) {
         return {
             title: 'Book Not Found',
@@ -23,8 +24,9 @@ export async function generateMetadata({ params }: { params : { id: number } }):
 }
 
 export default async function BookDetailPage({ params }: { params : { id: number } }) {
+    const apiBaseUrl = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
     const { id } = await params;
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/books/${id}`, { cache: 'no-store' });
+    const res = await fetch(`${apiBaseUrl}/books/${id}`, { cache: 'no-store' });
     if (!res.ok) {
         throw new Error('Failed to fetch book details');
     }

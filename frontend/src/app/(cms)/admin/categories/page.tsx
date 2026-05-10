@@ -11,12 +11,13 @@ export const metadata: Metadata = {
 }
 
 export async function getCategories(page: number = 1, limit?: number) {
+    const apiBaseUrl = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
     const session = await auth();
     const params = new URLSearchParams();
     params.set('page', page.toString());
     if (limit) params.set('limit', limit.toString());
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories?${params.toString()}`, {
+    const res = await fetch(`${apiBaseUrl}/categories?${params.toString()}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

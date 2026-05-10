@@ -78,6 +78,25 @@ services:
       keycloak:
         condition: service_started
 
+  frontend:
+    build:
+      context: ./frontend
+    container_name: honya_frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8081
+      API_INTERNAL_URL: http://backend:8081
+      NEXTAUTH_URL: http://localhost:3000
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      backend:
+        condition: service_started
+
 volumes:
   postgres_data:
   minio_data:

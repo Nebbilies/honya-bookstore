@@ -10,7 +10,13 @@ export default auth((req) => {
 
   if (!req.auth?.user) {
     const loginUrl = new URL("/api/auth/signin", nextUrl);
-    loginUrl.searchParams.set("callbackUrl", nextUrl.href);
+    const callbackOrigin = process.env.NEXTAUTH_URL ?? process.env.AUTH_URL;
+    const protocol = req.headers.get("x-forwarded-proto") ?? nextUrl.protocol.replace(":", "");
+    const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? nextUrl.host;
+    const callbackUrl = callbackOrigin
+      ? new URL(`${nextUrl.pathname}${nextUrl.search}`, callbackOrigin).toString()
+      : `${protocol}://${host}${nextUrl.pathname}${nextUrl.search}`;
+    loginUrl.searchParams.set("callbackUrl", callbackUrl);
 
     return NextResponse.redirect(loginUrl);
   }

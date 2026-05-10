@@ -22,6 +22,7 @@ interface BookPageProps {
 }
 
 export default async function BooksPage({ searchParams }: BookPageProps) {
+    const apiBaseUrl = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
     const params = await searchParams;
     const {
         page = "1",
@@ -50,7 +51,7 @@ export default async function BooksPage({ searchParams }: BookPageProps) {
     if (search) bookQueryParams.append("search", search.toString());
     if (year) bookQueryParams.append("year", year.toString());
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/books?${bookQueryParams.toString()}`, {cache: "no-store"});
+    const res = await fetch(`${apiBaseUrl}/books?${bookQueryParams.toString()}`, {cache: "no-store"});
     if (!res.ok) {
         return (
             <main className={'flex flex-col items-center justify-center h-full py-20'}>
