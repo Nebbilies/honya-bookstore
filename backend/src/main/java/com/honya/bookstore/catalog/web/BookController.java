@@ -63,6 +63,7 @@ public class BookController {
             @RequestParam() Optional<sortOrder> sort_price,
             @RequestParam() Optional<sortOrder> sort_rating,
             @RequestParam() Optional<Integer> year,
+            @RequestParam() Optional<String> search,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit) {
 
@@ -80,7 +81,8 @@ public class BookController {
                 category_ids.filter(ids -> !ids.isEmpty()).map(List::copyOf).orElse(null),
                 year.orElse(null),
                 sort_price.orElse(null),
-                sort_rating.orElse(null)
+                sort_rating.orElse(null),
+                search.orElse(null)
         );
 
         Pageable pageable = PageRequest.of(safePage - 1, safeLimit);

@@ -16,6 +16,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.mockito.ArgumentCaptor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -79,6 +81,19 @@ class FrontendBooksContractTest {
         mockMvc.perform(get("/api/books?page=1&limit=10&year=2020&sort_price=asc&sort_rating=desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.meta.currentPage").value(1));
+    }
+
+    @Test
+    void getBooks_maps_search_query_to_criteria() throws Exception {
+        Page<Book> page = new PageImpl<>(List.of(sampleBook()), PageRequest.of(0, 10), 1);
+        when(bookService.getAllBooks(any(BookSearchCriteria.class), any(Pageable.class))).thenReturn(page);
+
+        mockMvc.perform(get("/api/books?search=dune"))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<BookSearchCriteria> criteriaCaptor = ArgumentCaptor.forClass(BookSearchCriteria.class);
+        verify(bookService).getAllBooks(criteriaCaptor.capture(), any(Pageable.class));
+        org.junit.jupiter.api.Assertions.assertEquals("dune", criteriaCaptor.getValue().search());
     }
 
     @Test

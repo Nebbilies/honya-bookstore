@@ -36,7 +36,8 @@ class BookServiceImplSearchTest {
                 List.of(UUID.randomUUID()),
                 2020,
                 sortOrder.asc,
-                sortOrder.desc
+                sortOrder.desc,
+                "dune"
         );
 
         service.getAllBooks(criteria, PageRequest.of(0, 10));
@@ -55,6 +56,7 @@ class BookServiceImplSearchTest {
 
         BookServiceImpl service = new BookServiceImpl(repository);
         BookSearchCriteria criteria = new BookSearchCriteria(
+                null,
                 null,
                 null,
                 null,

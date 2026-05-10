@@ -1,6 +1,7 @@
 package com.honya.bookstore.catalog.infrastructure.persistence;
 
 import com.honya.bookstore.catalog.domain.Book;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
@@ -38,6 +39,20 @@ public final class BookSpecifications {
             }
             query.distinct(true);
             return root.join("categories").get("id").in(categoryIds);
+        };
+    }
+
+    public static Specification<Book> search(String search) {
+        return (root, query, cb) -> {
+            if (search == null || search.isBlank()) {
+                return null;
+            }
+
+            String pattern = "%" + search.trim().toLowerCase() + "%";
+            Predicate title = cb.like(cb.lower(root.get("title")), pattern);
+            Predicate author = cb.like(cb.lower(root.get("author")), pattern);
+            Predicate publisher = cb.like(cb.lower(root.get("publisher")), pattern);
+            return cb.or(title, author, publisher);
         };
     }
 }

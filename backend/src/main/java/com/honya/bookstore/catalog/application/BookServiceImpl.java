@@ -31,7 +31,8 @@ public class BookServiceImpl implements BookService {
                 .and(BookSpecifications.maxPrice(criteria.maxPrice()))
                 .and(BookSpecifications.publisher(criteria.publisher()))
                 .and(BookSpecifications.year(criteria.year()))
-                .and(BookSpecifications.categoryIdsAny(criteria.categoryIds()));
+                .and(BookSpecifications.categoryIdsAny(criteria.categoryIds()))
+                .and(BookSpecifications.search(criteria.search()));
 
         Sort sort = buildSort(criteria);
         Pageable sortedPageable = sort.isSorted()

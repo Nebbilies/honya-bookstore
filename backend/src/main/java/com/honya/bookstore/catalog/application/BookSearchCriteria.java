@@ -12,6 +12,7 @@ public record BookSearchCriteria(
         List<UUID> categoryIds,
         Integer year,
         sortOrder sortPrice,
-        sortOrder sortRating
+        sortOrder sortRating,
+        String search
 ) {
 }
