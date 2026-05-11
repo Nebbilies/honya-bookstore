@@ -4,6 +4,7 @@ import {useUI} from "@/app/(cms)/_context/UIContext";
 import {signOut, useSession} from "next-auth/react";
 import Link from "next/link";
 import {useState} from "react";
+import {UserRole} from "@/types/roles";
 
 export default function CMSHeader() {
     const [isOpen, setIsOpen] = useState(false);
@@ -24,7 +25,7 @@ export default function CMSHeader() {
                           className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
                         Profile
                     </Link>
-                    {(session.data?.role === 'staff' || session.data?.role === 'admin') && (
+                    {(session.data?.role === UserRole.STAFF || session.data?.role === UserRole.ADMIN) && (
                         <Link href={'/'}
                               className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
                             Storefront

@@ -20,10 +20,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (account?.access_token) {
         token.accessToken = account.access_token;
       }
-      if (profile?.realm_access) {
-        token.role = profile.realm_access.roles.filter((role: string) =>
-            Object.values(UserRole).includes(role as UserRole),
-        )[0] as UserRole | null;
+      if (profile?.realm_access?.roles) {
+        token.role = profile.realm_access.roles
+          .map((role: string) => role.toUpperCase())
+          .find((role) => Object.values(UserRole).includes(role as UserRole)) as UserRole | undefined ?? null;
       }
       if (!token.address && profile?.address) {
         token.address = {

@@ -21,6 +21,9 @@ export default async function landingPage() {
     const apiBaseUrl = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
     // fetch books
     const res = await fetch(`${apiBaseUrl}/books`, {cache: 'no-store'});
+    if (!res.ok) {
+      throw new Error('Failed to fetch books', { status: res.status, statusText: res.statusText });
+    }
     const data: BookResponse = await res.json();
     const books = data.data;
     const bestSellingBooks = books.sort((a, b) => b.purchaseCount - a.purchaseCount).slice(0, 4);

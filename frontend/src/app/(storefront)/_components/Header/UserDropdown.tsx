@@ -3,6 +3,7 @@ import Icon from "@/components/Icon";
 import Link from "next/link";
 import {useState} from "react";
 import {signOut, useSession} from "next-auth/react";
+import {UserRole} from "@/types/roles";
 
 export default function UserDropdown() {
     const session = useSession();
@@ -20,7 +21,7 @@ export default function UserDropdown() {
                       className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
                     Profile
                 </Link>
-                {(session.data?.role === 'staff' || session.data?.role === 'admin') && (
+                {(session.data?.role === UserRole.STAFF || session.data?.role === UserRole.ADMIN) && (
                     <Link href={'/admin'}
                             className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
                         Admin Panel

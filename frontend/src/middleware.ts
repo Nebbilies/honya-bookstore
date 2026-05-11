@@ -2,6 +2,32 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { UserRole } from "@/types/roles";
 
+function extractRolesFromAccessToken(accessToken?: string | null): string[] {
+  if (!accessToken) return [];
+
+  const parts = accessToken.split(".");
+  if (parts.length < 2) return [];
+
+  try {
+    const payloadBase64Url = parts[1];
+    const payloadBase64 = payloadBase64Url
+      .replace(/-/g, "+")
+      .replace(/_/g, "/")
+      .padEnd(Math.ceil(payloadBase64Url.length / 4) * 4, "=");
+
+    const payload = JSON.parse(atob(payloadBase64)) as { realm_access?: { roles?: unknown } };
+    const roles = payload.realm_access?.roles;
+
+    if (!Array.isArray(roles)) return [];
+
+    return roles
+      .filter((value): value is string => typeof value === "string")
+      .map((value) => value.toUpperCase());
+  } catch {
+    return [];
+  }
+}
+
 export default auth((req) => {
   const { nextUrl } = req;
   const { pathname } = req.nextUrl;
@@ -22,7 +48,61 @@ export default auth((req) => {
   }
 
   if (pathname.startsWith("/admin")) {
-    if (req.auth.role !== UserRole.ADMIN && req.auth.role !== UserRole.STAFF) {
+    type AuthWithRole = {
+      role?: string | null;
+      roles?: string[] | null;
+      accessToken?: string | null;
+      realm_access?: { roles?: string[] | null } | null;
+      token?: {
+        role?: string | null;
+        roles?: string[] | null;
+        realm_access?: { roles?: string[] | null } | null;
+      } | null;
+      user?: {
+        role?: string | null;
+        roles?: string[] | null;
+        realm_access?: { roles?: string[] | null } | null;
+      } | null;
+    };
+
+    const authWithRole = req.auth as AuthWithRole | null | undefined;
+
+    const accessTokenRoles = extractRolesFromAccessToken(authWithRole?.accessToken ?? null);
+
+    const claimRoles = [
+      ...accessTokenRoles,
+      ...(authWithRole?.realm_access?.roles ?? []),
+      ...(authWithRole?.token?.realm_access?.roles ?? []),
+      ...(authWithRole?.user?.realm_access?.roles ?? []),
+      ...(authWithRole?.roles ?? []),
+      ...(authWithRole?.token?.roles ?? []),
+      ...(authWithRole?.user?.roles ?? []),
+    ]
+      .filter((value): value is string => typeof value === "string")
+      .map((value) => value.toUpperCase());
+
+    const roleSet = new Set(claimRoles);
+    const rawRole = authWithRole?.role ?? authWithRole?.token?.role ?? authWithRole?.user?.role ?? null;
+    const role = typeof rawRole === "string" ? rawRole.toUpperCase() : null;
+
+    const isAllowed =
+      roleSet.has(UserRole.ADMIN) ||
+      roleSet.has(UserRole.STAFF) ||
+      role === UserRole.ADMIN ||
+      role === UserRole.STAFF;
+
+    console.log("[middleware-admin-debug]", {
+      pathname,
+      isAllowed,
+      role,
+      accessTokenRoles,
+      claimRoles,
+      authKeys: authWithRole ? Object.keys(authWithRole) : [],
+      userKeys: authWithRole?.user ? Object.keys(authWithRole.user) : [],
+      tokenKeys: authWithRole?.token ? Object.keys(authWithRole.token) : [],
+    });
+
+    if (!isAllowed) {
       return NextResponse.redirect(new URL("/", req.url));
     }
   }
