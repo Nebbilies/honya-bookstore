@@ -35,7 +35,6 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @Operation(summary = "Get all categories", description = "Retrieve all categories in catalog")
-    @CustomerOnly
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Categories retrieved")
     })
@@ -67,7 +66,6 @@ public class CategoryController {
     }
 
     @Operation(summary = "Get category by id", description = "Retrieve one category by id")
-    @CustomerOnly
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Category retrieved"),
             @ApiResponse(responseCode = "404", description = "Category not found",

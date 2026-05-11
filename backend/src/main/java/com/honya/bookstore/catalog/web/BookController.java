@@ -50,7 +50,6 @@ public class BookController {
     private final CategoryService categoryService;
 
     @Operation(summary = "Get all books", description = "Retrieve all books in catalog")
-    @CustomerOnly
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Books retrieved")
     })
@@ -104,7 +103,6 @@ public class BookController {
     }
 
     @Operation(summary = "Get book by id", description = "Retrieve one book by id")
-    @CustomerOnly
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Book retrieved"),
             @ApiResponse(responseCode = "404", description = "Book not found",

@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -36,8 +38,9 @@ public class CheckoutController {
     })
     @PostMapping("/checkout")
     public ResponseEntity<OrderResponse> checkout(
-            @RequestHeader("X-User-Id") String userId,
+            @AuthenticationPrincipal Jwt jwt,
             @RequestBody CheckoutRequestDTO request) {
+        String userId  = jwt.getSubject();
         return ResponseEntity.ok(checkoutService.checkout(userId, request));
     }
 }
