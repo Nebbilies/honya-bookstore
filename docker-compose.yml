@@ -83,10 +83,13 @@ services:
       context: ./frontend
     container_name: honya_frontend
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8081
-      API_INTERNAL_URL: http://backend:8081
+      NEXT_PUBLIC_API_URL: http://localhost:8081/api
+      API_INTERNAL_URL: http://backend:8081/api
       NEXTAUTH_URL: http://localhost:3000
+      AUTH_KEYCLOAK_ISSUER: http://localhost:8080/realms/honya
       WATCHPACK_POLLING: "true"
+    extra_hosts:
+      - "localhost:host-gateway"
     ports:
       - "3000:3000"
     volumes:
