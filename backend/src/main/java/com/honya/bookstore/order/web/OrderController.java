@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,9 +36,10 @@ public class OrderController {
     })
     @GetMapping
     public ResponseEntity<PagedResponseDTO<Order>> getMyOrders(
-            @RequestHeader("X-User-Id") String userId,
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit) {
+        String userId =  jwt.getSubject();
         List<Order> orders = orderService.getOrdersByUserId(userId);
 
         int safePage = Math.max(page, 1);
