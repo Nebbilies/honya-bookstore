@@ -1,9 +1,12 @@
 package com.honya.bookstore.catalog.application;
 
 import com.honya.bookstore.catalog.domain.Book;
+import com.honya.bookstore.catalog.domain.BookMedia;
+import com.honya.bookstore.catalog.infrastructure.persistence.BookMediaRepository;
 import com.honya.bookstore.catalog.infrastructure.persistence.BookRepository;
 import com.honya.bookstore.catalog.infrastructure.persistence.BookSpecifications;
 import com.honya.bookstore.catalog.web.BookController.sortOrder;
+import com.honya.bookstore.catalog.web.dto.request.BookMediaRequestDTO;
 import com.honya.bookstore.shared.error.InsufficientStockException;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,8 @@ import java.util.UUID;
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
+    private final BookMediaRepository bookMediaRepository;
+    private final MediaService mediaService;
 
     @Override
     public Page<Book> getAllBooks(BookSearchCriteria criteria, Pageable pageable) {
@@ -49,12 +54,16 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book createBook(Book book) {
-        return bookRepository.save(book);
+    @Transactional
+    public Book createBook(Book book, List<BookMediaRequestDTO> mediaRequests) {
+        Book savedBook = bookRepository.save(book);
+        syncBookMedia(savedBook, mediaRequests);
+        return getBookById(savedBook.getId());
     }
 
     @Override
-    public Book updateBook(UUID id, Book book) {
+    @Transactional
+    public Book updateBook(UUID id, Book book, List<BookMediaRequestDTO> mediaRequests) {
         Book existingBook = getBookById(id);
 
         existingBook.setTitle(book.getTitle());
@@ -68,11 +77,15 @@ public class BookServiceImpl implements BookService {
         existingBook.setStockQuantity(book.getStockQuantity());
         existingBook.setCategories(book.getCategories());
 
-        return bookRepository.save(existingBook);
+        Book savedBook = bookRepository.save(existingBook);
+        syncBookMedia(savedBook, mediaRequests);
+        return getBookById(savedBook.getId());
     }
 
     @Override
+    @Transactional
     public void deleteBook(UUID id) {
+        bookMediaRepository.deleteByBookId(id);
         bookRepository.deleteById(id);
     }
 
@@ -104,6 +117,20 @@ public class BookServiceImpl implements BookService {
         book.setStockQuantity(book.getStockQuantity() + quantity);
 
         bookRepository.save(book);
+    }
+
+    private void syncBookMedia(Book book, List<BookMediaRequestDTO> mediaRequests) {
+        bookMediaRepository.deleteByBookId(book.getId());
+
+        List<BookMedia> bookMediaList = mediaRequests.stream()
+                .map(mediaRequest -> BookMedia.builder()
+                        .book(book)
+                        .media(mediaService.getMediaById(mediaRequest.getMediaId()))
+                        .isCover(mediaRequest.getIsCover())
+                        .build())
+                .toList();
+
+        bookMediaRepository.saveAll(bookMediaList);
     }
 
     private Sort buildSort(BookSearchCriteria criteria) {

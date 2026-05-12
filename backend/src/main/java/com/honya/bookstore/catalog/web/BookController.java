@@ -10,7 +10,6 @@ import com.honya.bookstore.catalog.web.dto.response.CategoryResponseDTO;
 import com.honya.bookstore.catalog.application.BookSearchCriteria;
 import com.honya.bookstore.catalog.application.BookService;
 import com.honya.bookstore.catalog.application.CategoryService;
-import com.honya.bookstore.security.CustomerOnly;
 import com.honya.bookstore.security.StaffOrAdmin;
 import com.honya.bookstore.shared.PageMetaDTO;
 import com.honya.bookstore.shared.PagedResponseDTO;
@@ -125,6 +124,8 @@ public class BookController {
     })
     @PostMapping
     public ResponseEntity<BookResponseDTO> createBook(@RequestBody BookRequestDTO requestDTO) {
+        validateMediaRequest(requestDTO);
+
         List<Category> categories = requestDTO.getCategoryIds().stream()
                 .map(categoryService::getCategoryById)
                 .collect(Collectors.toList());
@@ -142,9 +143,8 @@ public class BookController {
                 .categories(categories)
                 .build();
 
-        Book savedBook = bookService.createBook(book);
+        Book savedBook = bookService.createBook(book, requestDTO.getMedia());
         BookResponseDTO responseDTO = mapToResponseDTO(savedBook);
-        responseDTO.setMedia(mapRequestMedia(requestDTO));
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
@@ -159,6 +159,8 @@ public class BookController {
     })
     @RequestMapping(value = "/{id}", method = {RequestMethod.PUT, RequestMethod.PATCH})
     public ResponseEntity<BookResponseDTO> updateBook(@PathVariable UUID id, @RequestBody BookRequestDTO requestDTO) {
+        validateMediaRequest(requestDTO);
+
         List<Category> categories = requestDTO.getCategoryIds().stream()
                 .map(categoryService::getCategoryById)
                 .collect(Collectors.toList());
@@ -176,9 +178,8 @@ public class BookController {
                 .categories(categories)
                 .build();
 
-        Book updatedBook = bookService.updateBook(id, bookDetails);
+        Book updatedBook = bookService.updateBook(id, bookDetails, requestDTO.getMedia());
         BookResponseDTO responseDTO = mapToResponseDTO(updatedBook);
-        responseDTO.setMedia(mapRequestMedia(requestDTO));
         return ResponseEntity.ok(responseDTO);
     }
 
@@ -195,18 +196,17 @@ public class BookController {
         return ResponseEntity.noContent().build();
     }
 
-    // Helper method to convert Entity to DTO
-    private List<BookMediaResponseDTO> mapRequestMedia(BookRequestDTO requestDTO) {
+    private void validateMediaRequest(BookRequestDTO requestDTO) {
         if (requestDTO.getMedia() == null) {
-            return List.of();
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "media is required");
         }
 
-        return requestDTO.getMedia().stream()
-                .map(media -> BookMediaResponseDTO.builder()
-                        .id(media.getMediaId())
-                        .isCover(media.getIsCover())
-                        .build())
-                .toList();
+        boolean hasInvalidMedia = requestDTO.getMedia().stream()
+                .anyMatch(media -> media.getMediaId() == null || media.getIsCover() == null);
+
+        if (hasInvalidMedia) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "mediaId and isCover are required");
+        }
     }
 
     private BookResponseDTO mapToResponseDTO(Book book) {
@@ -224,6 +224,18 @@ public class BookController {
                         .collect(Collectors.toList())
                 : null;
 
+        List<BookMediaResponseDTO> mediaDTOs = book.getMedia() != null
+                ? book.getMedia().stream()
+                .map(bookMedia -> BookMediaResponseDTO.builder()
+                        .id(bookMedia.getMedia().getId())
+                        .isCover(bookMedia.getIsCover())
+                        .order(bookMedia.getMedia().getOrder())
+                        .url(bookMedia.getMedia().getUrl())
+                        .altText(bookMedia.getMedia().getAltText())
+                        .build())
+                .toList()
+                : List.of();
+
         return BookResponseDTO.builder()
                 .id(book.getId())
                 .title(book.getTitle())
@@ -238,7 +250,7 @@ public class BookController {
                 .purchaseCount(book.getPurchaseCount())
                 .rating(book.getRating())
                 .categories(categoryDTOs)
-                .media(List.<BookMediaResponseDTO>of())
+                .media(mediaDTOs)
                 .createdAt(book.getCreatedAt())
                 .updatedAt(book.getUpdatedAt())
                 .deletedAt(book.getDeletedAt())
