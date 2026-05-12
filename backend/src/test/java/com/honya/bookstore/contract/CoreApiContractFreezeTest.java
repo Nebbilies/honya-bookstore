@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -176,7 +177,7 @@ class CoreApiContractFreezeTest {
                 .categories(List.of(category))
                 .build();
 
-        when(bookService.createBook(any(Book.class))).thenReturn(saved);
+        when(bookService.createBook(any(Book.class), anyList())).thenReturn(saved);
 
         BookRequestDTO request = BookRequestDTO.builder()
                 .title("New")
@@ -231,7 +232,7 @@ class CoreApiContractFreezeTest {
                 .categories(List.of(category))
                 .build();
 
-        when(bookService.updateBook(eq(bookId), any(Book.class))).thenReturn(updated);
+        when(bookService.updateBook(eq(bookId), any(Book.class), anyList())).thenReturn(updated);
 
         BookRequestDTO request = BookRequestDTO.builder()
                 .title("Updated")

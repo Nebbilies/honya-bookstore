@@ -1,6 +1,7 @@
 package com.honya.bookstore.catalog.application;
 
 import com.honya.bookstore.catalog.domain.Book;
+import com.honya.bookstore.catalog.infrastructure.persistence.BookMediaRepository;
 import com.honya.bookstore.catalog.infrastructure.persistence.BookRepository;
 import com.honya.bookstore.shared.error.InsufficientStockException;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;
@@ -21,7 +22,7 @@ class BookServiceImplErrorTest {
         UUID id = UUID.randomUUID();
         when(repository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> new BookServiceImpl(repository).getBookById(id));
+        assertThrows(ResourceNotFoundException.class, () -> new BookServiceImpl(repository, mock(BookMediaRepository.class), mock(MediaService.class)).getBookById(id));
     }
 
     @Test
@@ -31,6 +32,6 @@ class BookServiceImplErrorTest {
         Book book = Book.builder().id(id).title("Demo Book").stockQuantity(2).build();
         when(repository.findById(id)).thenReturn(Optional.of(book));
 
-        assertThrows(InsufficientStockException.class, () -> new BookServiceImpl(repository).reduceStock(id, 5));
+        assertThrows(InsufficientStockException.class, () -> new BookServiceImpl(repository, mock(BookMediaRepository.class), mock(MediaService.class)).reduceStock(id, 5));
     }
 }

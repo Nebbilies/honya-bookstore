@@ -1,6 +1,7 @@
 package com.honya.bookstore.catalog.application;
 
 import com.honya.bookstore.catalog.domain.Book;
+import com.honya.bookstore.catalog.infrastructure.persistence.BookMediaRepository;
 import com.honya.bookstore.catalog.infrastructure.persistence.BookRepository;
 import com.honya.bookstore.catalog.web.BookController.sortOrder;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,7 @@ class BookServiceImplSearchTest {
         BookRepository repository = mock(BookRepository.class);
         when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
 
-        BookServiceImpl service = new BookServiceImpl(repository);
+        BookServiceImpl service = new BookServiceImpl(repository, mock(BookMediaRepository.class), mock(MediaService.class));
         BookSearchCriteria criteria = new BookSearchCriteria(
                 100,
                 300,
@@ -54,7 +55,7 @@ class BookServiceImplSearchTest {
         BookRepository repository = mock(BookRepository.class);
         when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
 
-        BookServiceImpl service = new BookServiceImpl(repository);
+        BookServiceImpl service = new BookServiceImpl(repository, mock(BookMediaRepository.class), mock(MediaService.class));
         BookSearchCriteria criteria = new BookSearchCriteria(
                 null,
                 null,
