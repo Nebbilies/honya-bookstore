@@ -5,6 +5,7 @@ import com.honya.bookstore.catalog.infrastructure.persistence.MediaRepository;
 import com.honya.bookstore.catalog.web.dto.request.CreateMediaRequestDTO;
 import com.honya.bookstore.catalog.web.dto.response.MediaResponseDTO;
 import com.honya.bookstore.catalog.web.dto.response.UploadImageURLResponseDTO;
+import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.Http;
 import io.minio.MinioClient;
@@ -74,6 +75,12 @@ public class MediaServiceImpl implements MediaService {
 
         Media saved = mediaRepository.save(media);
         return mapToResponse(saved);
+    }
+
+    @Override
+    public Media getMediaById(UUID id) {
+        return mediaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Media", id));
     }
 
     private MediaResponseDTO mapToResponse(Media media) {
