@@ -9,8 +9,8 @@ const nextConfig: NextConfig = {
                 hostname: "example.com",
             },
             {
-                protocol: "https",
-                hostname: 'minio-api-honyabookstore.kevinnitro.id.vn',
+                protocol: "http",
+                hostname: 'host.docker.internal',
             }
         ]
     }
