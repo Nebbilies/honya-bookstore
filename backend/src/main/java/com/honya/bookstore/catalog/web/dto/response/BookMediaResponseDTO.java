@@ -14,4 +14,7 @@ import java.util.UUID;
 public class BookMediaResponseDTO {
     private UUID id;
     private Boolean isCover;
+    private Integer order;
+    private String url;
+    private String altText;
 }
