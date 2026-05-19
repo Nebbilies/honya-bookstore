@@ -10,4 +10,6 @@ public interface CartService {
     Cart updateItemQuantity(String userId, UUID cartItemId, Integer quantity);
     Cart removeItemFromCart(String userId, UUID cartItemId);
     void clearCart(UUID userId);
+    void updateSnapshotForCatalogItem(UUID catalogItemId, String title, String author, String imageUrl, Integer unitPrice);
+    void removeItemsByCatalogItemId(UUID catalogItemId);
 }

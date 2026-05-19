@@ -103,4 +103,45 @@ class CartServiceImpl implements CartService {
         cart.setUpdatedAt(OffsetDateTime.now());
         cartRepository.save(cart);
     }
+
+    // handler when calls ProductDetailsChangedEvent
+    @Override
+    @Transactional
+    public void updateSnapshotForCatalogItem(UUID catalogItemId, String title, String author, String imageUrl, Integer unitPrice) {
+        OffsetDateTime now = OffsetDateTime.now();
+        cartRepository.findAllByCatalogItemId(catalogItemId).forEach(cart -> {
+            cart.getItems().stream()
+                    .filter(item -> catalogItemId.equals(item.getCatalogItemId()))
+                    .forEach(item -> {
+                        if (title != null) {
+                            item.setTitle(title);
+                        }
+                        if (author != null) {
+                            item.setAuthor(author);
+                        }
+                        if (imageUrl != null) {
+                            item.setImageUrl(imageUrl);
+                        }
+                        if (unitPrice != null) {
+                            item.setUnitPrice(unitPrice);
+                        }
+                    });
+            cart.setUpdatedAt(now);
+            cartRepository.save(cart);
+        });
+    }
+
+    // handler when calls ProductRemovedEvent
+    @Override
+    @Transactional
+    public void removeItemsByCatalogItemId(UUID catalogItemId) {
+        OffsetDateTime now = OffsetDateTime.now();
+        cartRepository.findAllByCatalogItemId(catalogItemId).forEach(cart -> {
+            boolean removed = cart.getItems().removeIf(item -> catalogItemId.equals(item.getCatalogItemId()));
+            if (removed) {
+                cart.setUpdatedAt(now);
+                cartRepository.save(cart);
+            }
+        });
+    }
 }

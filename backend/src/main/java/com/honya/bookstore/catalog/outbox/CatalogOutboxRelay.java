@@ -1,8 +1,8 @@
 package com.honya.bookstore.catalog.outbox;
 
+import com.honya.bookstore.shared.integration.catalog.CatalogEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import java.time.OffsetDateTime;
 public class CatalogOutboxRelay {
 
     private final CatalogOutboxMessageRepository repository;
-    private final ApplicationEventPublisher eventPublisher;
+    private final CatalogEventPublisher eventPublisher;
     private final CatalogOutboxBackoff backoff;
 
     @Scheduled(fixedDelayString = "${bookstore.catalog-outbox.relay-fixed-delay-ms:1000}")
@@ -26,7 +26,7 @@ public class CatalogOutboxRelay {
 
     private void publish(CatalogOutboxMessage message) {
         try {
-            eventPublisher.publishEvent(message);
+            eventPublisher.publish(message.getEventType(), message.getPayload());
             OffsetDateTime now = OffsetDateTime.now();
             message.setStatus(CatalogOutboxStatus.SENT);
             message.setSentAt(now);
