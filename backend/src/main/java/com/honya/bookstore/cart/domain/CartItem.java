@@ -15,9 +15,6 @@ public class CartItem {
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
-    @Column(name = "book_id")
-    private UUID bookId;
-
     @Column(name = "catalog_item_id")
     private UUID catalogItemId;
 

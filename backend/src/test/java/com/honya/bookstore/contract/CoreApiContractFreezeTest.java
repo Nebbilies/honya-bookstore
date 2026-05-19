@@ -367,7 +367,7 @@ class CoreApiContractFreezeTest {
                 .andExpect(jsonPath("$.ownerId").value(userId))
                 .andExpect(jsonPath("$.updatedAt").exists())
                 .andExpect(jsonPath("$.items[0].id").exists())
-                .andExpect(jsonPath("$.items[0].bookId").exists())
+                .andExpect(jsonPath("$.items[0].book.id").exists())
                 .andExpect(jsonPath("$.items[0].quantity").value(2));
     }
 
@@ -558,9 +558,14 @@ class CoreApiContractFreezeTest {
     }
 
     private Cart sampleCart(UUID userId) {
+        UUID catalogItemId = UUID.randomUUID();
         CartItem item = CartItem.builder()
                 .id(UUID.randomUUID())
-                .bookId(UUID.randomUUID())
+                .catalogItemId(catalogItemId)
+                .title("Sample Book")
+                .author("Sample Author")
+                .imageUrl("https://example.com/cover.jpg")
+                .unitPrice(1000)
                 .quantity(2)
                 .build();
 

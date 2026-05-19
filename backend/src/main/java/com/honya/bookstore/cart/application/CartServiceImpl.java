@@ -55,7 +55,6 @@ class CartServiceImpl implements CartService {
         } else {
             CartItem newItem = CartItem.builder()
                     .cart(cart)
-                    .bookId(bookId)
                     .catalogItemId(snapshot.id())
                     .title(snapshot.title())
                     .author(snapshot.author())

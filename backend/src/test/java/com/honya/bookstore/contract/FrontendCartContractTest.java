@@ -105,7 +105,6 @@ class FrontendCartContractTest {
         UUID bookId = UUID.randomUUID();
         CartItem item = CartItem.builder()
                 .id(UUID.randomUUID())
-                .bookId(bookId)
                 .catalogItemId(bookId)
                 .title("Sample Book")
                 .author("Sample Author")
