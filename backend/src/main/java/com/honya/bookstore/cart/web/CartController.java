@@ -75,8 +75,10 @@ public class CartController {
     @PostMapping("/{cartId}/items")
     public ResponseEntity<CartResponseDTO> addItem(
             @PathVariable UUID cartId,
-            @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @AuthenticationPrincipal(expression = "subject") String userIdFromToken,
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
             @RequestBody AddItemRequestDTO request) {
+        String userId = userIdFromToken != null ? userIdFromToken : userIdHeader;
         if (userId == null) {
             return ResponseEntity.ok().build();
         }
@@ -94,8 +96,10 @@ public class CartController {
     public ResponseEntity<CartResponseDTO> updateItem(
             @PathVariable UUID cartId,
             @PathVariable UUID itemId,
-            @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @AuthenticationPrincipal(expression = "subject") String userIdFromToken,
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
             @RequestBody UpdateCartItemRequestDTO request) {
+        String userId = userIdFromToken != null ? userIdFromToken : userIdHeader;
         if (userId == null) {
             return ResponseEntity.ok().build();
         }
@@ -113,7 +117,9 @@ public class CartController {
     public ResponseEntity<CartResponseDTO> removeItem(
             @PathVariable UUID cartId,
             @PathVariable UUID itemId,
-            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+            @AuthenticationPrincipal(expression = "subject") String userIdFromToken,
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader) {
+        String userId = userIdFromToken != null ? userIdFromToken : userIdHeader;
         if (userId == null) {
             return ResponseEntity.ok().build();
         }
