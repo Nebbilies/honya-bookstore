@@ -5,10 +5,14 @@ import com.honya.bookstore.catalog.domain.BookMedia;
 import com.honya.bookstore.catalog.infrastructure.persistence.BookMediaRepository;
 import com.honya.bookstore.catalog.infrastructure.persistence.BookRepository;
 import com.honya.bookstore.catalog.infrastructure.persistence.BookSpecifications;
+import com.honya.bookstore.catalog.outbox.CatalogOutboxWriter;
 import com.honya.bookstore.catalog.web.BookController.sortOrder;
 import com.honya.bookstore.catalog.web.dto.request.BookMediaRequestDTO;
 import com.honya.bookstore.shared.error.InsufficientStockException;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;
+import com.honya.bookstore.shared.integration.catalog.event.ProductDetailsChangedEvent;
+import com.honya.bookstore.shared.integration.catalog.event.ProductPriceChangedEvent;
+import com.honya.bookstore.shared.integration.catalog.event.ProductRemovedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -29,6 +34,7 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BookMediaRepository bookMediaRepository;
     private final MediaService mediaService;
+    private final CatalogOutboxWriter outboxWriter;
 
     @Override
     public Page<Book> getAllBooks(BookSearchCriteria criteria, Pageable pageable) {
@@ -58,13 +64,17 @@ public class BookServiceImpl implements BookService {
     public Book createBook(Book book, List<BookMediaRequestDTO> mediaRequests) {
         Book savedBook = bookRepository.save(book);
         syncBookMedia(savedBook, mediaRequests);
-        return getBookById(savedBook.getId());
+
+        Book reloadedBook = getBookById(savedBook.getId());
+        enqueueProductDetailsChanged(reloadedBook);
+        return reloadedBook;
     }
 
     @Override
     @Transactional
     public Book updateBook(UUID id, Book book, List<BookMediaRequestDTO> mediaRequests) {
         Book existingBook = getBookById(id);
+        Integer previousPrice = existingBook.getPrice();
 
         existingBook.setTitle(book.getTitle());
         existingBook.setDescription(book.getDescription());
@@ -79,12 +89,28 @@ public class BookServiceImpl implements BookService {
 
         Book savedBook = bookRepository.save(existingBook);
         syncBookMedia(savedBook, mediaRequests);
-        return getBookById(savedBook.getId());
+
+        Book reloadedBook = getBookById(savedBook.getId());
+        enqueueProductDetailsChanged(reloadedBook);
+        if (!Objects.equals(previousPrice, reloadedBook.getPrice())) {
+            outboxWriter.enqueue(
+                    "PRODUCT_PRICE_CHANGED",
+                    reloadedBook.getId(),
+                    new ProductPriceChangedEvent(reloadedBook.getId(), reloadedBook.getPrice())
+            );
+        }
+        return reloadedBook;
     }
 
     @Override
     @Transactional
     public void deleteBook(UUID id) {
+        Book existingBook = getBookById(id);
+        outboxWriter.enqueue(
+                "PRODUCT_REMOVED",
+                existingBook.getId(),
+                new ProductRemovedEvent(existingBook.getId())
+        );
         bookMediaRepository.deleteByBookId(id);
         bookRepository.deleteById(id);
     }
@@ -148,6 +174,20 @@ public class BookServiceImpl implements BookService {
                 .toList();
 
         bookMediaRepository.saveAll(bookMediaList);
+    }
+
+    private void enqueueProductDetailsChanged(Book book) {
+        outboxWriter.enqueue(
+                "PRODUCT_DETAILS_CHANGED",
+                book.getId(),
+                new ProductDetailsChangedEvent(
+                        book.getId(),
+                        book.getTitle(),
+                        book.getAuthor() == null ? "Unknown" : book.getAuthor(),
+                        getBookCoverUrl(book.getId()),
+                        book.getPrice()
+                )
+        );
     }
 
     private Sort buildSort(BookSearchCriteria criteria) {
