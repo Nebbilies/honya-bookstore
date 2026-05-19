@@ -97,6 +97,23 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public String getBookCoverUrl(UUID bookId) {
+        Book book = getBookById(bookId);
+        if (book.getMedia() == null || book.getMedia().isEmpty()) {
+            return "/images/fallbackBookImage.png";
+        }
+
+        return book.getMedia().stream()
+                .filter(bookMedia -> Boolean.TRUE.equals(bookMedia.getIsCover()))
+                .map(bookMedia -> bookMedia.getMedia().getUrl())
+                .findFirst()
+                .orElseGet(() -> book.getMedia().stream()
+                        .map(bookMedia -> bookMedia.getMedia().getUrl())
+                        .findFirst()
+                        .orElse("/images/fallbackBookImage.png"));
+    }
+
+    @Override
     @Transactional
     public void reduceStock(UUID bookId, Integer quantity) {
         Book book = getBookById(bookId);

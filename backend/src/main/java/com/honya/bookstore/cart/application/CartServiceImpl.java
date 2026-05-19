@@ -3,6 +3,8 @@ package com.honya.bookstore.cart.application;
 import com.honya.bookstore.cart.domain.Cart;
 import com.honya.bookstore.cart.domain.CartItem;
 import com.honya.bookstore.cart.infrastructure.persistence.CartRepository;
+import com.honya.bookstore.catalog.api.CatalogCartSnapshot;
+import com.honya.bookstore.catalog.api.CatalogStockApi;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.util.UUID;
 class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
+    private final CatalogStockApi catalogStockApi;
 
     @Override
     @Transactional
@@ -40,21 +43,24 @@ class CartServiceImpl implements CartService {
     @Transactional
     public Cart addItemToCart(String userId, UUID bookId, Integer quantity) {
         Cart cart = getCartByUserId(userId);
+        CatalogCartSnapshot snapshot = catalogStockApi.getCartSnapshot(bookId);
 
-        // Check if the book is already in the cart
         Optional<CartItem> existingItem = cart.getItems().stream()
-                .filter(item -> item.getBookId().equals(bookId))
+                .filter(item -> snapshot.id().equals(item.getCatalogItemId()))
                 .findFirst();
 
         if (existingItem.isPresent()) {
-            // Just increase the quantity
             CartItem item = existingItem.get();
             item.setQuantity(item.getQuantity() + quantity);
         } else {
-            // Add a new item
             CartItem newItem = CartItem.builder()
                     .cart(cart)
                     .bookId(bookId)
+                    .catalogItemId(snapshot.id())
+                    .title(snapshot.title())
+                    .author(snapshot.author())
+                    .imageUrl(snapshot.imageUrl())
+                    .unitPrice(snapshot.price())
                     .quantity(quantity)
                     .build();
             cart.getItems().add(newItem);
