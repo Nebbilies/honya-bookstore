@@ -135,19 +135,11 @@ export interface Review {
 }
 
 export interface CartItemBook {
-    author: string | null;
-    description: string | null;
     id: string;
-    medium: BookMedia[];
     title: string;
-    pagesCount: number | null
+    author: string;
+    imageUrl: string;
     price: number;
-    publisher: string;
-    purchaseCount: number;
-    rating: number;
-    stockQuantity: number;
-    weight: number | null;
-    yearPublished: number;
 }
 
 export interface CartItem {
