@@ -52,6 +52,9 @@ class FrontendCartContractTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.items[0].book.id").exists())
+                .andExpect(jsonPath("$.items[0].book.title").isString())
+                .andExpect(jsonPath("$.items[0].book.author").isString())
+                .andExpect(jsonPath("$.items[0].book.imageUrl").isString())
                 .andExpect(jsonPath("$.items[0].book.price").isNumber());
     }
 
@@ -65,6 +68,9 @@ class FrontendCartContractTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.items[0].book.id").exists())
+                .andExpect(jsonPath("$.items[0].book.title").isString())
+                .andExpect(jsonPath("$.items[0].book.author").isString())
+                .andExpect(jsonPath("$.items[0].book.imageUrl").isString())
                 .andExpect(jsonPath("$.items[0].book.price").isNumber());
     }
 
