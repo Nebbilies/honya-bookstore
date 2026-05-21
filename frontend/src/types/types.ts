@@ -68,10 +68,10 @@ export interface Order {
     isPaid: boolean,
     items: OrderItem[],
     lastName: string,
-    paymentUrl: string,
+    paymentUrl: string | null,
     phone: string
-    provider: 'COD' | 'VNPAY' | 'MOMO',
-    status: 'Pending' | 'Processing' | 'Shipping' | 'Delivered' | 'Cancelled',
+    provider: 'COD' | 'VNPAY' | 'MOMO' | 'ZALOPAY',
+    status: 'PENDING' | 'PROCESSING' | 'SHIPPING' | 'DELIVERED' | 'CANCELLED',
     totalAmount: number,
     updatedAt: string,
     userId: string,
