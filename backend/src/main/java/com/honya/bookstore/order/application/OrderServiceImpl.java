@@ -2,6 +2,8 @@ package com.honya.bookstore.order.application;
 
 import com.honya.bookstore.order.domain.Order;
 import com.honya.bookstore.order.domain.OrderStatus;
+
+import java.time.OffsetDateTime;
 import com.honya.bookstore.order.infrastructure.persistence.OrderRepository;
 import com.honya.bookstore.order.api.event.OrderItemEventDTO;
 import com.honya.bookstore.order.api.event.OrderPlacedEvent;
@@ -26,8 +28,12 @@ class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public Order createOrder(String userId, Order orderDetails) {
+        OffsetDateTime now = OffsetDateTime.now();
         orderDetails.setUserId(UUID.fromString(userId));
-        orderDetails.setStatus(OrderStatus.PENDING);
+        orderDetails.setStatus(orderDetails.getStatus() == null ? OrderStatus.PENDING : orderDetails.getStatus());
+        orderDetails.setIsPaid(orderDetails.getIsPaid() == null ? Boolean.FALSE : orderDetails.getIsPaid());
+        orderDetails.setCreatedAt(orderDetails.getCreatedAt() == null ? now : orderDetails.getCreatedAt());
+        orderDetails.setUpdatedAt(now);
 
         if (orderDetails.getItems() != null) {
             orderDetails.getItems().forEach(item -> item.setOrder(orderDetails));
@@ -68,6 +74,36 @@ class OrderServiceImpl implements OrderService {
         } catch (IllegalArgumentException ex) {
             throw new InvalidOrderStatusException(status);
         }
+        order.setUpdatedAt(OffsetDateTime.now());
+        return orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public Order updatePaymentUrl(UUID orderId, String paymentUrl) {
+        Order order = getOrderById(orderId);
+        order.setPaymentUrl(paymentUrl);
+        order.setUpdatedAt(OffsetDateTime.now());
+        return orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public Order updatePaymentStatus(UUID orderId, boolean paid, String transactionNo, String status) {
+        Order order = getOrderById(orderId);
+        order.setIsPaid(paid);
+        order.setPaymentTransactionNo(transactionNo);
+        if (status != null) {
+            try {
+                order.setStatus(OrderStatus.valueOf(status.toUpperCase()));
+            } catch (IllegalArgumentException ex) {
+                throw new InvalidOrderStatusException(status);
+            }
+        }
+        if (paid) {
+            order.setPaidAt(OffsetDateTime.now());
+        }
+        order.setUpdatedAt(OffsetDateTime.now());
         return orderRepository.save(order);
     }
 }

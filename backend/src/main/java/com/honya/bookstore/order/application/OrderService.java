@@ -10,4 +10,6 @@ public interface OrderService {
     Order getOrderById(UUID orderId);
     List<Order> getOrdersByUserId(String userId);
     Order updateOrderStatus(UUID orderId, String status);
+    Order updatePaymentUrl(UUID orderId, String paymentUrl);
+    Order updatePaymentStatus(UUID orderId, boolean paid, String transactionNo, String status);
 }
