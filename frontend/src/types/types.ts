@@ -48,7 +48,6 @@ export interface OrderItemBook {
     author: string,
     price: number,
     rating: number,
-    stockQuantity: number,
     title: string,
 }
 
