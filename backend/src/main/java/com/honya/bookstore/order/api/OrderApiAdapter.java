@@ -3,6 +3,7 @@ package com.honya.bookstore.order.api;
 import com.honya.bookstore.order.application.OrderService;
 import com.honya.bookstore.order.domain.Order;
 import com.honya.bookstore.order.domain.OrderItem;
+import com.honya.bookstore.order.domain.OrderItemBook;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +41,7 @@ public class OrderApiAdapter implements OrderApi {
                 .city(request.city())
                 .items(request.items().stream()
                         .map(item -> OrderItem.builder()
-                                .bookId(item.bookId())
+                                .book(OrderItemBook.builder().id(item.bookId()).build())
                                 .quantity(item.quantity())
                                 .price(item.price())
                                 .build())
@@ -64,7 +65,7 @@ public class OrderApiAdapter implements OrderApi {
                 order.getItems().stream()
                         .map(item -> new OrderItemResponse(
                                 item.getId(),
-                                item.getBookId(),
+                                item.getBook() == null ? null : item.getBook().getId(),
                                 item.getQuantity(),
                                 item.getPrice()
                         ))

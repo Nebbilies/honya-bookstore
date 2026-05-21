@@ -36,7 +36,7 @@ class OrderServiceImpl implements OrderService {
         Order savedOrder = orderRepository.save(orderDetails);
 
         List<OrderItemEventDTO> eventItems = savedOrder.getItems().stream()
-                .map(item -> new OrderItemEventDTO(item.getBookId(), item.getQuantity()))
+                .map(item -> new OrderItemEventDTO(item.getBook().getId(), item.getQuantity()))
                 .collect(Collectors.toList());
 
         outboxWriter.enqueue(new OrderPlacedEvent(

@@ -15,8 +15,9 @@ public class OrderItem {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    @Column(name = "book_id")
-    private UUID bookId;
+    @ManyToOne
+    @JoinColumn(name = "book_id")
+    private OrderItemBook book;
 
     private Integer quantity;
     private Integer price;
