@@ -13,11 +13,12 @@ import com.honya.bookstore.catalog.application.CategoryService;
 import com.honya.bookstore.cart.domain.Cart;
 import com.honya.bookstore.cart.web.CartController;
 import com.honya.bookstore.cart.domain.CartItem;
+import com.honya.bookstore.cart.api.CartApi;
 import com.honya.bookstore.cart.application.CartService;
 import com.honya.bookstore.cart.web.dto.request.AddItemRequestDTO;
-import com.honya.bookstore.checkout.CheckoutController;
-import com.honya.bookstore.checkout.CheckoutRequestDTO;
-import com.honya.bookstore.checkout.CheckoutService;
+import com.honya.bookstore.checkout.application.CheckoutService;
+import com.honya.bookstore.checkout.web.CheckoutController;
+import com.honya.bookstore.checkout.web.dto.CheckoutRequestDTO;
 import com.honya.bookstore.order.api.OrderItemResponse;
 import com.honya.bookstore.order.api.OrderResponse;
 import com.honya.bookstore.order.domain.Order;
@@ -25,6 +26,7 @@ import com.honya.bookstore.order.web.OrderController;
 import com.honya.bookstore.order.domain.OrderItem;
 import com.honya.bookstore.order.application.OrderService;
 import com.honya.bookstore.order.domain.OrderProvider;
+import com.honya.bookstore.order.infrastructure.payment.VnPayUrlBuilder;
 import com.honya.bookstore.order.domain.OrderStatus;
 import com.honya.bookstore.order.domain.OrderItemBook;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,7 +81,9 @@ class CoreApiContractFreezeTest {
         CatalogStockApi catalogStockApi = mock(CatalogStockApi.class);
         when(catalogStockApi.getBookPrice(any(UUID.class))).thenReturn(1000);
         CartController cartController = new CartController(cartService, catalogStockApi);
-        OrderController orderController = new OrderController(orderService);
+        CartApi cartApi = mock(CartApi.class);
+        VnPayUrlBuilder vnPayUrlBuilder = mock(VnPayUrlBuilder.class);
+        OrderController orderController = new OrderController(orderService, cartApi, catalogStockApi, vnPayUrlBuilder);
         CheckoutController checkoutController = new CheckoutController(checkoutService);
 
         mockMvc = MockMvcBuilders.standaloneSetup(
@@ -625,11 +629,16 @@ class CoreApiContractFreezeTest {
                 "Doe",
                 "Street 1",
                 "City",
+                "john@example.com",
+                "+84912345678",
+                null,
                 "COD",
                 "PENDING",
                 false,
                 1234,
                 userId,
+                OffsetDateTime.now(),
+                OffsetDateTime.now(),
                 List.of(new OrderItemResponse(UUID.randomUUID(), UUID.randomUUID(), 2, 617))
         );
     }

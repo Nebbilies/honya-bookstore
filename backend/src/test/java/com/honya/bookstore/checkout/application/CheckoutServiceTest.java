@@ -1,4 +1,4 @@
-package com.honya.bookstore.checkout;
+package com.honya.bookstore.checkout.application;
 
 import com.honya.bookstore.cart.api.CartApi;
 import com.honya.bookstore.cart.api.CartItemSnapshot;
@@ -8,9 +8,11 @@ import com.honya.bookstore.order.api.OrderApi;
 import com.honya.bookstore.order.api.OrderItemRequest;
 import com.honya.bookstore.order.api.OrderRequest;
 import com.honya.bookstore.order.api.OrderResponse;
+import com.honya.bookstore.checkout.web.dto.CheckoutRequestDTO;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,7 +46,24 @@ class CheckoutServiceTest {
         )));
         when(catalogStockApi.getBookPrice(firstBookId)).thenReturn(100);
         when(catalogStockApi.getBookPrice(secondBookId)).thenReturn(250);
-        OrderResponse response = new OrderResponse(UUID.randomUUID(), "Ada", "Lovelace", "12 Example Street", "London", null, null, null, 450, userId, List.of());
+        OrderResponse response = new OrderResponse(
+                UUID.randomUUID(),
+                "Ada",
+                "Lovelace",
+                "12 Example Street",
+                "London",
+                null,
+                null,
+                null,
+                null,
+                "PENDING",
+                false,
+                450,
+                userId,
+                OffsetDateTime.now(),
+                OffsetDateTime.now(),
+                List.of()
+        );
         when(orderApi.createOrder(org.mockito.ArgumentMatchers.eq(userId.toString()), any(OrderRequest.class))).thenReturn(response);
 
         OrderResponse createdOrder = new CheckoutService(orderApi, cartApi, catalogStockApi)

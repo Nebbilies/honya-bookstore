@@ -1,11 +1,14 @@
 package com.honya.bookstore.contract;
 
+import com.honya.bookstore.cart.api.CartApi;
+import com.honya.bookstore.catalog.api.CatalogStockApi;
 import com.honya.bookstore.order.application.OrderService;
 import com.honya.bookstore.order.domain.Order;
 import com.honya.bookstore.order.domain.OrderItem;
 import com.honya.bookstore.order.domain.OrderProvider;
 import com.honya.bookstore.order.domain.OrderStatus;
 import com.honya.bookstore.order.domain.OrderItemBook;
+import com.honya.bookstore.order.infrastructure.payment.VnPayUrlBuilder;
 import com.honya.bookstore.order.web.OrderController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +35,10 @@ class FrontendOrdersContractTest {
     @BeforeEach
     void setUp() {
         orderService = mock(OrderService.class);
-        OrderController orderController = new OrderController(orderService);
+        CartApi cartApi = mock(CartApi.class);
+        CatalogStockApi catalogStockApi = mock(CatalogStockApi.class);
+        VnPayUrlBuilder vnPayUrlBuilder = mock(VnPayUrlBuilder.class);
+        OrderController orderController = new OrderController(orderService, cartApi, catalogStockApi, vnPayUrlBuilder);
 
         mockMvc = MockMvcBuilders.standaloneSetup(orderController).build();
     }
