@@ -5,6 +5,7 @@ import com.honya.bookstore.order.domain.Order;
 import com.honya.bookstore.order.domain.OrderItem;
 import com.honya.bookstore.order.domain.OrderProvider;
 import com.honya.bookstore.order.domain.OrderStatus;
+import com.honya.bookstore.order.domain.OrderItemBook;
 import com.honya.bookstore.order.web.OrderController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,7 +74,7 @@ class FrontendOrdersContractTest {
     private Order sampleOrder(UUID userId) {
         OrderItem item = OrderItem.builder()
                 .id(UUID.randomUUID())
-                .bookId(UUID.randomUUID())
+                .book(OrderItemBook.builder().id(UUID.randomUUID()).build())
                 .quantity(2)
                 .price(617)
                 .build();

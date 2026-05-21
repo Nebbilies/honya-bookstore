@@ -3,6 +3,7 @@ package com.honya.bookstore.order.application;
 import com.honya.bookstore.order.api.event.OrderPlacedEvent;
 import com.honya.bookstore.order.domain.Order;
 import com.honya.bookstore.order.domain.OrderItem;
+import com.honya.bookstore.order.domain.OrderItemBook;
 import com.honya.bookstore.order.infrastructure.persistence.OrderRepository;
 import com.honya.bookstore.order.outbox.OrderOutboxWriter;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ class OrderServiceImplTest {
                 .address("12 Example Street")
                 .city("London")
                 .items(List.of(OrderItem.builder()
-                        .bookId(bookId)
+                        .book(OrderItemBook.builder().id(bookId).build())
                         .quantity(2)
                         .price(100)
                         .build()))

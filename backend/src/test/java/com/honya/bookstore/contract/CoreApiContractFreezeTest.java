@@ -26,6 +26,7 @@ import com.honya.bookstore.order.domain.OrderItem;
 import com.honya.bookstore.order.application.OrderService;
 import com.honya.bookstore.order.domain.OrderProvider;
 import com.honya.bookstore.order.domain.OrderStatus;
+import com.honya.bookstore.order.domain.OrderItemBook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -482,7 +483,7 @@ class CoreApiContractFreezeTest {
                 .andExpect(jsonPath("$[0].totalAmount").value(1234))
                 .andExpect(jsonPath("$[0].userId").value(userId))
                 .andExpect(jsonPath("$[0].items[0].id").exists())
-                .andExpect(jsonPath("$[0].items[0].bookId").exists())
+                .andExpect(jsonPath("$[0].items[0].book.id").exists())
                 .andExpect(jsonPath("$[0].items[0].quantity").value(2))
                 .andExpect(jsonPath("$[0].items[0].price").value(617));
     }
@@ -636,7 +637,7 @@ class CoreApiContractFreezeTest {
     private Order sampleOrder(UUID userId) {
         OrderItem item = OrderItem.builder()
                 .id(UUID.randomUUID())
-                .bookId(UUID.randomUUID())
+                .book(OrderItemBook.builder().id(UUID.randomUUID()).build())
                 .quantity(2)
                 .price(617)
                 .build();
