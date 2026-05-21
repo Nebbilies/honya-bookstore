@@ -7,6 +7,10 @@ public record OrderRequest(
         String lastName,
         String address,
         String city,
+        String email,
+        String phone,
+        String provider,
+        String returnUrl,
         List<OrderItemRequest> items,
         Integer totalAmount
 ) {
