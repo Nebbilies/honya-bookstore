@@ -16,7 +16,7 @@ class CatalogProductEventListenerTest {
     void handleProductRemoved_removesMatchingCartItems() {
         Class<?> cartServiceType = requiredClass("com.honya.bookstore.cart.application.CartService");
         Class<?> listenerType = requiredClass("com.honya.bookstore.cart.application.CatalogProductEventListener");
-        Class<?> removedEventType = requiredClass("com.honya.bookstore.catalog.api.event.ProductRemovedEvent");
+        Class<?> removedEventType = requiredClass("com.honya.bookstore.shared.integration.catalog.event.ProductRemovedEvent");
 
         UUID catalogItemId = UUID.randomUUID();
         Object cartServiceMock = mock(cartServiceType);

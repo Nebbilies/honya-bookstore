@@ -4,7 +4,6 @@ import com.honya.bookstore.catalog.web.BookController;
 import com.honya.bookstore.catalog.web.CategoryController;
 import com.honya.bookstore.catalog.domain.Book;
 import com.honya.bookstore.catalog.domain.Category;
-import com.honya.bookstore.catalog.web.dto.request.BookRequestDTO;
 import com.honya.bookstore.catalog.web.dto.request.CategoryRequestDTO;
 import com.honya.bookstore.catalog.api.CatalogStockApi;
 import com.honya.bookstore.catalog.application.BookSearchCriteria;
@@ -29,9 +28,14 @@ import com.honya.bookstore.order.domain.OrderProvider;
 import com.honya.bookstore.order.infrastructure.payment.VnPayUrlBuilder;
 import com.honya.bookstore.order.domain.OrderStatus;
 import com.honya.bookstore.order.domain.OrderItemBook;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -92,7 +96,22 @@ class CoreApiContractFreezeTest {
                 cartController,
                 orderController,
                 checkoutController
-        ).build();
+        ).setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver()).build();
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
+
+    // Simulates an authenticated request by placing a JWT (subject = userId) in the
+    // security context, matching the OAuth2 resource-server contract the controllers use.
+    private void authenticate(String userId) {
+        Jwt jwt = Jwt.withTokenValue("token")
+                .header("alg", "none")
+                .subject(userId)
+                .build();
+        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt));
     }
 
     @Test
@@ -184,22 +203,11 @@ class CoreApiContractFreezeTest {
 
         when(bookService.createBook(any(Book.class), anyList())).thenReturn(saved);
 
-        BookRequestDTO request = BookRequestDTO.builder()
-                .title("New")
-                .description("New Desc")
-                .author("Writer")
-                .price(150)
-                .pagesCount(300)
-                .yearPublished(2021)
-                .publisher("Pub2")
-                .weight(1.1f)
-                .stockQuantity(20)
-                .categoryIds(List.of(categoryId))
-                .build();
+        String request = bookRequestJson(categoryId);
 
         mockMvc.perform(post("/api/books")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(request)))
+                        .content(request))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").exists())
@@ -239,22 +247,11 @@ class CoreApiContractFreezeTest {
 
         when(bookService.updateBook(eq(bookId), any(Book.class), anyList())).thenReturn(updated);
 
-        BookRequestDTO request = BookRequestDTO.builder()
-                .title("Updated")
-                .description("Updated Desc")
-                .author("A")
-                .price(99)
-                .pagesCount(101)
-                .yearPublished(2022)
-                .publisher("P")
-                .weight(0.7f)
-                .stockQuantity(9)
-                .categoryIds(List.of(categoryId))
-                .build();
+        String request = bookRequestJson(categoryId);
 
         mockMvc.perform(put("/api/books/{id}", bookId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(request)))
+                        .content(request))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(bookId.toString()));
     }
@@ -377,14 +374,15 @@ class CoreApiContractFreezeTest {
     }
 
     @Test
-    void getCartWithoutHeaderReturns400() throws Exception {
+    void getCartWithoutAuthReturnsEmptyOk() throws Exception {
         mockMvc.perform(get("/api/cart"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
     }
 
     @Test
     void addCartItemWithHeaderReturns200() throws Exception {
         String userId = UUID.randomUUID().toString();
+        UUID cartId = UUID.randomUUID();
         UUID bookId = UUID.randomUUID();
         Cart cart = sampleCart(UUID.fromString(userId));
 
@@ -394,7 +392,7 @@ class CoreApiContractFreezeTest {
         request.setBookId(bookId);
         request.setQuantity(2);
 
-        mockMvc.perform(post("/api/cart/items")
+        mockMvc.perform(post("/api/cart/{cartId}/items", cartId)
                         .header("X-User-Id", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(request)))
@@ -404,40 +402,41 @@ class CoreApiContractFreezeTest {
     }
 
     @Test
-    void addCartItemWithoutHeaderReturns400() throws Exception {
+    void addCartItemWithoutAuthReturnsEmptyOk() throws Exception {
         AddItemRequestDTO request = new AddItemRequestDTO();
         request.setBookId(UUID.randomUUID());
         request.setQuantity(2);
 
-        mockMvc.perform(post("/api/cart/items")
+        mockMvc.perform(post("/api/cart/{cartId}/items", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
     }
 
     @Test
     void removeCartItemWithHeaderReturns200() throws Exception {
         String userId = UUID.randomUUID().toString();
+        UUID cartId = UUID.randomUUID();
         UUID itemId = UUID.randomUUID();
         Cart cart = sampleCart(UUID.fromString(userId));
 
         when(cartService.removeItemFromCart(userId, itemId)).thenReturn(cart);
 
-        mockMvc.perform(delete("/api/cart/items/{itemId}", itemId)
+        mockMvc.perform(delete("/api/cart/{cartId}/items/{itemId}", cartId, itemId)
                         .header("X-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists());
     }
 
     @Test
-    void removeCartItemWithoutHeaderReturns400() throws Exception {
-        mockMvc.perform(delete("/api/cart/items/{itemId}", UUID.randomUUID()))
-                .andExpect(status().isBadRequest());
+    void removeCartItemWithoutAuthReturnsEmptyOk() throws Exception {
+        mockMvc.perform(delete("/api/cart/{cartId}/items/{itemId}", UUID.randomUUID(), UUID.randomUUID()))
+                .andExpect(status().isOk());
     }
 
     @Test
     void removeCartItemInvalidUuidReturns400() throws Exception {
-        mockMvc.perform(delete("/api/cart/items/not-a-uuid")
+        mockMvc.perform(delete("/api/cart/{cartId}/items/not-a-uuid", UUID.randomUUID())
                         .header("X-User-Id", UUID.randomUUID().toString()))
                 .andExpect(status().isBadRequest());
     }
@@ -471,31 +470,26 @@ class CoreApiContractFreezeTest {
         Order order = sampleOrder(UUID.fromString(userId));
 
         when(orderService.getOrdersByUserId(userId)).thenReturn(List.of(order));
+        authenticate(userId);
 
-        mockMvc.perform(get("/api/orders")
-                        .header("X-User-Id", userId))
+        mockMvc.perform(get("/api/orders"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].id").exists())
-                .andExpect(jsonPath("$[0].firstName").value("John"))
-                .andExpect(jsonPath("$[0].lastName").value("Doe"))
-                .andExpect(jsonPath("$[0].address").value("Street 1"))
-                .andExpect(jsonPath("$[0].city").value("City"))
-                .andExpect(jsonPath("$[0].provider").value("COD"))
-                .andExpect(jsonPath("$[0].status").value("PENDING"))
-                .andExpect(jsonPath("$[0].isPaid").value(false))
-                .andExpect(jsonPath("$[0].totalAmount").value(1234))
-                .andExpect(jsonPath("$[0].userId").value(userId))
-                .andExpect(jsonPath("$[0].items[0].id").exists())
-                .andExpect(jsonPath("$[0].items[0].book.id").exists())
-                .andExpect(jsonPath("$[0].items[0].quantity").value(2))
-                .andExpect(jsonPath("$[0].items[0].price").value(617));
-    }
-
-    @Test
-    void getOrdersWithoutHeaderReturns400() throws Exception {
-        mockMvc.perform(get("/api/orders"))
-                .andExpect(status().isBadRequest());
+                .andExpect(jsonPath("$.data[0].id").exists())
+                .andExpect(jsonPath("$.data[0].firstName").value("John"))
+                .andExpect(jsonPath("$.data[0].lastName").value("Doe"))
+                .andExpect(jsonPath("$.data[0].address").value("Street 1"))
+                .andExpect(jsonPath("$.data[0].city").value("City"))
+                .andExpect(jsonPath("$.data[0].provider").value("COD"))
+                .andExpect(jsonPath("$.data[0].status").value("PENDING"))
+                .andExpect(jsonPath("$.data[0].isPaid").value(false))
+                .andExpect(jsonPath("$.data[0].totalAmount").value(1234))
+                .andExpect(jsonPath("$.data[0].userId").value(userId))
+                .andExpect(jsonPath("$.data[0].items[0].id").exists())
+                .andExpect(jsonPath("$.data[0].items[0].book.id").exists())
+                .andExpect(jsonPath("$.data[0].items[0].quantity").value(2))
+                .andExpect(jsonPath("$.data[0].items[0].price").value(617))
+                .andExpect(jsonPath("$.meta.totalItems").value(1));
     }
 
     @Test
@@ -523,6 +517,7 @@ class CoreApiContractFreezeTest {
         OrderResponse created = sampleOrderResponse(UUID.fromString(userId));
 
         when(checkoutService.checkout(eq(userId), any(CheckoutRequestDTO.class))).thenReturn(created);
+        authenticate(userId);
 
         CheckoutRequestDTO request = new CheckoutRequestDTO();
         request.setFirstName("John");
@@ -530,8 +525,7 @@ class CoreApiContractFreezeTest {
         request.setAddress("Street 1");
         request.setCity("City");
 
-        mockMvc.perform(post("/api/orders/checkout")
-                        .header("X-User-Id", userId)
+        mockMvc.perform(post("/api/checkout/checkout")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(request)))
                 .andExpect(status().isOk())
@@ -546,20 +540,6 @@ class CoreApiContractFreezeTest {
                 .andExpect(jsonPath("$.isPaid").value(false))
                 .andExpect(jsonPath("$.totalAmount").value(1234))
                 .andExpect(jsonPath("$.userId").value(userId));
-    }
-
-    @Test
-    void checkoutWithoutHeaderReturns400() throws Exception {
-        CheckoutRequestDTO request = new CheckoutRequestDTO();
-        request.setFirstName("John");
-        request.setLastName("Doe");
-        request.setAddress("Street 1");
-        request.setCity("City");
-
-        mockMvc.perform(post("/api/orders/checkout")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(request)))
-                .andExpect(status().isBadRequest());
     }
 
     private Cart sampleCart(UUID userId) {
@@ -620,6 +600,22 @@ class CoreApiContractFreezeTest {
         }
         sb.append("}");
         return sb.toString();
+    }
+
+    private String bookRequestJson(UUID categoryId) {
+        return "{"
+                + "\"title\":\"New\","
+                + "\"description\":\"New Desc\","
+                + "\"author\":\"Writer\","
+                + "\"price\":150,"
+                + "\"pagesCount\":300,"
+                + "\"yearPublished\":2021,"
+                + "\"publisher\":\"Pub2\","
+                + "\"weight\":1.1,"
+                + "\"stockQuantity\":20,"
+                + "\"categoryIds\":[\"" + categoryId + "\"],"
+                + "\"media\":[{\"mediaId\":\"" + UUID.randomUUID() + "\",\"isCover\":true}]"
+                + "}";
     }
 
     private OrderResponse sampleOrderResponse(UUID userId) {

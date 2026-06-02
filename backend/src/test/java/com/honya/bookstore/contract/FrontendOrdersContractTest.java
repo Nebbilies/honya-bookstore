@@ -10,9 +10,14 @@ import com.honya.bookstore.order.domain.OrderStatus;
 import com.honya.bookstore.order.domain.OrderItemBook;
 import com.honya.bookstore.order.infrastructure.payment.VnPayUrlBuilder;
 import com.honya.bookstore.order.web.OrderController;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -40,16 +45,31 @@ class FrontendOrdersContractTest {
         VnPayUrlBuilder vnPayUrlBuilder = mock(VnPayUrlBuilder.class);
         OrderController orderController = new OrderController(orderService, cartApi, catalogStockApi, vnPayUrlBuilder);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(orderController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(orderController)
+                .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
+                .build();
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
+
+    private void authenticate(String userId) {
+        Jwt jwt = Jwt.withTokenValue("token")
+                .header("alg", "none")
+                .subject(userId)
+                .build();
+        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt));
     }
 
     @Test
     void getOrders_returns_data_meta_and_frontend_order_fields() throws Exception {
         String userId = UUID.randomUUID().toString();
         when(orderService.getOrdersByUserId(userId)).thenReturn(List.of(sampleOrder(UUID.fromString(userId))));
+        authenticate(userId);
 
-        mockMvc.perform(get("/api/orders?page=1&limit=10")
-                        .header("X-User-Id", userId))
+        mockMvc.perform(get("/api/orders?page=1&limit=10"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.data").isArray())
