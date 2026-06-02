@@ -9,5 +9,8 @@ import java.util.UUID;
 @Builder
 public class CartItemBookResponseDTO {
     private UUID id;
+    private String title;
+    private String author;
+    private String imageUrl;
     private Integer price;
 }

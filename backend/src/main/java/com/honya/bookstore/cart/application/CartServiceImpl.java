@@ -3,6 +3,8 @@ package com.honya.bookstore.cart.application;
 import com.honya.bookstore.cart.domain.Cart;
 import com.honya.bookstore.cart.domain.CartItem;
 import com.honya.bookstore.cart.infrastructure.persistence.CartRepository;
+import com.honya.bookstore.catalog.api.CatalogCartSnapshot;
+import com.honya.bookstore.catalog.api.CatalogStockApi;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.util.UUID;
 class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
+    private final CatalogStockApi catalogStockApi;
 
     @Override
     @Transactional
@@ -40,21 +43,23 @@ class CartServiceImpl implements CartService {
     @Transactional
     public Cart addItemToCart(String userId, UUID bookId, Integer quantity) {
         Cart cart = getCartByUserId(userId);
+        CatalogCartSnapshot snapshot = catalogStockApi.getCartSnapshot(bookId);
 
-        // Check if the book is already in the cart
         Optional<CartItem> existingItem = cart.getItems().stream()
-                .filter(item -> item.getBookId().equals(bookId))
+                .filter(item -> snapshot.id().equals(item.getCatalogItemId()))
                 .findFirst();
 
         if (existingItem.isPresent()) {
-            // Just increase the quantity
             CartItem item = existingItem.get();
             item.setQuantity(item.getQuantity() + quantity);
         } else {
-            // Add a new item
             CartItem newItem = CartItem.builder()
                     .cart(cart)
-                    .bookId(bookId)
+                    .catalogItemId(snapshot.id())
+                    .title(snapshot.title())
+                    .author(snapshot.author())
+                    .imageUrl(snapshot.imageUrl())
+                    .unitPrice(snapshot.price())
                     .quantity(quantity)
                     .build();
             cart.getItems().add(newItem);
@@ -97,5 +102,46 @@ class CartServiceImpl implements CartService {
         cart.getItems().clear();
         cart.setUpdatedAt(OffsetDateTime.now());
         cartRepository.save(cart);
+    }
+
+    // handler when calls ProductDetailsChangedEvent
+    @Override
+    @Transactional
+    public void updateSnapshotForCatalogItem(UUID catalogItemId, String title, String author, String imageUrl, Integer unitPrice) {
+        OffsetDateTime now = OffsetDateTime.now();
+        cartRepository.findAllByCatalogItemId(catalogItemId).forEach(cart -> {
+            cart.getItems().stream()
+                    .filter(item -> catalogItemId.equals(item.getCatalogItemId()))
+                    .forEach(item -> {
+                        if (title != null) {
+                            item.setTitle(title);
+                        }
+                        if (author != null) {
+                            item.setAuthor(author);
+                        }
+                        if (imageUrl != null) {
+                            item.setImageUrl(imageUrl);
+                        }
+                        if (unitPrice != null) {
+                            item.setUnitPrice(unitPrice);
+                        }
+                    });
+            cart.setUpdatedAt(now);
+            cartRepository.save(cart);
+        });
+    }
+
+    // handler when calls ProductRemovedEvent
+    @Override
+    @Transactional
+    public void removeItemsByCatalogItemId(UUID catalogItemId) {
+        OffsetDateTime now = OffsetDateTime.now();
+        cartRepository.findAllByCatalogItemId(catalogItemId).forEach(cart -> {
+            boolean removed = cart.getItems().removeIf(item -> catalogItemId.equals(item.getCatalogItemId()));
+            if (removed) {
+                cart.setUpdatedAt(now);
+                cartRepository.save(cart);
+            }
+        });
     }
 }

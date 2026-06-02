@@ -1,4 +1,4 @@
-package com.honya.bookstore.checkout;
+package com.honya.bookstore.checkout.web.dto;
 
 import lombok.Data;
 

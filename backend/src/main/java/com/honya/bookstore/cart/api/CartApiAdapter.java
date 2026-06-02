@@ -18,7 +18,7 @@ public class CartApiAdapter implements CartApi {
     public CartSnapshot getCheckoutSnapshot(String userId) {
         Cart cart = cartService.getCartByUserId(userId);
         return new CartSnapshot(cart.getOwnerId(), cart.getItems().stream()
-                .map(item -> new CartItemSnapshot(item.getBookId(), item.getQuantity()))
+                .map(item -> new CartItemSnapshot(item.getCatalogItemId(), item.getQuantity()))
                 .collect(Collectors.toList()));
     }
 

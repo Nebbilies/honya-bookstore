@@ -52,6 +52,9 @@ class FrontendCartContractTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.items[0].book.id").exists())
+                .andExpect(jsonPath("$.items[0].book.title").isString())
+                .andExpect(jsonPath("$.items[0].book.author").isString())
+                .andExpect(jsonPath("$.items[0].book.imageUrl").isString())
                 .andExpect(jsonPath("$.items[0].book.price").isNumber());
     }
 
@@ -65,6 +68,9 @@ class FrontendCartContractTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.items[0].book.id").exists())
+                .andExpect(jsonPath("$.items[0].book.title").isString())
+                .andExpect(jsonPath("$.items[0].book.author").isString())
+                .andExpect(jsonPath("$.items[0].book.imageUrl").isString())
                 .andExpect(jsonPath("$.items[0].book.price").isNumber());
     }
 
@@ -96,9 +102,14 @@ class FrontendCartContractTest {
     }
 
     private Cart sampleCart(UUID userId) {
+        UUID bookId = UUID.randomUUID();
         CartItem item = CartItem.builder()
                 .id(UUID.randomUUID())
-                .bookId(UUID.randomUUID())
+                .catalogItemId(bookId)
+                .title("Sample Book")
+                .author("Sample Author")
+                .imageUrl("https://example.com/cover.jpg")
+                .unitPrice(1000)
                 .quantity(2)
                 .build();
 

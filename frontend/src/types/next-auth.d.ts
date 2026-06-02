@@ -24,6 +24,7 @@ declare module "next-auth" {
             locality: string;
         };
         phoneNumber: string;
+        error?: "RefreshAccessTokenError";
     }
 }
 
@@ -31,6 +32,8 @@ declare module "next-auth/jwt" {
     export interface JWT {
         userId: string;
         accessToken: string;
+        refreshToken?: string;
+        accessTokenExpiresAt?: number;
         role: UserRole | null;
         address: {
             street_address: string;
@@ -39,5 +42,6 @@ declare module "next-auth/jwt" {
         phoneNumber: string;
         firstName: string;
         lastName: string;
+        error?: "RefreshAccessTokenError";
     }
 }

@@ -2,7 +2,6 @@
 import {CartItem as CartItemType} from "@/types/types";
 import Image from "next/image";
 import Button from "@/components/Button";
-import {getBookCover} from "@/lib/utils";
 
 interface CartItemProps {
     item: CartItemType;
@@ -13,7 +12,7 @@ interface CartItemProps {
 export default function CartItem({item, onQuantityChange, onRemove}: CartItemProps) {
     return (
         <div className={'flex w-full items-start gap-6 relative bg-white px-[15px] py-[12px] rounded-lg shadow-md'}>
-            <Image src={getBookCover(item.book.medium)} alt={"cover"} width={200} height={350} className={'rounded-lg h-[200px] w-auto shadow-lg'} />
+            <Image src={item.book.imageUrl} alt={"cover"} width={200} height={350} className={'rounded-lg h-[200px] w-auto shadow-lg'} />
             <div className={'flex flex-col gap-4 font-prata'}>
                 <span className={'text-[24px] line-clamp-1'}>{item.book.title}</span>
                 <span className={'font-plus-jakarta-sans text-[20px]'}>by {item.book.author}</span>

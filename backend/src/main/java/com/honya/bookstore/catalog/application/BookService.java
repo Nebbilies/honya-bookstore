@@ -15,6 +15,7 @@ public interface BookService {
     Book updateBook(UUID id, Book book, List<BookMediaRequestDTO> mediaRequests);
     void deleteBook(UUID id);
     Integer getBookPrice(UUID bookId);
+    String getBookCoverUrl(UUID bookId);
     void reduceStock(UUID bookId, Integer quantity);
     void addStock(UUID bookId, Integer quantity);
 }

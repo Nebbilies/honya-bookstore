@@ -1,6 +1,7 @@
 package com.honya.bookstore.catalog.api;
 
 import com.honya.bookstore.catalog.application.BookService;
+import com.honya.bookstore.catalog.domain.Book;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -25,5 +26,17 @@ public class CatalogStockApiAdapter implements CatalogStockApi {
     @Override
     public Integer getBookPrice(UUID bookId) {
         return bookService.getBookPrice(bookId);
+    }
+
+    @Override
+    public CatalogCartSnapshot getCartSnapshot(UUID bookId) {
+        Book book = bookService.getBookById(bookId);
+        return new CatalogCartSnapshot(
+                book.getId(),
+                book.getTitle(),
+                book.getAuthor() == null ? "Unknown" : book.getAuthor(),
+                bookService.getBookCoverUrl(bookId),
+                book.getPrice()
+        );
     }
 }

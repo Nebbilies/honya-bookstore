@@ -13,11 +13,12 @@ import com.honya.bookstore.catalog.application.CategoryService;
 import com.honya.bookstore.cart.domain.Cart;
 import com.honya.bookstore.cart.web.CartController;
 import com.honya.bookstore.cart.domain.CartItem;
+import com.honya.bookstore.cart.api.CartApi;
 import com.honya.bookstore.cart.application.CartService;
 import com.honya.bookstore.cart.web.dto.request.AddItemRequestDTO;
-import com.honya.bookstore.checkout.CheckoutController;
-import com.honya.bookstore.checkout.CheckoutRequestDTO;
-import com.honya.bookstore.checkout.CheckoutService;
+import com.honya.bookstore.checkout.application.CheckoutService;
+import com.honya.bookstore.checkout.web.CheckoutController;
+import com.honya.bookstore.checkout.web.dto.CheckoutRequestDTO;
 import com.honya.bookstore.order.api.OrderItemResponse;
 import com.honya.bookstore.order.api.OrderResponse;
 import com.honya.bookstore.order.domain.Order;
@@ -25,7 +26,9 @@ import com.honya.bookstore.order.web.OrderController;
 import com.honya.bookstore.order.domain.OrderItem;
 import com.honya.bookstore.order.application.OrderService;
 import com.honya.bookstore.order.domain.OrderProvider;
+import com.honya.bookstore.order.infrastructure.payment.VnPayUrlBuilder;
 import com.honya.bookstore.order.domain.OrderStatus;
+import com.honya.bookstore.order.domain.OrderItemBook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -78,7 +81,9 @@ class CoreApiContractFreezeTest {
         CatalogStockApi catalogStockApi = mock(CatalogStockApi.class);
         when(catalogStockApi.getBookPrice(any(UUID.class))).thenReturn(1000);
         CartController cartController = new CartController(cartService, catalogStockApi);
-        OrderController orderController = new OrderController(orderService);
+        CartApi cartApi = mock(CartApi.class);
+        VnPayUrlBuilder vnPayUrlBuilder = mock(VnPayUrlBuilder.class);
+        OrderController orderController = new OrderController(orderService, cartApi, catalogStockApi, vnPayUrlBuilder);
         CheckoutController checkoutController = new CheckoutController(checkoutService);
 
         mockMvc = MockMvcBuilders.standaloneSetup(
@@ -367,7 +372,7 @@ class CoreApiContractFreezeTest {
                 .andExpect(jsonPath("$.ownerId").value(userId))
                 .andExpect(jsonPath("$.updatedAt").exists())
                 .andExpect(jsonPath("$.items[0].id").exists())
-                .andExpect(jsonPath("$.items[0].bookId").exists())
+                .andExpect(jsonPath("$.items[0].book.id").exists())
                 .andExpect(jsonPath("$.items[0].quantity").value(2));
     }
 
@@ -482,7 +487,7 @@ class CoreApiContractFreezeTest {
                 .andExpect(jsonPath("$[0].totalAmount").value(1234))
                 .andExpect(jsonPath("$[0].userId").value(userId))
                 .andExpect(jsonPath("$[0].items[0].id").exists())
-                .andExpect(jsonPath("$[0].items[0].bookId").exists())
+                .andExpect(jsonPath("$[0].items[0].book.id").exists())
                 .andExpect(jsonPath("$[0].items[0].quantity").value(2))
                 .andExpect(jsonPath("$[0].items[0].price").value(617));
     }
@@ -558,9 +563,14 @@ class CoreApiContractFreezeTest {
     }
 
     private Cart sampleCart(UUID userId) {
+        UUID catalogItemId = UUID.randomUUID();
         CartItem item = CartItem.builder()
                 .id(UUID.randomUUID())
-                .bookId(UUID.randomUUID())
+                .catalogItemId(catalogItemId)
+                .title("Sample Book")
+                .author("Sample Author")
+                .imageUrl("https://example.com/cover.jpg")
+                .unitPrice(1000)
                 .quantity(2)
                 .build();
 
@@ -619,11 +629,16 @@ class CoreApiContractFreezeTest {
                 "Doe",
                 "Street 1",
                 "City",
+                "john@example.com",
+                "+84912345678",
+                null,
                 "COD",
                 "PENDING",
                 false,
                 1234,
                 userId,
+                OffsetDateTime.now(),
+                OffsetDateTime.now(),
                 List.of(new OrderItemResponse(UUID.randomUUID(), UUID.randomUUID(), 2, 617))
         );
     }
@@ -631,7 +646,7 @@ class CoreApiContractFreezeTest {
     private Order sampleOrder(UUID userId) {
         OrderItem item = OrderItem.builder()
                 .id(UUID.randomUUID())
-                .bookId(UUID.randomUUID())
+                .book(OrderItemBook.builder().id(UUID.randomUUID()).build())
                 .quantity(2)
                 .price(617)
                 .build();

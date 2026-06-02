@@ -1,4 +1,4 @@
-package com.honya.bookstore.checkout;
+package com.honya.bookstore.checkout.application;
 
 import com.honya.bookstore.cart.api.CartApi;
 import com.honya.bookstore.catalog.api.CatalogStockApi;
@@ -6,6 +6,7 @@ import com.honya.bookstore.order.api.OrderApi;
 import com.honya.bookstore.order.api.OrderItemRequest;
 import com.honya.bookstore.order.api.OrderRequest;
 import com.honya.bookstore.order.api.OrderResponse;
+import com.honya.bookstore.checkout.web.dto.CheckoutRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,10 @@ public class CheckoutService {
                 request.getLastName(),
                 request.getAddress(),
                 request.getCity(),
+                null,
+                null,
+                null,
+                null,
                 items,
                 items.stream()
                         .mapToInt(item -> item.price() * item.quantity())

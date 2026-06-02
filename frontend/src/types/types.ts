@@ -48,7 +48,6 @@ export interface OrderItemBook {
     author: string,
     price: number,
     rating: number,
-    stockQuantity: number,
     title: string,
 }
 
@@ -69,10 +68,10 @@ export interface Order {
     isPaid: boolean,
     items: OrderItem[],
     lastName: string,
-    paymentUrl: string,
+    paymentUrl: string | null,
     phone: string
-    provider: 'COD' | 'VNPAY' | 'MOMO',
-    status: 'Pending' | 'Processing' | 'Shipping' | 'Delivered' | 'Cancelled',
+    provider: 'COD' | 'VNPAY' | 'MOMO' | 'ZALOPAY',
+    status: 'PENDING' | 'PROCESSING' | 'SHIPPING' | 'DELIVERED' | 'CANCELLED',
     totalAmount: number,
     updatedAt: string,
     userId: string,
@@ -135,19 +134,11 @@ export interface Review {
 }
 
 export interface CartItemBook {
-    author: string | null;
-    description: string | null;
     id: string;
-    medium: BookMedia[];
     title: string;
-    pagesCount: number | null
+    author: string;
+    imageUrl: string;
     price: number;
-    publisher: string;
-    purchaseCount: number;
-    rating: number;
-    stockQuantity: number;
-    weight: number | null;
-    yearPublished: number;
 }
 
 export interface CartItem {

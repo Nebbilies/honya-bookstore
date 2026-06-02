@@ -1,5 +1,7 @@
-package com.honya.bookstore.checkout;
+package com.honya.bookstore.checkout.web;
 
+import com.honya.bookstore.checkout.application.CheckoutService;
+import com.honya.bookstore.checkout.web.dto.CheckoutRequestDTO;
 import com.honya.bookstore.order.api.OrderResponse;
 import com.honya.bookstore.security.CustomerOnly;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,14 +17,13 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Checkout", description = "Endpoints for processing the checkout of the shopping cart and placing orders")
 @CustomerOnly
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/api/checkout")
 @RequiredArgsConstructor
 public class CheckoutController {
 

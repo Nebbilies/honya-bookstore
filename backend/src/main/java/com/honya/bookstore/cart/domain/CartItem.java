@@ -15,8 +15,17 @@ public class CartItem {
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
-    @Column(name = "book_id")
-    private UUID bookId;
+    @Column(name = "catalog_item_id")
+    private UUID catalogItemId;
+
+    private String title;
+    private String author;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "unit_price")
+    private Integer unitPrice;
 
     private Integer quantity;
 }

@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -42,8 +41,13 @@ public class CartController {
                     content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
     @GetMapping({"", "/me"})
-    public ResponseEntity<CartResponseDTO> getCart(@AuthenticationPrincipal Jwt jwt) {
-        String userId = jwt.getSubject();
+    public ResponseEntity<CartResponseDTO> getCart(
+            @AuthenticationPrincipal(expression = "subject") String userIdFromToken,
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader) {
+        String userId = userIdFromToken != null ? userIdFromToken : userIdHeader;
+        if (userId == null) {
+            return ResponseEntity.ok().build();
+        }
         Cart cart = cartService.getCartByUserId(userId);
         return ResponseEntity.ok(mapToDTO(cart));
     }
@@ -71,8 +75,10 @@ public class CartController {
     @PostMapping("/{cartId}/items")
     public ResponseEntity<CartResponseDTO> addItem(
             @PathVariable UUID cartId,
-            @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @AuthenticationPrincipal(expression = "subject") String userIdFromToken,
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
             @RequestBody AddItemRequestDTO request) {
+        String userId = userIdFromToken != null ? userIdFromToken : userIdHeader;
         if (userId == null) {
             return ResponseEntity.ok().build();
         }
@@ -90,8 +96,10 @@ public class CartController {
     public ResponseEntity<CartResponseDTO> updateItem(
             @PathVariable UUID cartId,
             @PathVariable UUID itemId,
-            @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @AuthenticationPrincipal(expression = "subject") String userIdFromToken,
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
             @RequestBody UpdateCartItemRequestDTO request) {
+        String userId = userIdFromToken != null ? userIdFromToken : userIdHeader;
         if (userId == null) {
             return ResponseEntity.ok().build();
         }
@@ -109,7 +117,9 @@ public class CartController {
     public ResponseEntity<CartResponseDTO> removeItem(
             @PathVariable UUID cartId,
             @PathVariable UUID itemId,
-            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+            @AuthenticationPrincipal(expression = "subject") String userIdFromToken,
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader) {
+        String userId = userIdFromToken != null ? userIdFromToken : userIdHeader;
         if (userId == null) {
             return ResponseEntity.ok().build();
         }
@@ -138,8 +148,11 @@ public class CartController {
                         .map(item -> CartItemResponseDTO.builder()
                                 .id(item.getId())
                                 .book(CartItemBookResponseDTO.builder()
-                                        .id(item.getBookId())
-                                        .price(catalogStockApi.getBookPrice(item.getBookId()))
+                                        .id(item.getCatalogItemId())
+                                        .title(item.getTitle())
+                                        .author(item.getAuthor())
+                                        .imageUrl(item.getImageUrl())
+                                        .price(item.getUnitPrice())
                                         .build())
                                 .quantity(item.getQuantity())
                                 .build())

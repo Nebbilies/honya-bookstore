@@ -9,11 +9,16 @@ public record OrderResponse(
         String lastName,
         String address,
         String city,
+        String email,
+        String phone,
+        String paymentUrl,
         String provider,
         String status,
         Boolean isPaid,
         Integer totalAmount,
         UUID userId,
+        java.time.OffsetDateTime createdAt,
+        java.time.OffsetDateTime updatedAt,
         List<OrderItemResponse> items
 ) {
 }

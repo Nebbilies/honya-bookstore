@@ -21,7 +21,10 @@ public class Order {
     private String phone;
     private String email;
     private String paymentUrl;
+    private String paymentTransactionNo;
+    private OffsetDateTime paidAt;
     private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
     private OrderProvider provider;
