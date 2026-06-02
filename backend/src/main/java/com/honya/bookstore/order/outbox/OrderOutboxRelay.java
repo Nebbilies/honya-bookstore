@@ -1,9 +1,8 @@
 package com.honya.bookstore.order.outbox;
 
-import com.honya.bookstore.order.api.event.OrderPlacedEvent;
+import com.honya.bookstore.shared.integration.order.OrderEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -16,8 +15,7 @@ import java.time.OffsetDateTime;
 public class OrderOutboxRelay {
 
     private final OrderOutboxMessageRepository repository;
-    private final ApplicationEventPublisher eventPublisher;
-    private final OrderOutboxEventSerializer serializer;
+    private final OrderEventPublisher eventPublisher;
     private final OrderOutboxBackoff backoff;
 
     @Scheduled(fixedDelayString = "${bookstore.outbox.relay-fixed-delay-ms:1000}")
@@ -28,8 +26,7 @@ public class OrderOutboxRelay {
 
     private void publish(OrderOutboxMessage message) {
         try {
-            OrderPlacedEvent event = serializer.deserialize(message.getPayload());
-            eventPublisher.publishEvent(event);
+            eventPublisher.publish(message.getEventType(), message.getPayload());
             OffsetDateTime now = OffsetDateTime.now();
             message.setStatus(OrderOutboxStatus.SENT);
             message.setSentAt(now);

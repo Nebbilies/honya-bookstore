@@ -5,8 +5,8 @@ import com.honya.bookstore.order.domain.OrderStatus;
 
 import java.time.OffsetDateTime;
 import com.honya.bookstore.order.infrastructure.persistence.OrderRepository;
-import com.honya.bookstore.order.api.event.OrderItemEventDTO;
-import com.honya.bookstore.order.api.event.OrderPlacedEvent;
+import com.honya.bookstore.shared.integration.order.event.OrderItemEventDTO;
+import com.honya.bookstore.shared.integration.order.event.OrderPlacedEvent;
 import com.honya.bookstore.order.outbox.OrderOutboxWriter;
 import com.honya.bookstore.shared.error.InvalidOrderStatusException;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;

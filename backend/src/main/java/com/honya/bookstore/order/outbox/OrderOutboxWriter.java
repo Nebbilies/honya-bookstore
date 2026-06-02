@@ -1,6 +1,6 @@
 package com.honya.bookstore.order.outbox;
 
-import com.honya.bookstore.order.api.event.OrderPlacedEvent;
+import com.honya.bookstore.shared.integration.order.event.OrderPlacedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ public class OrderOutboxWriter {
         OffsetDateTime now = OffsetDateTime.now();
         repository.save(OrderOutboxMessage.builder()
                 .eventType("ORDER_PLACED")
-                .aggregateId(event.getOrderId())
+                .aggregateId(event.orderId())
                 .payload(serializer.serialize(event))
                 .status(OrderOutboxStatus.PENDING)
                 .attempts(0)
