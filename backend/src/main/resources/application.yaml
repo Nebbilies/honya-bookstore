@@ -3,25 +3,70 @@ spring:
     name: honya-bookstore
 
   datasource:
-    url: jdbc:postgresql://aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres?user=postgres.gwlbjonaktgdqzlwmsdp
-    username: postgres.gwlbjonaktgdqzlwmsdp
-    password: FravityGalls
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/keycloak}
+    username: ${SPRING_DATASOURCE_USERNAME:keycloak}
+    password: ${SPRING_DATASOURCE_PASSWORD:keycloak_local_dev}
     driver-class-name: org.postgresql.Driver
 
-  security:
-    user:
-      name: admin
-      password: 123456
+  flyway:
+    enabled: true
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/keycloak}
+    user: ${SPRING_DATASOURCE_USERNAME:keycloak}
+    password: ${SPRING_DATASOURCE_PASSWORD:keycloak_local_dev}
+    locations: classpath:db/migration
+    default-schema: public
+    baseline-on-migrate: true
 
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
+  minio:
+    internal-url: ${MINIO_INTERNAL_URL:http://localhost:9000}
+    public-url: ${MINIO_PUBLIC_URL:http://host.docker.internal:9000}
+    access-key: ${MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${MINIO_SECRET_KEY:minioadmin}
+    media-bucket-name: ${MINIO_MEDIA_BUCKET:media}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI:http://localhost:8080/realms/honya}
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: create
-    show-sql: true
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    show-sql: ${JPA_SHOW_SQL:true}
     properties:
       hibernate:
         format_sql: true
 
+app:
+  security:
+    jwt:
+      audience: ${JWT_AUDIENCE:honya-api}
+      jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8080/realms/honya/protocol/openid-connect/certs}
+
 server:
-  port: 8081
+  port: ${SERVER_PORT:8081}
+
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: ${SWAGGER_CLIENT_ID:honya-swagger}
+
+bookstore:
+  catalog-outbox:
+    relay-fixed-delay-ms: ${CATALOG_OUTBOX_RELAY_DELAY_MS:1000}
+  outbox:
+    relay-fixed-delay-ms: ${ORDER_OUTBOX_RELAY_DELAY_MS:1000}
+  vnpay:
+    tmn-code: ${VNPAY_TMN_CODE:}
+    hash-secret: ${VNPAY_HASH_SECRET:}
+    pay-url: ${VNPAY_PAY_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
+    return-url: ${VNPAY_RETURN_URL:http://localhost:3000/checkout/payment/success}
+    ipn-url: ${VNPAY_IPN_URL:http://localhost:8081/api/orders/payment/vnpay/ipn}

@@ -38,3 +38,7 @@ build/
 .env*
 /src/main/resources/application.yaml
 
+### Local-only config overrides (real dev credentials live here, never committed) ###
+**/src/main/resources/application-local.yaml
+**/src/main/resources/application-local.yml
+
