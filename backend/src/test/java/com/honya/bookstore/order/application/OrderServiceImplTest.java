@@ -1,6 +1,6 @@
 package com.honya.bookstore.order.application;
 
-import com.honya.bookstore.order.api.event.OrderPlacedEvent;
+import com.honya.bookstore.shared.integration.order.event.OrderPlacedEvent;
 import com.honya.bookstore.order.domain.Order;
 import com.honya.bookstore.order.domain.OrderItem;
 import com.honya.bookstore.order.domain.OrderItemBook;
@@ -53,9 +53,9 @@ class OrderServiceImplTest {
 
         ArgumentCaptor<OrderPlacedEvent> eventCaptor = ArgumentCaptor.forClass(OrderPlacedEvent.class);
         verify(outboxWriter).enqueue(eventCaptor.capture());
-        assertEquals(createdOrder.getId(), eventCaptor.getValue().getOrderId());
-        assertEquals(userId, eventCaptor.getValue().getUserId());
-        assertEquals(bookId, eventCaptor.getValue().getItems().get(0).getBookId());
-        assertEquals(2, eventCaptor.getValue().getItems().get(0).getQuantity());
+        assertEquals(createdOrder.getId(), eventCaptor.getValue().orderId());
+        assertEquals(userId, eventCaptor.getValue().userId());
+        assertEquals(bookId, eventCaptor.getValue().items().get(0).bookId());
+        assertEquals(2, eventCaptor.getValue().items().get(0).quantity());
     }
 }

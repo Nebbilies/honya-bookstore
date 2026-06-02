@@ -1,8 +1,8 @@
 package com.honya.bookstore.order.outbox;
 
 import tools.jackson.databind.ObjectMapper;
-import com.honya.bookstore.order.api.event.OrderItemEventDTO;
-import com.honya.bookstore.order.api.event.OrderPlacedEvent;
+import com.honya.bookstore.shared.integration.order.event.OrderItemEventDTO;
+import com.honya.bookstore.shared.integration.order.event.OrderPlacedEvent;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -18,9 +18,10 @@ import static org.mockito.Mockito.verify;
 class OrderOutboxWriterTest {
 
     @Test
-    void enqueueStoresPendingOrderPlacedEventPayload() throws Exception {
+    void enqueueStoresPendingOrderPlacedEventPayload() {
         OrderOutboxMessageRepository repository = mock(OrderOutboxMessageRepository.class);
-        OrderOutboxEventSerializer serializer = new OrderOutboxEventSerializer(new ObjectMapper());
+        ObjectMapper objectMapper = new ObjectMapper();
+        OrderOutboxEventSerializer serializer = new OrderOutboxEventSerializer(objectMapper);
         UUID orderId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
         UUID bookId = UUID.randomUUID();
@@ -39,10 +40,10 @@ class OrderOutboxWriterTest {
         assertNotNull(message.getCreatedAt());
         assertNotNull(message.getUpdatedAt());
         assertFalse(message.getPayload().isBlank());
-        OrderPlacedEvent restored = serializer.deserialize(message.getPayload());
-        assertEquals(orderId, restored.getOrderId());
-        assertEquals(userId, restored.getUserId());
-        assertEquals(bookId, restored.getItems().get(0).getBookId());
-        assertEquals(2, restored.getItems().get(0).getQuantity());
+        OrderPlacedEvent restored = objectMapper.readValue(message.getPayload(), OrderPlacedEvent.class);
+        assertEquals(orderId, restored.orderId());
+        assertEquals(userId, restored.userId());
+        assertEquals(bookId, restored.items().get(0).bookId());
+        assertEquals(2, restored.items().get(0).quantity());
     }
 }

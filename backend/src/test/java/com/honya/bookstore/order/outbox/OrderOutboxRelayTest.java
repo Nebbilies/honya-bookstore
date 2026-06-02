@@ -1,11 +1,10 @@
 package com.honya.bookstore.order.outbox;
 
 import tools.jackson.databind.ObjectMapper;
-import com.honya.bookstore.order.api.event.OrderItemEventDTO;
-import com.honya.bookstore.order.api.event.OrderPlacedEvent;
+import com.honya.bookstore.shared.integration.order.OrderEventPublisher;
+import com.honya.bookstore.shared.integration.order.event.OrderItemEventDTO;
+import com.honya.bookstore.shared.integration.order.event.OrderPlacedEvent;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 
 import java.time.OffsetDateTime;
@@ -16,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,37 +23,35 @@ import static org.mockito.Mockito.when;
 class OrderOutboxRelayTest {
 
     @Test
-    void publishDueMessagesPublishesEventAndMarksSent() throws Exception {
+    void publishDueMessagesPublishesEventAndMarksSent() {
         OrderOutboxMessageRepository repository = mock(OrderOutboxMessageRepository.class);
-        ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+        OrderEventPublisher eventPublisher = mock(OrderEventPublisher.class);
         OrderOutboxEventSerializer serializer = new OrderOutboxEventSerializer(new ObjectMapper());
         OrderOutboxMessage message = pendingMessage(serializer);
         when(repository.findDueMessages(any(OffsetDateTime.class), any(Pageable.class))).thenReturn(List.of(message));
 
-        new OrderOutboxRelay(repository, eventPublisher, serializer, new OrderOutboxBackoff()).publishDueMessages();
+        new OrderOutboxRelay(repository, eventPublisher, new OrderOutboxBackoff()).publishDueMessages();
 
-        ArgumentCaptor<OrderPlacedEvent> eventCaptor = ArgumentCaptor.forClass(OrderPlacedEvent.class);
-        verify(eventPublisher).publishEvent(eventCaptor.capture());
-        assertEquals(message.getAggregateId(), eventCaptor.getValue().getOrderId());
+        verify(eventPublisher).publish(eq("ORDER_PLACED"), eq(message.getPayload()));
         assertEquals(OrderOutboxStatus.SENT, message.getStatus());
         assertNotNull(message.getSentAt());
         verify(repository).save(message);
     }
 
     @Test
-    void publishDueMessagesMarksFailedWithBackoffWhenPublisherThrows() throws Exception {
+    void publishDueMessagesMarksFailedWithBackoffWhenPublisherThrows() {
         OrderOutboxMessageRepository repository = mock(OrderOutboxMessageRepository.class);
-        ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+        OrderEventPublisher eventPublisher = mock(OrderEventPublisher.class);
         OrderOutboxEventSerializer serializer = new OrderOutboxEventSerializer(new ObjectMapper());
         OrderOutboxMessage message = pendingMessage(serializer);
         when(repository.findDueMessages(any(OffsetDateTime.class), any(Pageable.class))).thenReturn(List.of(message));
-        org.mockito.Mockito.doThrow(new RuntimeException("listener failed")).when(eventPublisher).publishEvent(any(OrderPlacedEvent.class));
+        org.mockito.Mockito.doThrow(new RuntimeException("publish failed")).when(eventPublisher).publish(any(), any());
 
-        new OrderOutboxRelay(repository, eventPublisher, serializer, new OrderOutboxBackoff()).publishDueMessages();
+        new OrderOutboxRelay(repository, eventPublisher, new OrderOutboxBackoff()).publishDueMessages();
 
         assertEquals(OrderOutboxStatus.FAILED, message.getStatus());
         assertEquals(1, message.getAttempts());
-        assertTrue(message.getLastError().contains("listener failed"));
+        assertTrue(message.getLastError().contains("publish failed"));
         assertTrue(message.getNextAttemptAt().isAfter(OffsetDateTime.now().minusSeconds(1)));
         verify(repository).save(message);
     }
