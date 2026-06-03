@@ -1,30 +1,30 @@
 package com.honya.bookstore.order.application;
 
-import com.honya.bookstore.shared.integration.order.event.OrderPlacedEvent;
 import com.honya.bookstore.order.domain.Order;
 import com.honya.bookstore.order.domain.OrderItem;
 import com.honya.bookstore.order.domain.OrderItemBook;
+import com.honya.bookstore.order.domain.OrderStatus;
 import com.honya.bookstore.order.infrastructure.persistence.OrderRepository;
-import com.honya.bookstore.order.outbox.OrderOutboxWriter;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class OrderServiceImplTest {
 
     @Test
-    void createOrderLinksItemsAndEnqueuesOrderEvent() {
+    void createOrderPlacesOrderAndPersists() {
         OrderRepository orderRepository = mock(OrderRepository.class);
-        OrderOutboxWriter outboxWriter = mock(OrderOutboxWriter.class);
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
         UUID userId = UUID.randomUUID();
         UUID bookId = UUID.randomUUID();
         Order orderDetails = Order.builder()
@@ -39,23 +39,15 @@ class OrderServiceImplTest {
                         .build()))
                 .build();
 
-        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
-            Order order = invocation.getArgument(0);
-            order.setId(UUID.randomUUID());
-            return order;
-        });
+        Order createdOrder = new OrderServiceImpl(orderRepository).createOrder(userId.toString(), orderDetails);
 
-        Order createdOrder = new OrderServiceImpl(orderRepository, outboxWriter)
-                .createOrder(userId.toString(), orderDetails);
-
+        // Aggregate placed: identity assigned, user set, items linked back, defaults applied.
+        assertNotNull(createdOrder.getId());
         assertEquals(userId, createdOrder.getUserId());
         assertSame(createdOrder, createdOrder.getItems().get(0).getOrder());
-
-        ArgumentCaptor<OrderPlacedEvent> eventCaptor = ArgumentCaptor.forClass(OrderPlacedEvent.class);
-        verify(outboxWriter).enqueue(eventCaptor.capture());
-        assertEquals(createdOrder.getId(), eventCaptor.getValue().orderId());
-        assertEquals(userId, eventCaptor.getValue().userId());
-        assertEquals(bookId, eventCaptor.getValue().items().get(0).bookId());
-        assertEquals(2, eventCaptor.getValue().items().get(0).quantity());
+        assertEquals(OrderStatus.PENDING, createdOrder.getStatus());
+        assertFalse(createdOrder.getIsPaid());
+        assertNotNull(createdOrder.getCreatedAt());
+        assertNotNull(createdOrder.getUpdatedAt());
     }
 }

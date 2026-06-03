@@ -5,9 +5,6 @@ import com.honya.bookstore.order.domain.OrderStatus;
 
 import java.time.OffsetDateTime;
 import com.honya.bookstore.order.infrastructure.persistence.OrderRepository;
-import com.honya.bookstore.shared.integration.order.event.OrderItemEventDTO;
-import com.honya.bookstore.shared.integration.order.event.OrderPlacedEvent;
-import com.honya.bookstore.order.outbox.OrderOutboxWriter;
 import com.honya.bookstore.shared.error.InvalidOrderStatusException;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -16,42 +13,28 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final OrderOutboxWriter outboxWriter;
 
     @Override
     @Transactional
     public Order createOrder(String userId, Order orderDetails) {
         OffsetDateTime now = OffsetDateTime.now();
-        orderDetails.setUserId(UUID.fromString(userId));
         orderDetails.setStatus(orderDetails.getStatus() == null ? OrderStatus.PENDING : orderDetails.getStatus());
         orderDetails.setIsPaid(orderDetails.getIsPaid() == null ? Boolean.FALSE : orderDetails.getIsPaid());
         orderDetails.setCreatedAt(orderDetails.getCreatedAt() == null ? now : orderDetails.getCreatedAt());
         orderDetails.setUpdatedAt(now);
 
-        if (orderDetails.getItems() != null) {
-            orderDetails.getItems().forEach(item -> item.setOrder(orderDetails));
-        }
+        // Aggregate assigns its id, links items, and registers OrderPlacedDomainEvent.
+        // Spring Data publishes it during save(); OrderPlacedDomainEventListener relays
+        // it to the outbox in this same transaction.
+        orderDetails.place(UUID.fromString(userId));
 
-        Order savedOrder = orderRepository.save(orderDetails);
-
-        List<OrderItemEventDTO> eventItems = savedOrder.getItems().stream()
-                .map(item -> new OrderItemEventDTO(item.getBook().getId(), item.getQuantity()))
-                .collect(Collectors.toList());
-
-        outboxWriter.enqueue(new OrderPlacedEvent(
-                savedOrder.getId(),
-                UUID.fromString(userId),
-                eventItems
-        ));
-
-        return savedOrder;
+        return orderRepository.save(orderDetails);
     }
 
     @Override
