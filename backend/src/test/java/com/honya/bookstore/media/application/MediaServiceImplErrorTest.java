@@ -1,6 +1,7 @@
 package com.honya.bookstore.media.application;
 
 import com.honya.bookstore.media.infrastructure.persistence.MediaRepository;
+import com.honya.bookstore.media.outbox.MediaOutboxWriter;
 import io.minio.MinioClient;
 import io.minio.errors.MinioException;
 import org.junit.jupiter.api.Test;
@@ -18,11 +19,12 @@ class MediaServiceImplErrorTest {
     void generateUploadURLUsesPublicMinioClientEndpoint() throws Exception {
         MinioClient publicMinioClient = mock(MinioClient.class);
         MediaRepository mediaRepository = mock(MediaRepository.class);
+        MediaOutboxWriter outboxWriter = mock(MediaOutboxWriter.class);
 
         when(publicMinioClient.getPresignedObjectUrl(any()))
                 .thenReturn("http://localhost:9000/media/images/demo?X-Amz-Signature=abc");
 
-        MediaServiceImpl service = new MediaServiceImpl(publicMinioClient, mediaRepository);
+        MediaServiceImpl service = new MediaServiceImpl(publicMinioClient, mediaRepository, outboxWriter);
         setField(service, "bucketName", "media");
         setField(service, "minioPublicUrl", "http://localhost:9000");
 

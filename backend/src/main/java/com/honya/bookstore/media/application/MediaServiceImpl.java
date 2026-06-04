@@ -4,10 +4,12 @@ import com.honya.bookstore.media.api.MediaApi;
 import com.honya.bookstore.media.api.MediaView;
 import com.honya.bookstore.media.domain.Media;
 import com.honya.bookstore.media.infrastructure.persistence.MediaRepository;
+import com.honya.bookstore.media.outbox.MediaOutboxWriter;
 import com.honya.bookstore.media.web.dto.request.CreateMediaRequestDTO;
 import com.honya.bookstore.media.web.dto.response.MediaResponseDTO;
 import com.honya.bookstore.media.web.dto.response.UploadImageURLResponseDTO;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;
+import com.honya.bookstore.shared.integration.media.event.MediaDeletedEvent;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.Http;
 import io.minio.MinioClient;
@@ -15,6 +17,7 @@ import io.minio.errors.MinioException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -25,13 +28,16 @@ public class MediaServiceImpl implements MediaService, MediaApi {
 
     private final MinioClient presignMinioClient;
     private final MediaRepository mediaRepository;
+    private final MediaOutboxWriter outboxWriter;
 
     public MediaServiceImpl(
             @Qualifier("publicMinioClient") MinioClient presignMinioClient,
-            MediaRepository mediaRepository
+            MediaRepository mediaRepository,
+            MediaOutboxWriter outboxWriter
     ) {
         this.presignMinioClient = presignMinioClient;
         this.mediaRepository = mediaRepository;
+        this.outboxWriter = outboxWriter;
     }
 
     @Value("${spring.minio.media-bucket-name}")
@@ -76,6 +82,19 @@ public class MediaServiceImpl implements MediaService, MediaApi {
 
         Media saved = mediaRepository.save(media);
         return mapToResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public void deleteMedia(UUID id) {
+        Media media = mediaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Media", id));
+        if (media.getDeletedAt() != null) {
+            return;
+        }
+        media.setDeletedAt(OffsetDateTime.now());
+        mediaRepository.save(media);
+        outboxWriter.enqueue("MEDIA_DELETED", media.getId(), new MediaDeletedEvent(UUID.randomUUID(), media.getId()));
     }
 
     @Override
