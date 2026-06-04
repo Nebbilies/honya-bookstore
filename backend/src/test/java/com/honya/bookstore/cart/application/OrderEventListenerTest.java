@@ -1,7 +1,6 @@
 package com.honya.bookstore.cart.application;
 
 import tools.jackson.databind.ObjectMapper;
-import com.honya.bookstore.cart.domain.CartProcessedOrderEvent;
 import com.honya.bookstore.cart.infrastructure.persistence.CartProcessedOrderEventRepository;
 import com.honya.bookstore.shared.integration.order.event.OrderPlacedEvent;
 import org.junit.jupiter.api.Test;
@@ -10,6 +9,9 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -24,16 +26,15 @@ class OrderEventListenerTest {
     }
 
     @Test
-    void newOrderEventRecordsMarkerAndClearsCart() {
+    void newOrderEventClearsCart() {
         CartService cartService = mock(CartService.class);
         CartProcessedOrderEventRepository repository = mock(CartProcessedOrderEventRepository.class);
         UUID orderId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
-        when(repository.existsByOrderId(orderId)).thenReturn(false);
+        when(repository.insertIfAbsent(eq(orderId), any())).thenReturn(1);
 
         new OrderEventListener(cartService, repository).handleOrder(json(new OrderPlacedEvent(orderId, userId, List.of())));
 
-        verify(repository).save(org.mockito.ArgumentMatchers.any(CartProcessedOrderEvent.class));
         verify(cartService).clearCart(userId);
     }
 
@@ -42,12 +43,11 @@ class OrderEventListenerTest {
         CartService cartService = mock(CartService.class);
         CartProcessedOrderEventRepository repository = mock(CartProcessedOrderEventRepository.class);
         UUID orderId = UUID.randomUUID();
-        when(repository.existsByOrderId(orderId)).thenReturn(true);
+        when(repository.insertIfAbsent(eq(orderId), any())).thenReturn(0);
 
         new OrderEventListener(cartService, repository).handleOrder(json(new OrderPlacedEvent(orderId, UUID.randomUUID(), List.of())));
 
-        verify(repository, never()).save(org.mockito.ArgumentMatchers.any(CartProcessedOrderEvent.class));
-        verify(cartService, never()).clearCart(org.mockito.ArgumentMatchers.any());
+        verify(cartService, never()).clearCart(any());
     }
 
     @Test
@@ -56,8 +56,8 @@ class OrderEventListenerTest {
         CartProcessedOrderEventRepository repository = mock(CartProcessedOrderEventRepository.class);
         UUID orderId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
-        when(repository.existsByOrderId(orderId)).thenReturn(false);
-        org.mockito.Mockito.doThrow(new RuntimeException("clear failed")).when(cartService).clearCart(userId);
+        when(repository.insertIfAbsent(eq(orderId), any())).thenReturn(1);
+        doThrow(new RuntimeException("clear failed")).when(cartService).clearCart(userId);
 
         String payload = json(new OrderPlacedEvent(orderId, userId, List.of()));
         OrderEventListener listener = new OrderEventListener(cartService, repository);

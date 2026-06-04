@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -20,17 +20,15 @@ class MediaEventListenerTest {
     private final MediaEventListener listener = new MediaEventListener(bookMediaRepository, processedRepository);
 
     @Test
-    void removesBookMediaAndRecordsProcessedEvent() {
+    void removesBookMediaWhenEventIsNew() {
         UUID eventId = UUID.randomUUID();
         UUID mediaId = UUID.randomUUID();
         String payload = "{\"eventId\":\"" + eventId + "\",\"mediaId\":\"" + mediaId + "\"}";
-        when(processedRepository.existsByEventId(eventId)).thenReturn(false);
+        when(processedRepository.insertIfAbsent(eq(eventId), eq(mediaId), any())).thenReturn(1);
 
         listener.handle(payload);
 
         verify(bookMediaRepository).deleteByMediaId(mediaId);
-        verify(processedRepository).save(argThat(processed ->
-                eventId.equals(processed.getEventId()) && mediaId.equals(processed.getMediaId())));
     }
 
     @Test
@@ -38,7 +36,7 @@ class MediaEventListenerTest {
         UUID eventId = UUID.randomUUID();
         UUID mediaId = UUID.randomUUID();
         String payload = "{\"eventId\":\"" + eventId + "\",\"mediaId\":\"" + mediaId + "\"}";
-        when(processedRepository.existsByEventId(eventId)).thenReturn(true);
+        when(processedRepository.insertIfAbsent(eq(eventId), eq(mediaId), any())).thenReturn(0);
 
         listener.handle(payload);
 

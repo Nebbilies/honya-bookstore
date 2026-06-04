@@ -1,7 +1,6 @@
 package com.honya.bookstore.cart.application;
 
 import tools.jackson.databind.ObjectMapper;
-import com.honya.bookstore.cart.domain.CartProcessedOrderEvent;
 import com.honya.bookstore.cart.infrastructure.persistence.CartProcessedOrderEventRepository;
 import com.honya.bookstore.shared.integration.order.RabbitOrderIntegrationConfig;
 import com.honya.bookstore.shared.integration.order.event.OrderPlacedEvent;
@@ -25,14 +24,9 @@ public class OrderEventListener {
     public void handleOrder(String payload) {
         OrderPlacedEvent event = deserialize(payload);
 
-        if (processedOrderEventRepository.existsByOrderId(event.orderId())) {
+        if (processedOrderEventRepository.insertIfAbsent(event.orderId(), OffsetDateTime.now()) == 0) {
             return;
         }
-
-        processedOrderEventRepository.save(CartProcessedOrderEvent.builder()
-                .orderId(event.orderId())
-                .processedAt(OffsetDateTime.now())
-                .build());
 
         cartService.clearCart(event.userId());
     }

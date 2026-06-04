@@ -1,7 +1,6 @@
 package com.honya.bookstore.catalog.application;
 
 import tools.jackson.databind.ObjectMapper;
-import com.honya.bookstore.catalog.domain.CatalogProcessedMediaEvent;
 import com.honya.bookstore.catalog.infrastructure.persistence.BookMediaRepository;
 import com.honya.bookstore.catalog.infrastructure.persistence.CatalogProcessedMediaEventRepository;
 import com.honya.bookstore.shared.integration.media.RabbitMediaIntegrationConfig;
@@ -26,15 +25,9 @@ public class MediaEventListener {
     public void handle(String payload) {
         MediaDeletedEvent event = deserialize(payload);
 
-        if (processedMediaEventRepository.existsByEventId(event.eventId())) {
+        if (processedMediaEventRepository.insertIfAbsent(event.eventId(), event.mediaId(), OffsetDateTime.now()) == 0) {
             return;
         }
-
-        processedMediaEventRepository.save(CatalogProcessedMediaEvent.builder()
-                .eventId(event.eventId())
-                .mediaId(event.mediaId())
-                .processedAt(OffsetDateTime.now())
-                .build());
 
         bookMediaRepository.deleteByMediaId(event.mediaId());
     }

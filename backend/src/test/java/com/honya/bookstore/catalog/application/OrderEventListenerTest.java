@@ -1,7 +1,6 @@
 package com.honya.bookstore.catalog.application;
 
 import tools.jackson.databind.ObjectMapper;
-import com.honya.bookstore.catalog.domain.CatalogProcessedOrderEvent;
 import com.honya.bookstore.catalog.infrastructure.persistence.CatalogProcessedOrderEventRepository;
 import com.honya.bookstore.shared.integration.order.event.OrderItemEventDTO;
 import com.honya.bookstore.shared.integration.order.event.OrderPlacedEvent;
@@ -11,6 +10,10 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -25,12 +28,12 @@ class OrderEventListenerTest {
     }
 
     @Test
-    void newOrderEventRecordsMarkerAndReducesStock() {
+    void newOrderEventReducesStock() {
         BookService bookService = mock(BookService.class);
         CatalogProcessedOrderEventRepository repository = mock(CatalogProcessedOrderEventRepository.class);
         UUID orderId = UUID.randomUUID();
         UUID bookId = UUID.randomUUID();
-        when(repository.existsByOrderId(orderId)).thenReturn(false);
+        when(repository.insertIfAbsent(eq(orderId), any())).thenReturn(1);
 
         new OrderEventListener(bookService, repository).handleOrder(json(new OrderPlacedEvent(
                 orderId,
@@ -38,7 +41,6 @@ class OrderEventListenerTest {
                 List.of(new OrderItemEventDTO(bookId, 2))
         )));
 
-        verify(repository).save(org.mockito.ArgumentMatchers.any(CatalogProcessedOrderEvent.class));
         verify(bookService).reduceStock(bookId, 2);
     }
 
@@ -47,7 +49,7 @@ class OrderEventListenerTest {
         BookService bookService = mock(BookService.class);
         CatalogProcessedOrderEventRepository repository = mock(CatalogProcessedOrderEventRepository.class);
         UUID orderId = UUID.randomUUID();
-        when(repository.existsByOrderId(orderId)).thenReturn(true);
+        when(repository.insertIfAbsent(eq(orderId), any())).thenReturn(0);
 
         new OrderEventListener(bookService, repository).handleOrder(json(new OrderPlacedEvent(
                 orderId,
@@ -55,8 +57,7 @@ class OrderEventListenerTest {
                 List.of(new OrderItemEventDTO(UUID.randomUUID(), 2))
         )));
 
-        verify(repository, never()).save(org.mockito.ArgumentMatchers.any(CatalogProcessedOrderEvent.class));
-        verify(bookService, never()).reduceStock(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyInt());
+        verify(bookService, never()).reduceStock(any(), anyInt());
     }
 
     @Test
@@ -65,8 +66,8 @@ class OrderEventListenerTest {
         CatalogProcessedOrderEventRepository repository = mock(CatalogProcessedOrderEventRepository.class);
         UUID orderId = UUID.randomUUID();
         UUID bookId = UUID.randomUUID();
-        when(repository.existsByOrderId(orderId)).thenReturn(false);
-        org.mockito.Mockito.doThrow(new RuntimeException("stock failed")).when(bookService).reduceStock(bookId, 2);
+        when(repository.insertIfAbsent(eq(orderId), any())).thenReturn(1);
+        doThrow(new RuntimeException("stock failed")).when(bookService).reduceStock(bookId, 2);
 
         String payload = json(new OrderPlacedEvent(
                 orderId,
