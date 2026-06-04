@@ -1,9 +1,9 @@
-package com.honya.bookstore.catalog.web;
+package com.honya.bookstore.media.web;
 
-import com.honya.bookstore.catalog.application.MediaService;
-import com.honya.bookstore.catalog.web.dto.request.CreateMediaRequestDTO;
-import com.honya.bookstore.catalog.web.dto.response.MediaResponseDTO;
-import com.honya.bookstore.catalog.web.dto.response.UploadImageURLResponseDTO;
+import com.honya.bookstore.media.application.MediaService;
+import com.honya.bookstore.media.web.dto.request.CreateMediaRequestDTO;
+import com.honya.bookstore.media.web.dto.response.MediaResponseDTO;
+import com.honya.bookstore.media.web.dto.response.UploadImageURLResponseDTO;
 import com.honya.bookstore.security.CustomerOnly;
 import com.honya.bookstore.security.StaffOrAdmin;
 import com.honya.bookstore.shared.PageMetaDTO;
@@ -13,7 +13,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +23,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
-@Tag(name = "Media", description = "Endpoints for managing media files in the catalog")
+@Tag(name = "Media", description = "Endpoints for managing media files")
 @RestController
 @RequestMapping("/api/media")
 @RequiredArgsConstructor
@@ -45,13 +48,7 @@ public class MediaController {
         List<MediaResponseDTO> pageData = media.subList(fromIndex, toIndex);
         int totalPages = totalItems == 0 ? 0 : (int) Math.ceil((double) totalItems / safeLimit);
 
-        PageMetaDTO meta = new PageMetaDTO(
-                safePage,
-                safeLimit,
-                pageData.size(),
-                totalItems,
-                totalPages
-        );
+        PageMetaDTO meta = new PageMetaDTO(safePage, safeLimit, pageData.size(), totalItems, totalPages);
 
         return ResponseEntity.ok(new PagedResponseDTO<>(pageData, meta));
     }
@@ -62,6 +59,14 @@ public class MediaController {
     public ResponseEntity<MediaResponseDTO> createMedia(@RequestBody CreateMediaRequestDTO requestDTO) {
         MediaResponseDTO response = mediaService.createMedia(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Delete media", description = "Soft-delete a media item")
+    @StaffOrAdmin
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMedia(@PathVariable UUID id) {
+        mediaService.deleteMedia(id);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Generate upload URL", description = "Generate pre-signed URL for uploading media files")

@@ -12,4 +12,6 @@ public interface BookMediaRepository extends JpaRepository<BookMedia, UUID> {
     List<BookMedia> findByBookId(UUID bookId);
 
     void deleteByBookId(UUID bookId);
+
+    void deleteByMediaId(UUID mediaId);
 }

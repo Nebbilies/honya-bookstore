@@ -8,6 +8,8 @@ import com.honya.bookstore.catalog.infrastructure.persistence.BookSpecifications
 import com.honya.bookstore.catalog.outbox.CatalogOutboxWriter;
 import com.honya.bookstore.catalog.web.BookController.sortOrder;
 import com.honya.bookstore.catalog.web.dto.request.BookMediaRequestDTO;
+import com.honya.bookstore.media.api.MediaApi;
+import com.honya.bookstore.media.api.MediaView;
 import com.honya.bookstore.shared.error.InsufficientStockException;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import com.honya.bookstore.shared.integration.catalog.event.ProductDetailsChangedEvent;
@@ -33,7 +35,7 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
     private final BookMediaRepository bookMediaRepository;
-    private final MediaService mediaService;
+    private final MediaApi mediaApi;
     private final CatalogOutboxWriter outboxWriter;
 
     @Override
@@ -131,10 +133,10 @@ public class BookServiceImpl implements BookService {
 
         return book.getMedia().stream()
                 .filter(bookMedia -> Boolean.TRUE.equals(bookMedia.getIsCover()))
-                .map(bookMedia -> bookMedia.getMedia().getUrl())
+                .map(BookMedia::getMediaUrl)
                 .findFirst()
                 .orElseGet(() -> book.getMedia().stream()
-                        .map(bookMedia -> bookMedia.getMedia().getUrl())
+                        .map(BookMedia::getMediaUrl)
                         .findFirst()
                         .orElse("/images/fallbackBookImage.png"));
     }
@@ -166,11 +168,17 @@ public class BookServiceImpl implements BookService {
         bookMediaRepository.deleteByBookId(book.getId());
 
         List<BookMedia> bookMediaList = mediaRequests.stream()
-                .map(mediaRequest -> BookMedia.builder()
-                        .book(book)
-                        .media(mediaService.getMediaById(mediaRequest.getMediaId()))
-                        .isCover(mediaRequest.getIsCover())
-                        .build())
+                .map(mediaRequest -> {
+                    MediaView media = mediaApi.getMediaById(mediaRequest.getMediaId());
+                    return BookMedia.builder()
+                            .book(book)
+                            .mediaId(media.id())
+                            .mediaUrl(media.url())
+                            .mediaAltText(media.altText())
+                            .order(media.order())
+                            .isCover(mediaRequest.getIsCover())
+                            .build();
+                })
                 .toList();
 
         bookMediaRepository.saveAll(bookMediaList);

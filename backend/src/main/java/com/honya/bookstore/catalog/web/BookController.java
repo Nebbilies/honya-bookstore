@@ -227,11 +227,11 @@ public class BookController {
         List<BookMediaResponseDTO> mediaDTOs = book.getMedia() != null
                 ? book.getMedia().stream()
                 .map(bookMedia -> BookMediaResponseDTO.builder()
-                        .id(bookMedia.getMedia().getId())
+                        .id(bookMedia.getMediaId())
                         .isCover(bookMedia.getIsCover())
-                        .order(bookMedia.getMedia().getOrder())
-                        .url(bookMedia.getMedia().getUrl())
-                        .altText(bookMedia.getMedia().getAltText())
+                        .order(bookMedia.getOrder())
+                        .url(bookMedia.getMediaUrl())
+                        .altText(bookMedia.getMediaAltText())
                         .build())
                 .toList()
                 : List.of();

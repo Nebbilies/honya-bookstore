@@ -1,4 +1,4 @@
-package com.honya.bookstore.catalog.infrastructure.persistence.config;
+package com.honya.bookstore.media.infrastructure.persistence.config;
 
 import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +19,6 @@ public class MinioConfig {
     @Value("${spring.minio.secret-key}")
     private String secretKey;
 
-    // cause: when running inside docker, minio generate presign url using
-    // internal url: minio:9000 --> public cannot reach --> separate client endpoints
     @Bean("internalMinioClient")
     public MinioClient internalMinioClient() {
         return MinioClient.builder()
