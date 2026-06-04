@@ -1,0 +1,130 @@
+{
+  "realm": "honya",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "accessTokenLifespan": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "roles": {
+    "realm": [
+      { "name": "ADMIN", "description": "Full administrative access" },
+      { "name": "STAFF", "description": "Staff/back-office access" },
+      { "name": "CUSTOMER", "description": "Authenticated storefront customer" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "honya-web",
+      "name": "Honya Storefront (Next.js)",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "7KsOZwkkyCflZHxBufKmxTxFZQgSWKwX",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/api/auth/callback/keycloak"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:3000/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "honya-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "honya-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "honya-swagger",
+      "name": "Honya Swagger UI",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8081/swagger-ui/oauth2-redirect.html"
+      ],
+      "webOrigins": [
+        "http://localhost:8081"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "honya-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "honya-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "admin@honya.local",
+      "firstName": "Honya",
+      "lastName": "Admin",
+      "credentials": [
+        { "type": "password", "value": "admin123", "temporary": false }
+      ],
+      "realmRoles": [ "ADMIN" ]
+    },
+    {
+      "username": "staff",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "staff@honya.local",
+      "firstName": "Honya",
+      "lastName": "Staff",
+      "credentials": [
+        { "type": "password", "value": "staff123", "temporary": false }
+      ],
+      "realmRoles": [ "STAFF" ]
+    },
+    {
+      "username": "customer",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "customer@honya.local",
+      "firstName": "Honya",
+      "lastName": "Customer",
+      "attributes": {
+        "phone_number": [ "+84900000000" ]
+      },
+      "credentials": [
+        { "type": "password", "value": "customer123", "temporary": false }
+      ],
+      "realmRoles": [ "CUSTOMER" ]
+    }
+  ]
+}
