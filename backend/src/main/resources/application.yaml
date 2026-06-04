@@ -25,7 +25,7 @@ spring:
 
   minio:
     internal-url: ${MINIO_INTERNAL_URL:http://localhost:9000}
-    public-url: ${MINIO_PUBLIC_URL:http://host.docker.internal:9000}
+    public-url: ${MINIO_PUBLIC_URL:http://localhost:9000}
     access-key: ${MINIO_ACCESS_KEY:minioadmin}
     secret-key: ${MINIO_SECRET_KEY:minioadmin}
     media-bucket-name: ${MINIO_MEDIA_BUCKET:media}

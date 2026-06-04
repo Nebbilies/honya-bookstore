@@ -23,6 +23,7 @@ public class MinioConfig {
     public MinioClient internalMinioClient() {
         return MinioClient.builder()
                 .endpoint(internalUrl)
+                .region("us-east-1")
                 .credentials(accessKey, secretKey)
                 .build();
     }
@@ -31,6 +32,7 @@ public class MinioConfig {
     public MinioClient publicMinioClient() {
         return MinioClient.builder()
                 .endpoint(publicUrl)
+                .region("us-east-1")
                 .credentials(accessKey, secretKey)
                 .build();
     }
