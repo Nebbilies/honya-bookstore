@@ -11,7 +11,11 @@ const nextConfig: NextConfig = {
             {
                 protocol: "http",
                 hostname: 'host.docker.internal',
-            }
+            },
+            {
+                protocol: "http",
+                hostname: 'localhost',
+            },
         ]
     }
 };
