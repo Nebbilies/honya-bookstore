@@ -1,9 +1,9 @@
-package com.honya.bookstore.catalog.web;
+package com.honya.bookstore.media.web;
 
-import com.honya.bookstore.catalog.application.MediaService;
-import com.honya.bookstore.catalog.web.dto.request.CreateMediaRequestDTO;
-import com.honya.bookstore.catalog.web.dto.response.MediaResponseDTO;
-import com.honya.bookstore.catalog.web.dto.response.UploadImageURLResponseDTO;
+import com.honya.bookstore.media.application.MediaService;
+import com.honya.bookstore.media.web.dto.request.CreateMediaRequestDTO;
+import com.honya.bookstore.media.web.dto.response.MediaResponseDTO;
+import com.honya.bookstore.media.web.dto.response.UploadImageURLResponseDTO;
 import com.honya.bookstore.security.CustomerOnly;
 import com.honya.bookstore.security.StaffOrAdmin;
 import com.honya.bookstore.shared.PageMetaDTO;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Tag(name = "Media", description = "Endpoints for managing media files in the catalog")
+@Tag(name = "Media", description = "Endpoints for managing media files")
 @RestController
 @RequestMapping("/api/media")
 @RequiredArgsConstructor
@@ -45,13 +45,7 @@ public class MediaController {
         List<MediaResponseDTO> pageData = media.subList(fromIndex, toIndex);
         int totalPages = totalItems == 0 ? 0 : (int) Math.ceil((double) totalItems / safeLimit);
 
-        PageMetaDTO meta = new PageMetaDTO(
-                safePage,
-                safeLimit,
-                pageData.size(),
-                totalItems,
-                totalPages
-        );
+        PageMetaDTO meta = new PageMetaDTO(safePage, safeLimit, pageData.size(), totalItems, totalPages);
 
         return ResponseEntity.ok(new PagedResponseDTO<>(pageData, meta));
     }

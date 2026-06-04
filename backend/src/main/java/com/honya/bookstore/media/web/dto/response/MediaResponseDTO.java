@@ -1,4 +1,4 @@
-package com.honya.bookstore.catalog.web.dto.response;
+package com.honya.bookstore.media.web.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

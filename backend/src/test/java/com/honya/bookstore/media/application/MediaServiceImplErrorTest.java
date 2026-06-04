@@ -1,6 +1,6 @@
-package com.honya.bookstore.catalog.application;
+package com.honya.bookstore.media.application;
 
-import com.honya.bookstore.catalog.infrastructure.persistence.MediaRepository;
+import com.honya.bookstore.media.infrastructure.persistence.MediaRepository;
 import io.minio.MinioClient;
 import io.minio.errors.MinioException;
 import org.junit.jupiter.api.Test;

@@ -1,9 +1,9 @@
 package com.honya.bookstore.contract;
 
-import com.honya.bookstore.catalog.application.MediaService;
-import com.honya.bookstore.catalog.web.MediaController;
-import com.honya.bookstore.catalog.web.dto.request.CreateMediaRequestDTO;
-import com.honya.bookstore.catalog.web.dto.response.MediaResponseDTO;
+import com.honya.bookstore.media.application.MediaService;
+import com.honya.bookstore.media.web.MediaController;
+import com.honya.bookstore.media.web.dto.request.CreateMediaRequestDTO;
+import com.honya.bookstore.media.web.dto.response.MediaResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;

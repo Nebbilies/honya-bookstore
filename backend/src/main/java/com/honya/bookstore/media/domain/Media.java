@@ -1,4 +1,4 @@
-package com.honya.bookstore.catalog.domain;
+package com.honya.bookstore.media.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,7 +7,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "media", schema = "catalog")
+@Table(name = "media", schema = "media")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class Media {
     @Id @GeneratedValue(strategy = GenerationType.UUID)

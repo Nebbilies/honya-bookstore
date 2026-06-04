@@ -15,9 +15,14 @@ public class BookMedia {
     @JoinColumn(name = "book_id")
     private Book book;
 
-    @ManyToOne
-    @JoinColumn(name = "media_id")
-    private Media media;
+    @Column(name = "media_id")
+    private UUID mediaId;
+
+    @Column(name = "media_url")
+    private String mediaUrl;
+
+    @Column(name = "media_alt_text")
+    private String mediaAltText;
 
     private Boolean isCover;
 
