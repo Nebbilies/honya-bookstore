@@ -44,6 +44,19 @@ export type IconName =
     | 'bold'
     | 'underline'
     | 'font'
+    | 'strikethrough'
+    | 'list-bulleted'
+    | 'list-numbered'
+    | 'quote'
+    | 'code'
+    | 'link'
+    | 'align-left'
+    | 'align-center'
+    | 'align-right'
+    | 'horizontal-rule'
+    | 'undo'
+    | 'redo'
+    | 'image'
     | 'upload'
     | 'ticket'
     | 'coin'
@@ -94,6 +107,19 @@ const iconMap: Record<IconName, string> = {
     bold: 'mdi:format-bold',
     underline: 'mdi:format-underline',
     font: 'mdi:format-font',
+    strikethrough: 'mdi:format-strikethrough-variant',
+    'list-bulleted': 'mdi:format-list-bulleted',
+    'list-numbered': 'mdi:format-list-numbered',
+    quote: 'mdi:format-quote-close',
+    code: 'mdi:code-tags',
+    link: 'mdi:link-variant',
+    'align-left': 'mdi:format-align-left',
+    'align-center': 'mdi:format-align-center',
+    'align-right': 'mdi:format-align-right',
+    'horizontal-rule': 'mdi:minus',
+    undo: 'mdi:undo',
+    redo: 'mdi:redo',
+    image: 'mdi:image-outline',
     upload: 'material-symbols:upload',
     ticket: 'ph:ticket-bold',
     coin: 'tabler:coin-filled',
