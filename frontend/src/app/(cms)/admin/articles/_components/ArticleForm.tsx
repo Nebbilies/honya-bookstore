@@ -83,7 +83,7 @@ export default function ArticleForm({ mode, initialData }: ArticleFormProps) {
     }, [mode, initialData, reset]);
 
     const onSubmit = async (data: ArticleFormValues) => {
-        const method = mode === 'add' ? 'POST' : 'PATCH';
+        const method = mode === 'add' ? 'POST' : 'PUT';
         const url = mode === 'add'
             ? `${process.env.NEXT_PUBLIC_API_URL}/articles`
             : `${process.env.NEXT_PUBLIC_API_URL}/articles/${initialData?.id}`;
@@ -196,7 +196,7 @@ export default function ArticleForm({ mode, initialData }: ArticleFormProps) {
                                 label={'Tags'}
                                 className={'w-full p-3'}
                                 placeholder={'Input Tags'}
-                                helper={'Type a tag, press "," to add. Letters, numbers, spaces and "-" only.'}
+                                helper={'Type a tag, press "," to add. Letters, numbers, spaces and "-" only. Max 5 tags, under 20 chars each.'}
                                 value={field.value || []}
                                 onChange={field.onChange}
                             />
@@ -249,7 +249,8 @@ export default function ArticleForm({ mode, initialData }: ArticleFormProps) {
                         setValue('thumbnailId', img.mediaId, { shouldValidate: true });
                         setValue('thumbnailUrl', img.url, { shouldValidate: true });
                     }}
-                    removeImage={() => {
+                    removeImage={(mediaId) => {
+                        if (watch('thumbnailId') !== mediaId) return;
                         setValue('thumbnailId', '', { shouldValidate: true });
                         setValue('thumbnailUrl', '', { shouldValidate: true });
                     }}

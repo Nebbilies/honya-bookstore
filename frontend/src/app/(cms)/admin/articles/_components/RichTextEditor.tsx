@@ -4,7 +4,7 @@ import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import TextAlign from '@tiptap/extension-text-align';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Icon, { IconName } from '@/components/Icon';
 import SelectMediaDialog from '@/app/(cms)/admin/media/upload/_components/SelectMediaDialog';
 
@@ -115,13 +115,19 @@ export default function RichTextEditor({ value, onChange, error }: RichTextEdito
         content: value,
         editorProps: {
             attributes: {
-                class: 'prose max-w-none min-h-[400px] p-4 focus:outline-none',
+                class: 'prose max-w-none min-h-[400px] max-h-[500px] overflow-y-auto p-4 focus:outline-none',
             },
         },
         onUpdate: ({ editor }) => {
             onChange(editor.getHTML());
         },
     });
+
+    useEffect(() => {
+        if (editor && value !== editor.getHTML()) {
+            editor.commands.setContent(value, { emitUpdate: false });
+        }
+    }, [editor, value]);
 
     if (!editor) return null;
 

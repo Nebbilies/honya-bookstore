@@ -64,7 +64,7 @@ export default async function ArticleListPage({ searchParams }: { searchParams: 
                     <th className="px-4 py-3 border-r border-gray-200">Slug</th>
                     <th className="px-4 py-3 border-r border-gray-200">Tags</th>
                     <th className="px-4 py-3 border-r border-gray-200">Status</th>
-                    <ArticleSortableHeader column="publishedAt" label="Date Created"/>
+                    <ArticleSortableHeader column="createdAt" label="Date Created"/>
                     <th className="px-4 py-3 text-center">Actions</th>
                 </tr>
                 </thead>
@@ -90,7 +90,7 @@ export default async function ArticleListPage({ searchParams }: { searchParams: 
                             <td className="px-4 py-3 border-gray-100">{(article.tags || []).join(', ')}</td>
                             <td className="px-4 py-3 border-gray-100">{article.status}</td>
                             <td className="px-4 py-3 border-gray-100">
-                                {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString('en-GB') : '-'}
+                                {article.createdAt ? new Date(article.createdAt).toLocaleDateString('vi-VN') : '-'}
                             </td>
                             <ArticleTableActions article={article}/>
                         </tr>

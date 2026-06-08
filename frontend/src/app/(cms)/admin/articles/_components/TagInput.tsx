@@ -4,6 +4,8 @@ import React, { useState } from "react";
 
 const ALLOWED_CHAR = /^[a-zA-Z0-9 -]$/;
 const INVALID_CHARS = /[^a-zA-Z0-9 -]/g;
+const MAX_TAGS = 5;
+const MAX_TAG_LENGTH = 19;
 
 interface TagInputProps {
     value: string[];
@@ -19,8 +21,12 @@ export default function TagInput({ value, onChange, label, helper, error, placeh
     const [input, setInput] = useState('');
 
     const commit = (raw: string) => {
-        const tag = raw.trim();
+        const tag = raw.trim().slice(0, MAX_TAG_LENGTH);
         if (!tag) return;
+        if (value.length >= MAX_TAGS) {
+            setInput('');
+            return;
+        }
         const exists = value.some((t) => t.toLowerCase() === tag.toLowerCase());
         if (!exists) onChange([...value, tag]);
         setInput('');
@@ -75,14 +81,17 @@ export default function TagInput({ value, onChange, label, helper, error, placeh
                         </button>
                     </span>
                 ))}
-                <input
-                    value={input}
-                    onChange={handleChange}
-                    onKeyDown={handleKeyDown}
-                    onBlur={() => setInput((cur) => cur.replace(INVALID_CHARS, ''))}
-                    placeholder={value.length === 0 ? placeholder : ''}
-                    className="flex-1 min-w-[120px] bg-transparent focus:outline-none py-1"
-                />
+                {value.length < MAX_TAGS && (
+                    <input
+                        value={input}
+                        onChange={handleChange}
+                        onKeyDown={handleKeyDown}
+                        onBlur={() => setInput((cur) => cur.replace(INVALID_CHARS, ''))}
+                        maxLength={MAX_TAG_LENGTH}
+                        placeholder={value.length === 0 ? placeholder : ''}
+                        className="flex-1 min-w-[120px] bg-transparent focus:outline-none py-1"
+                    />
+                )}
             </div>
             {helper && <span className="text-xs text-gray-500 mt-1">{helper}</span>}
             {error && <span className="text-xs text-red-500 mt-1">{error}</span>}

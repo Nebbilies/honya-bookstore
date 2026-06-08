@@ -86,7 +86,7 @@ export interface Article {
     status: string,
     thumbnailId: string,
     thumbnailUrl: string,
-    publishedAt: string,
+    createdAt: string,
     editedAt: string,
     authorId: string,
 }
