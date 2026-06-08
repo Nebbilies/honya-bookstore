@@ -84,8 +84,9 @@ export interface Article {
     content: string,
     tags: string[],
     status: string,
+    thumbnailId: string,
     thumbnailUrl: string,
-    publishedAt: string,
+    createdAt: string,
     editedAt: string,
     authorId: string,
 }
@@ -179,5 +180,10 @@ export interface MediaResponse {
 
 export interface OrderResponse {
     data: Order[];
+    meta: ResponseMetadata;
+}
+
+export interface ArticleResponse {
+    data: Article[];
     meta: ResponseMetadata;
 }
