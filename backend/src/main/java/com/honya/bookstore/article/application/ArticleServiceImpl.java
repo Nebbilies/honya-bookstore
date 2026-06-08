@@ -1,6 +1,7 @@
 package com.honya.bookstore.article.application;
 
 import com.honya.bookstore.article.domain.Article;
+import com.honya.bookstore.article.domain.ArticleStatus;
 import com.honya.bookstore.article.infrastructure.persistence.ArticleRepository;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,17 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public Page<Article> getAllArticles(Pageable pageable) {
         return articleRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<Article> getPublishedArticles(Pageable pageable) {
+        return articleRepository.findByStatus(ArticleStatus.PUBLISHED, pageable);
+    }
+
+    @Override
+    public Article getPublishedArticleBySlug(String slug) {
+        return articleRepository.findBySlugAndStatus(slug, ArticleStatus.PUBLISHED)
+                .orElseThrow(() -> new ResourceNotFoundException("Article", "slug", slug));
     }
 
     @Override

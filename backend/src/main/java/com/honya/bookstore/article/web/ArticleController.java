@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -69,6 +70,49 @@ public class ArticleController {
                         .collect(Collectors.toList()),
                 meta
         ));
+    }
+
+    @Operation(summary = "Get published articles", description = "Retrieve a paginated list of published articles for the storefront")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Published articles retrieved")
+    })
+    @GetMapping("/public")
+    public ResponseEntity<PagedResponseDTO<ArticleResponseDTO>> getPublishedArticles(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "9") int limit
+    ) {
+        int safePage = Math.max(page, 1);
+        int safeLimit = Math.min(Math.max(limit, 1), 50);
+
+        Pageable pageable = PageRequest.of(safePage - 1, safeLimit, Sort.by("createdAt").descending());
+        Page<Article> articlePage = articleService.getPublishedArticles(pageable);
+
+        PageMetaDTO meta = new PageMetaDTO(
+                safePage,
+                safeLimit,
+                articlePage.getNumberOfElements(),
+                articlePage.getTotalElements(),
+                articlePage.getTotalPages()
+        );
+
+        return ResponseEntity.ok(new PagedResponseDTO<>(
+                articlePage.getContent().stream()
+                        .map(this::mapToResponseDTO)
+                        .collect(Collectors.toList()),
+                meta
+        ));
+    }
+
+    @Operation(summary = "Get published article by slug", description = "Retrieve one published article by its slug for the storefront")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Article retrieved"),
+            @ApiResponse(responseCode = "404", description = "Article not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @GetMapping("/public/{slug}")
+    public ResponseEntity<ArticleResponseDTO> getPublishedArticleBySlug(@PathVariable String slug) {
+        Article article = articleService.getPublishedArticleBySlug(slug);
+        return ResponseEntity.ok(mapToResponseDTO(article));
     }
 
     @Operation(summary = "Get article by id", description = "Retrieve one article by id")
