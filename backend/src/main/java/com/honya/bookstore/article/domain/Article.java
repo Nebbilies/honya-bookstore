@@ -23,11 +23,15 @@ public class Article {
     @Column(name = "tags")
     private List<String> tags;
 
-
     @Column(name = "author_id")
     private UUID authorId;
 
-
     @Column(name = "media_id")
     private UUID thumbnailId;
+
+    @Column(name = "media_url")
+    private String thumbnailUrl;
+
+    @Enumerated(EnumType.STRING)
+    private ArticleStatus status;
 }
