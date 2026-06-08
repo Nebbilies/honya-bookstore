@@ -2,6 +2,10 @@ package com.honya.bookstore.article.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,4 +38,15 @@ public class Article {
 
     @Enumerated(EnumType.STRING)
     private ArticleStatus status;
+
+    @Column(name = "created_at")
+    @CreationTimestamp
+    private OffsetDateTime createdAt;
+
+    @Column(name = "updated_at")
+    @UpdateTimestamp
+    private OffsetDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private OffsetDateTime deletedAt;
 }
