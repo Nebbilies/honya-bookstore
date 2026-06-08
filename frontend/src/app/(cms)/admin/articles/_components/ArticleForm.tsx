@@ -12,10 +12,11 @@ import ShortField from "@/components/Input Field/ShortField";
 import Button from "@/components/Button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RichTextEditor from "@/app/(cms)/admin/articles/_components/RichTextEditor";
+import TagInput from "@/app/(cms)/admin/articles/_components/TagInput";
 import SelectMediaDialog from "@/app/(cms)/admin/media/upload/_components/SelectMediaDialog";
 import { Article } from "@/types/types";
 
-const STATUS_OPTIONS = ['Draft', 'Published'] as const;
+const STATUS_OPTIONS = ['DRAFT', 'PUBLISHED'] as const;
 
 const articleSchema = z.object({
     title: z.string().min(1, "Required field"),
@@ -49,7 +50,6 @@ export default function ArticleForm({ mode, initialData }: ArticleFormProps) {
     const session = useSession();
     const router = useRouter();
     const [isThumbnailDialogOpen, setIsThumbnailDialogOpen] = useState(false);
-    const [tagsInput, setTagsInput] = useState('');
 
     const form = useForm<ArticleFormValues>({
         resolver: zodResolver(articleSchema),
@@ -58,7 +58,7 @@ export default function ArticleForm({ mode, initialData }: ArticleFormProps) {
             slug: '',
             content: '',
             tags: [],
-            status: 'Draft',
+            status: 'DRAFT',
             thumbnailId: '',
             thumbnailUrl: '',
         },
@@ -75,11 +75,10 @@ export default function ArticleForm({ mode, initialData }: ArticleFormProps) {
                 slug: initialData.slug || '',
                 content: initialData.content || '',
                 tags: initialData.tags || [],
-                status: (STATUS_OPTIONS as readonly string[]).includes(initialData.status) ? initialData.status as ArticleFormValues['status'] : 'Draft',
+                status: (STATUS_OPTIONS as readonly string[]).includes(initialData.status) ? initialData.status as ArticleFormValues['status'] : 'DRAFT',
                 thumbnailId: initialData.thumbnailId || '',
                 thumbnailUrl: initialData.thumbnailUrl || '',
             });
-            setTagsInput((initialData.tags || []).join(', '));
         }
     }, [mode, initialData, reset]);
 
@@ -193,21 +192,13 @@ export default function ArticleForm({ mode, initialData }: ArticleFormProps) {
                         name="tags"
                         control={control}
                         render={({ field }) => (
-                            <ShortField
+                            <TagInput
                                 label={'Tags'}
                                 className={'w-full p-3'}
                                 placeholder={'Input Tags'}
-                                helper={'Separate each tag by a ","'}
-                                value={tagsInput}
-                                onValueChange={(e) => {
-                                    setTagsInput(e.target.value);
-                                    field.onChange(
-                                        e.target.value
-                                            .split(',')
-                                            .map((t) => t.trim())
-                                            .filter((t) => t.length > 0)
-                                    );
-                                }}
+                                helper={'Type a tag, press "," to add. Letters, numbers, spaces and "-" only.'}
+                                value={field.value || []}
+                                onChange={field.onChange}
                             />
                         )}
                     />
