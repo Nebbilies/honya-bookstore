@@ -20,7 +20,7 @@ export default function Footer() {
                 </div>
             </div>
             <div className={'w-full text-center opacity-50 text-md font-inter py-1'}>
-                @ 2025 UIT. SE357 Course Project.
+                © 2026 Honya Bookstore.
             </div>
         </footer>
     );
