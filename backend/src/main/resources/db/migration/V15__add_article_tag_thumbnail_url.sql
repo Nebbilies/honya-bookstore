@@ -1,0 +1,3 @@
+ALTER TABLE article.articles
+    ADD COLUMN IF NOT EXISTS media_url VARCHAR(255),
+    ADD COLUMN IF NOT EXISTS status VARCHAR(255);

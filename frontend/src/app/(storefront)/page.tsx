@@ -22,7 +22,7 @@ export default async function landingPage() {
     // fetch books
     const res = await fetch(`${apiBaseUrl}/books`, {cache: 'no-store'});
     if (!res.ok) {
-      throw new Error('Failed to fetch books', { status: res.status, statusText: res.statusText });
+      throw new Error('Failed to fetch books', { cause: res.statusText });
     }
     const data: BookResponse = await res.json();
     const books = data.data;
