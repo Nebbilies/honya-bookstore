@@ -13,6 +13,8 @@ import com.honya.bookstore.order.web.OrderController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -25,6 +27,8 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -66,10 +70,11 @@ class FrontendOrdersContractTest {
     @Test
     void getOrders_returns_data_meta_and_frontend_order_fields() throws Exception {
         String userId = UUID.randomUUID().toString();
-        when(orderService.getOrdersByUserId(userId)).thenReturn(List.of(sampleOrder(UUID.fromString(userId))));
+        when(orderService.getOrdersByUserId(eq(userId), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(sampleOrder(UUID.fromString(userId)))));
         authenticate(userId);
 
-        mockMvc.perform(get("/api/orders?page=1&limit=10"))
+        mockMvc.perform(get("/api/orders/me?page=1&limit=10"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.data").isArray())

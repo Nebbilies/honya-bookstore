@@ -469,10 +469,11 @@ class CoreApiContractFreezeTest {
         String userId = UUID.randomUUID().toString();
         Order order = sampleOrder(UUID.fromString(userId));
 
-        when(orderService.getOrdersByUserId(userId)).thenReturn(List.of(order));
+        when(orderService.getOrdersByUserId(eq(userId), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(order)));
         authenticate(userId);
 
-        mockMvc.perform(get("/api/orders"))
+        mockMvc.perform(get("/api/orders/me"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.data[0].id").exists())
