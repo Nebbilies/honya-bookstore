@@ -11,6 +11,8 @@ const breadcrumbItems: BreadcrumbItemType[] = [
     {label: 'My Profile', href: '/profile'},
 ];
 
+const accountBaseUrl = `${process.env.AUTH_KEYCLOAK_ISSUER ?? ''}/account`;
+
 export default function ProfileLayout({children}: {children: React.ReactNode}) {
     return (
         <main className={'flex w-full max-w-[1000px] mx-auto flex-col gap-6 px-5 pt-4 pb-20'}>
@@ -23,7 +25,7 @@ export default function ProfileLayout({children}: {children: React.ReactNode}) {
             </div>
 
             <div className={'flex flex-col gap-6 sm:flex-row'}>
-                <ProfileSidebar/>
+                <ProfileSidebar accountBaseUrl={accountBaseUrl}/>
                 <div className={'min-w-0 flex-1'}>{children}</div>
             </div>
         </main>

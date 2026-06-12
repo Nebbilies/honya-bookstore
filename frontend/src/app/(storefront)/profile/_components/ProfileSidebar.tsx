@@ -4,17 +4,15 @@ import Link from "next/link";
 import {usePathname} from "next/navigation";
 import Icon from "@/components/Icon";
 
-const KEYCLOAK_ACCOUNT = 'https://keycloak.kevinnitro.id.vn/realms/honyabookstore-dev/account';
-
-const EXTERNAL_LINKS = [
-    {label: 'My Profile', href: `${KEYCLOAK_ACCOUNT}/#/personal-info`},
-    {label: 'Change Password', href: `${KEYCLOAK_ACCOUNT}/#/security/signingin`},
-    {label: 'Settings', href: `${KEYCLOAK_ACCOUNT}/#/security/device-activity`},
-];
-
-export default function ProfileSidebar() {
+export default function ProfileSidebar({accountBaseUrl}: {accountBaseUrl: string}) {
     const pathname = usePathname();
     const ordersActive = pathname === '/profile' || pathname.startsWith('/profile/orders');
+
+    const externalLinks = [
+        {label: 'My Profile', href: `${accountBaseUrl}/`},
+        {label: 'Change Password', href: `${accountBaseUrl}/#/account-security/signing-in`},
+        {label: 'Settings', href: `${accountBaseUrl}/#/account-security/device-activity`},
+    ];
 
     return (
         <nav className={'w-full sm:w-60 shrink-0 rounded-xl border border-line-color bg-white p-2 h-fit'}>
@@ -26,7 +24,7 @@ export default function ProfileSidebar() {
                 <Icon name={'order'} size={18}/>
                 <span>My Orders</span>
             </Link>
-            {EXTERNAL_LINKS.map((item) => (
+            {externalLinks.map((item) => (
                 <a
                     key={item.label}
                     href={item.href}
