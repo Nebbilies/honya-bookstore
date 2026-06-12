@@ -34,7 +34,10 @@ export default auth((req) => {
   const reqHeaders = new Headers(req.headers);
     reqHeaders.set("x-url", req.nextUrl.pathname);
 
-  if (!req.auth?.user) {
+  const refreshFailed =
+    (req.auth as { error?: string } | null | undefined)?.error === "RefreshAccessTokenError";
+
+  if (!req.auth?.user || refreshFailed) {
     const loginUrl = new URL("/api/auth/signin", nextUrl);
     const callbackOrigin = process.env.NEXTAUTH_URL ?? process.env.AUTH_URL;
     const protocol = req.headers.get("x-forwarded-proto") ?? nextUrl.protocol.replace(":", "");
