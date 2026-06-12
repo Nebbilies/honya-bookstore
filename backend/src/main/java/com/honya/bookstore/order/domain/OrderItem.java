@@ -1,5 +1,6 @@
 package com.honya.bookstore.order.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
@@ -13,6 +14,9 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Order order;
 
     @ManyToOne
