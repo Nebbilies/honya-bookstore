@@ -187,3 +187,27 @@ export interface ArticleResponse {
     data: Article[];
     meta: ResponseMetadata;
 }
+
+export interface DashboardSummary {
+    salesThisMonth: number;
+    totalUsers: number;
+    newCustomers: number;
+    ordersThisMonth: number;
+}
+
+export interface MonthlyPoint {
+    month: number;
+    value: number;
+}
+
+export interface BestSeller {
+    title: string;
+    author: string;
+    totalSold: number;
+}
+
+export interface RecentOrder {
+    id: string;
+    createdAt: string;
+    totalAmount: number;
+}
