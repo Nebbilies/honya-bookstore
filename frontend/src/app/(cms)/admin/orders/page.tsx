@@ -2,18 +2,22 @@ import {OrderResponse} from "@/types/types";
 import {Metadata} from "next";
 import {CustomPagination} from "@/components/Pagination/CustomPagination";
 import {auth} from "@/auth";
+import Link from "next/link";
+import OrderHeaderOptions from "@/app/(cms)/admin/orders/_components/OrderHeaderOptions";
 
 export const metadata: Metadata = {
     title: 'Order List',
     description: 'Manage the list of orders in the bookstore',
 }
 
-async function getOrders(page: number): Promise<OrderResponse> {
+async function getOrders(page: number, status: string, search: string): Promise<OrderResponse> {
     const apiBaseUrl = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
     const session = await auth();
     const params = new URLSearchParams();
     params.set('page', page.toString());
     params.set('limit', '10');
+    if (status) params.set('status', status);
+    if (search) params.set('search', search);
 
     const res = await fetch(`${apiBaseUrl}/orders?${params.toString()}`, {
         method: 'GET',
@@ -36,15 +40,18 @@ async function getOrders(page: number): Promise<OrderResponse> {
     return res.json();
 }
 
-export default async function BookListPage({searchParams}: { searchParams: { search?: string, page?: number } }) {
+export default async function OrderListPage({searchParams}: { searchParams: Promise<{ search?: string, status?: string, page?: number }> }) {
     const params = await searchParams;
     const page = params?.page || 1;
-    const ordersData: OrderResponse = await getOrders(page);
+    const status = params?.status || '';
+    const search = params?.search || '';
+    const ordersData: OrderResponse = await getOrders(page, status, search);
     const orders = ordersData.data;
     return (
         <main className={'flex flex-col gap-6'}>
             <div className={'flex justify-between items-center'}>
                 <h1 className={'font-prata text-3xl'}>Order List</h1>
+                <OrderHeaderOptions/>
             </div>
             <table className="w-full border-collapse rounded-lg overflow-hidden shadow-sm">
                 <thead>
@@ -61,6 +68,11 @@ export default async function BookListPage({searchParams}: { searchParams: { sea
                 </thead>
 
                 <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+                {orders.length === 0 && (
+                    <tr>
+                        <td colSpan={8} className="px-4 py-10 text-center text-gray-400">No orders found.</td>
+                    </tr>
+                )}
                 {orders.map((ord, index) => (
                     <tr
                         key={index}
@@ -78,7 +90,12 @@ export default async function BookListPage({searchParams}: { searchParams: { sea
                             currency: "VND",
                         })}</td>
                         <td className="px-4 py-3 border-gray-100">{new Date(ord.createdAt).toLocaleString()}</td>
-                        <td className="px-4 py-3 border-gray-100 text-center">Placeholder</td>
+                        <td className="px-4 py-3 border-gray-100 text-center">
+                            <Link href={`/admin/orders/${ord.id}`}
+                                  className="inline-block rounded-md bg-blue-500 px-4 py-1.5 text-white transition-colors hover:bg-blue-600">
+                                Details
+                            </Link>
+                        </td>
                     </tr>
                 ))}
                 </tbody>
