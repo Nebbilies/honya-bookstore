@@ -104,22 +104,24 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
+      target: prod
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8081/api
+        NEXT_PUBLIC_API_MOCKING: "false"
+    image: honya-bookstore-frontend:prod
     container_name: honya_frontend
-    working_dir: /app/frontend
+    env_file:
+      - ./frontend/.env.local
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8081/api
       API_INTERNAL_URL: http://backend:8081/api
       NEXTAUTH_URL: http://localhost:3000
       AUTH_KEYCLOAK_ISSUER: http://localhost:8080/realms/honya
-      WATCHPACK_POLLING: "true"
+      AUTH_TRUST_HOST: "true"
     extra_hosts:
       - "localhost:host-gateway"
     ports:
       - "3000:3000"
-    volumes:
-      - ./frontend:/app/frontend
-      - /app/frontend/node_modules
-      - /app/frontend/.next
     depends_on:
       backend:
         condition: service_started

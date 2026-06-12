@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build:
+      target: dev
+    image: honya-bookstore-frontend:dev
+    working_dir: /app/frontend
+    environment:
+      WATCHPACK_POLLING: "true"
+    volumes:
+      - ./frontend:/app/frontend
+      - /app/frontend/node_modules
+      - /app/frontend/.next
