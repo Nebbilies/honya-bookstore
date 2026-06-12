@@ -2,17 +2,33 @@
   "realm": "honya",
   "enabled": true,
   "sslRequired": "external",
-  "registrationAllowed": false,
+  "registrationAllowed": true,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
   "accessTokenLifespan": 900,
   "ssoSessionIdleTimeout": 1800,
   "ssoSessionMaxLifespan": 36000,
+  "defaultRole": {
+    "name": "default-roles-honya",
+    "description": "${role_default-roles}",
+    "composite": true,
+    "clientRole": false,
+    "containerId": "honya"
+  },
   "roles": {
     "realm": [
       { "name": "ADMIN", "description": "Full administrative access" },
       { "name": "STAFF", "description": "Staff/back-office access" },
-      { "name": "CUSTOMER", "description": "Authenticated storefront customer" }
+      { "name": "CUSTOMER", "description": "Authenticated storefront customer" },
+      {
+        "name": "default-roles-honya",
+        "description": "${role_default-roles}",
+        "composite": true,
+        "composites": {
+          "realm": [ "offline_access", "uma_authorization", "CUSTOMER" ],
+          "client": { "account": [ "view-profile", "manage-account" ] }
+        }
+      }
     ]
   },
   "clients": [
@@ -94,7 +110,10 @@
       "credentials": [
         { "type": "password", "value": "admin123", "temporary": false }
       ],
-      "realmRoles": [ "ADMIN" ]
+      "realmRoles": [ "ADMIN" ],
+      "clientRoles": {
+        "account": [ "view-profile", "manage-account" ]
+      }
     },
     {
       "username": "staff",
@@ -106,7 +125,10 @@
       "credentials": [
         { "type": "password", "value": "staff123", "temporary": false }
       ],
-      "realmRoles": [ "STAFF" ]
+      "realmRoles": [ "STAFF" ],
+      "clientRoles": {
+        "account": [ "view-profile", "manage-account" ]
+      }
     },
     {
       "username": "customer",
@@ -121,7 +143,10 @@
       "credentials": [
         { "type": "password", "value": "customer123", "temporary": false }
       ],
-      "realmRoles": [ "CUSTOMER" ]
+      "realmRoles": [ "CUSTOMER" ],
+      "clientRoles": {
+        "account": [ "view-profile", "manage-account" ]
+      }
     }
   ]
 }
