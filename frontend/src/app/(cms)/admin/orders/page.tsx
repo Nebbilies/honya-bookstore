@@ -2,6 +2,7 @@ import {OrderResponse} from "@/types/types";
 import {Metadata} from "next";
 import {CustomPagination} from "@/components/Pagination/CustomPagination";
 import {auth} from "@/auth";
+import Link from "next/link";
 import OrderHeaderOptions from "@/app/(cms)/admin/orders/_components/OrderHeaderOptions";
 
 export const metadata: Metadata = {
@@ -89,7 +90,12 @@ export default async function OrderListPage({searchParams}: { searchParams: Prom
                             currency: "VND",
                         })}</td>
                         <td className="px-4 py-3 border-gray-100">{new Date(ord.createdAt).toLocaleString()}</td>
-                        <td className="px-4 py-3 border-gray-100 text-center">Placeholder</td>
+                        <td className="px-4 py-3 border-gray-100 text-center">
+                            <Link href={`/admin/orders/${ord.id}`}
+                                  className="inline-block rounded-md bg-blue-500 px-4 py-1.5 text-white transition-colors hover:bg-blue-600">
+                                Details
+                            </Link>
+                        </td>
                     </tr>
                 ))}
                 </tbody>

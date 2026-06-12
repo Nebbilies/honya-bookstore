@@ -11,6 +11,7 @@ import com.honya.bookstore.order.domain.OrderProvider;
 import com.honya.bookstore.order.domain.OrderStatus;
 import com.honya.bookstore.order.infrastructure.payment.VnPayUrlBuilder;
 import com.honya.bookstore.order.web.dto.OrderRequestDTO;
+import com.honya.bookstore.order.web.dto.OrderStatusUpdateDTO;
 import com.honya.bookstore.security.CustomerOnly;
 import com.honya.bookstore.security.StaffOrAdmin;
 import com.honya.bookstore.shared.error.InvalidOrderStatusException;
@@ -171,6 +172,22 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable UUID id) {
         return ResponseEntity.ok(orderService.getOrderById(id));
+    }
+
+    @Operation(summary = "Update order status", description = "Update an order's status (staff/admin)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Status updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid status",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404", description = "Order not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @StaffOrAdmin
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Order> updateOrderStatus(
+            @PathVariable UUID id,
+            @RequestBody OrderStatusUpdateDTO request) {
+        return ResponseEntity.ok(orderService.updateOrderStatus(id, request.getStatus()));
     }
 
     private OrderStatus parseStatus(String status) {
