@@ -14,6 +14,7 @@ public class Book {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private String author;
     private Integer price;
