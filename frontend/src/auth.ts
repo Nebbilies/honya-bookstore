@@ -67,6 +67,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (account.access_token) {
           token.accessToken = account.access_token;
         }
+        token.idToken = account.id_token ?? token.idToken;
         token.refreshToken = account.refresh_token ?? token.refreshToken;
         token.accessTokenExpiresAt = account.expires_at ? account.expires_at * 1000 : undefined;
       }
@@ -104,6 +105,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.userId;
       }
       return session;
+    },
+  },
+  events: {
+    async signOut(message) {
+      const idToken = "token" in message ? message.token?.idToken : undefined;
+      if (!idToken) return;
+
+      const issuer = process.env.AUTH_KEYCLOAK_ISSUER;
+      const params = new URLSearchParams({ id_token_hint: idToken });
+      try {
+        await fetch(`${issuer}/protocol/openid-connect/logout?${params.toString()}`);
+      } catch (error) {
+        console.error("Keycloak federated logout failed:", error);
+      }
     },
   },
 });

@@ -32,6 +32,7 @@ declare module "next-auth/jwt" {
     export interface JWT {
         userId: string;
         accessToken: string;
+        idToken?: string;
         refreshToken?: string;
         accessTokenExpiresAt?: number;
         role: UserRole | null;
