@@ -102,8 +102,10 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: .
+      dockerfile: frontend/Dockerfile
     container_name: honya_frontend
+    working_dir: /app/frontend
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8081/api
       API_INTERNAL_URL: http://backend:8081/api
@@ -115,9 +117,10 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
+      - ./frontend:/app/frontend
       - /app/node_modules
-      - /app/.next
+      - /app/frontend/node_modules
+      - /app/frontend/.next
     depends_on:
       backend:
         condition: service_started

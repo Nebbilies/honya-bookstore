@@ -1,0 +1,13 @@
+**/node_modules
+**/.next
+.git
+.gitignore
+.env*
+backend
+docs
+.claude
+.idea
+.vscode
+**/Dockerfile*
+README*
+*.log
