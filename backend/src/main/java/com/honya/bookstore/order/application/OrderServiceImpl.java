@@ -5,6 +5,10 @@ import com.honya.bookstore.order.domain.OrderStatus;
 
 import java.time.OffsetDateTime;
 import com.honya.bookstore.order.infrastructure.persistence.OrderRepository;
+import com.honya.bookstore.order.infrastructure.persistence.OrderSpecifications;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import com.honya.bookstore.shared.error.InvalidOrderStatusException;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -44,8 +48,21 @@ class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Page<Order> searchOrders(OrderStatus status, String search, Pageable pageable) {
+        Specification<Order> spec = Specification
+                .where(OrderSpecifications.hasStatus(status))
+                .and(OrderSpecifications.recipientContains(search));
+        return orderRepository.findAll(spec, pageable);
+    }
+
+    @Override
     public List<Order> getOrdersByUserId(String userId) {
-        return orderRepository.findByUserId(UUID.fromString(userId));
+        return orderRepository.findByUserIdOrderByCreatedAtDesc(UUID.fromString(userId));
+    }
+
+    @Override
+    public Page<Order> getOrdersByUserId(String userId, Pageable pageable) {
+        return orderRepository.findByUserId(UUID.fromString(userId), pageable);
     }
 
     @Override

@@ -12,8 +12,15 @@ import com.honya.bookstore.order.domain.OrderStatus;
 import com.honya.bookstore.order.infrastructure.payment.VnPayUrlBuilder;
 import com.honya.bookstore.order.web.dto.OrderRequestDTO;
 import com.honya.bookstore.security.CustomerOnly;
+import com.honya.bookstore.security.StaffOrAdmin;
+import com.honya.bookstore.shared.error.InvalidOrderStatusException;
+import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import com.honya.bookstore.shared.PageMetaDTO;
 import com.honya.bookstore.shared.PagedResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,7 +39,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Orders", description = "Endpoints for managing user orders and retrieving order history")
-@CustomerOnly
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
@@ -51,6 +57,7 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "Cart or product not found",
                     content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
+    @CustomerOnly
     @PostMapping
     public ResponseEntity<Order> createOrder(
             @AuthenticationPrincipal Jwt jwt,
@@ -107,46 +114,91 @@ public class OrderController {
         return ResponseEntity.ok(createdOrder);
     }
 
-    @Operation(summary = "Get my orders", description = "Retrieve all orders for authenticated user")
+    @Operation(summary = "Get all orders", description = "Retrieve all orders")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Orders retrieved")
     })
+    @StaffOrAdmin
     @GetMapping
-    public ResponseEntity<PagedResponseDTO<Order>> getMyOrders(
-            @AuthenticationPrincipal Jwt jwt,
+    public ResponseEntity<PagedResponseDTO<Order>> getAllOrders(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int limit) {
-        String userId = jwt.getSubject();
-        List<Order> orders = orderService.getOrdersByUserId(userId);
-
-        int safePage = Math.max(page, 1);
-        int safeLimit = Math.max(limit, 1);
-        int totalItems = orders.size();
-        int fromIndex = Math.min((safePage - 1) * safeLimit, totalItems);
-        int toIndex = Math.min(fromIndex + safeLimit, totalItems);
-        List<Order> pageData = orders.subList(fromIndex, toIndex);
-        int totalPages = totalItems == 0 ? 0 : (int) Math.ceil((double) totalItems / safeLimit);
-
-        PageMetaDTO meta = new PageMetaDTO(
-                safePage,
-                safeLimit,
-                pageData.size(),
-                totalItems,
-                totalPages
-        );
-
-        return ResponseEntity.ok(new PagedResponseDTO<>(pageData, meta));
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String search) {
+        Page<Order> orders = orderService.searchOrders(parseStatus(status), search, buildPageable(page, limit));
+        return ResponseEntity.ok(toPagedResponse(orders));
     }
 
-    @Operation(summary = "Get order by id", description = "Retrieve one order by id")
+    @Operation(summary = "Get my orders", description = "Retrieve all orders for the authenticated user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Orders retrieved")
+    })
+    @CustomerOnly
+    @GetMapping("/me")
+    public ResponseEntity<PagedResponseDTO<Order>> getMyOrders(
+            @AuthenticationPrincipal(expression = "subject") String userId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit) {
+        Page<Order> orders = orderService.getOrdersByUserId(userId, buildPageable(page, limit));
+        return ResponseEntity.ok(toPagedResponse(orders));
+    }
+
+    @Operation(summary = "Get my order by id", description = "Retrieve one of the authenticated user's own orders")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Order retrieved"),
             @ApiResponse(responseCode = "404", description = "Order not found",
                     content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
+    @CustomerOnly
+    @GetMapping("/me/{id}")
+    public ResponseEntity<Order> getMyOrderById(
+            @AuthenticationPrincipal(expression = "subject") String userId,
+            @PathVariable UUID id) {
+        Order order = orderService.getOrderById(id);
+        if (!UUID.fromString(userId).equals(order.getUserId())) {
+            throw new ResourceNotFoundException("Order", id);
+        }
+        return ResponseEntity.ok(order);
+    }
+
+    @Operation(summary = "Get order by id", description = "Retrieve one order by id (staff/admin)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order retrieved"),
+            @ApiResponse(responseCode = "404", description = "Order not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @StaffOrAdmin
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable UUID id) {
         return ResponseEntity.ok(orderService.getOrderById(id));
+    }
+
+    private OrderStatus parseStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return null;
+        }
+        try {
+            return OrderStatus.valueOf(status.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new InvalidOrderStatusException(status);
+        }
+    }
+
+    private Pageable buildPageable(int page, int limit) {
+        int safePage = Math.max(page, 1);
+        int safeLimit = Math.max(limit, 1);
+        return PageRequest.of(safePage - 1, safeLimit, Sort.by(Sort.Direction.DESC, "createdAt"));
+    }
+
+    private PagedResponseDTO<Order> toPagedResponse(Page<Order> page) {
+        PageMetaDTO meta = new PageMetaDTO(
+                page.getNumber() + 1,
+                page.getSize(),
+                page.getNumberOfElements(),
+                page.getTotalElements(),
+                page.getTotalPages()
+        );
+        return new PagedResponseDTO<>(page.getContent(), meta);
     }
 
     private String extractClientIp(HttpServletRequest request) {
