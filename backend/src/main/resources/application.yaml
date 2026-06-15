@@ -71,4 +71,5 @@ bookstore:
     hash-secret: ${VNPAY_HASH_SECRET:}
     pay-url: ${VNPAY_PAY_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
     return-url: ${VNPAY_RETURN_URL:http://localhost:3000/checkout/payment/success}
+    payment-return-url: ${VNPAY_PAYMENT_RETURN_URL:http://localhost:8081/api/orders/payment/vnpay/return}
     ipn-url: ${VNPAY_IPN_URL:http://localhost:8081/api/orders/payment/vnpay/ipn}

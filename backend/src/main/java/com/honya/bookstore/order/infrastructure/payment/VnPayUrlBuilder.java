@@ -23,9 +23,9 @@ public class VnPayUrlBuilder {
     private final VnPaySigner signer;
 
     public String buildPaymentUrl(Order order, String clientIp, String requestedReturnUrl) {
-        String returnUrl = (requestedReturnUrl == null || requestedReturnUrl.isBlank())
-                ? properties.getReturnUrl()
-                : requestedReturnUrl;
+        // VNPay must redirect to our backend return endpoint so payment status is confirmed
+        // server-side; the handler then forwards the browser to the storefront success page.
+        String returnUrl = properties.getPaymentReturnUrl();
 
         Map<String, String> params = new TreeMap<>();
         params.put("vnp_Version", "2.1.0");

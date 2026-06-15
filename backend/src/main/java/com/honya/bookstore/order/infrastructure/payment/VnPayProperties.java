@@ -12,5 +12,6 @@ public class VnPayProperties {
     private String hashSecret;
     private String payUrl;
     private String returnUrl;
+    private String paymentReturnUrl;
     private String ipnUrl;
 }

@@ -45,7 +45,7 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/books/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/articles/public", "/api/articles/public/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/orders/payment/vnpay/ipn").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/orders/payment/vnpay/ipn", "/api/orders/payment/vnpay/return").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .httpBasic(httpBasic -> httpBasic.disable())
