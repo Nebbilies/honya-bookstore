@@ -2,6 +2,7 @@ package com.honya.bookstore.review.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -19,4 +20,7 @@ public class Review {
 
     @Column(name = "book_id")
     private UUID bookId;
+
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
 }
