@@ -6,7 +6,9 @@ import ReviewControl from "@/app/(storefront)/books/_components/Review/ReviewCon
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { publicApiUrl } from "@/lib/api-url";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -24,18 +26,28 @@ interface ReviewCardProps {
     canDelete: boolean;
 }
 
-// TODO: Complete review user related stuff based on data from backend, fetch user vote data, currently using placeholder data
-export default function ReviewCard({ review }: ReviewCardProps) {
+// TODO: Replace placeholder author name/avatar once a user profile lookup is available.
+export default function ReviewCard({ review, canDelete }: ReviewCardProps) {
     const router = useRouter();
+    const session = useSession();
     const [isDeleting, setIsDeleting] = useState(false);
+
+    const initialUserVote = review.userVote === 'UP'
+        ? 'upvote'
+        : review.userVote === 'DOWN'
+            ? 'downvote'
+            : null;
 
     const handleDelete = async () => {
         setIsDeleting(true);
 
         let res: Response;
         try {
-            res = await fetch(`/api/reviews/${review.id}`, {
+            res = await fetch(publicApiUrl(`/reviews/${review.id}`), {
                 method: 'DELETE',
+                headers: {
+                    authorization: `Bearer ${session.data?.accessToken}`,
+                },
             });
         } catch (error) {
             console.error('Failed to delete review:', error);
@@ -66,7 +78,7 @@ export default function ReviewCard({ review }: ReviewCardProps) {
             <div className={'flex gap-4 items-center'}>
                 <div className={'w-[60px] h-[60px] rounded-full bg-cover bg-center'}
                         style={{backgroundImage: `url('/images/avatarPlaceholder.png')`}}/>
-                <span className={'font-prata text-[22px]'}>astra_yao</span>
+                <span className={'font-prata text-[22px]'}>{review.authorName ?? 'Anonymous'}</span>
             </div>
             <div className={'flex gap-2 items-end'}>
                 <div className={'flex'}>
@@ -84,39 +96,41 @@ export default function ReviewCard({ review }: ReviewCardProps) {
             </div>
             <p className={'font-plus-jakarta-sans text-[15px]'}>{review.content}</p>
             <div className={'flex items-center justify-between gap-4'}>
-                <ReviewControl reviewId={review.id} initialVoteCount={review.voteCount ?? 0} initialUserVote={null}/>
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <button
-                            type="button"
-                            aria-label="Delete review"
-                            title="Delete review"
-                            disabled={isDeleting}
-                            className={'inline-flex h-9 items-center gap-2 rounded-full bg-red-50 px-3 font-plus-jakarta-sans text-[14px] text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60'}
-                        >
-                            <Trash2 className={'size-5'} aria-hidden="true"/>
-                            Delete
-                        </button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Delete review?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This removes your review from this book.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
+                <ReviewControl reviewId={review.id} initialVoteCount={review.voteCount ?? 0} initialUserVote={initialUserVote}/>
+                {canDelete && (
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <button
+                                type="button"
+                                aria-label="Delete review"
+                                title="Delete review"
                                 disabled={isDeleting}
-                                onClick={handleDelete}
-                                className={'bg-red-600 text-white hover:bg-red-700'}
+                                className={'inline-flex h-9 items-center gap-2 rounded-full bg-red-50 px-3 font-plus-jakarta-sans text-[14px] text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60'}
                             >
-                                {isDeleting ? 'Deleting...' : 'Delete'}
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                                <Trash2 className={'size-5'} aria-hidden="true"/>
+                                Delete
+                            </button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Delete review?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This removes your review from this book.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                    disabled={isDeleting}
+                                    onClick={handleDelete}
+                                    className={'bg-red-600 text-white hover:bg-red-700'}
+                                >
+                                    {isDeleting ? 'Deleting...' : 'Delete'}
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                )}
             </div>
         </section>
     )

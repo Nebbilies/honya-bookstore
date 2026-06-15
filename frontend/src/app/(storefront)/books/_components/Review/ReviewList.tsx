@@ -16,7 +16,10 @@ export default async function ReviewList({ bookId }: ReviewListProps) {
         limit: '10',
     });
 
-    const res = await fetch(serverApiUrl(`/reviews?${params.toString()}`), {cache: 'no-store'});
+    const res = await fetch(serverApiUrl(`/reviews?${params.toString()}`), {
+        cache: 'no-store',
+        headers: session?.accessToken ? {authorization: `Bearer ${session.accessToken}`} : undefined,
+    });
     if (!res.ok) {
         return null;
     }

@@ -18,6 +18,9 @@ public class Review {
     @Column(name = "user_id")
     private UUID authorId;
 
+    @Column(name = "author_name")
+    private String authorName;
+
     @Column(name = "book_id")
     private UUID bookId;
 

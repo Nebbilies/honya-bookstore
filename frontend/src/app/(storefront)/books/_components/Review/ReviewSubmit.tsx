@@ -7,6 +7,7 @@ import Button from "@/components/Button";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { publicApiUrl } from "@/lib/api-url";
 
 interface ReviewSubmitProps {
     bookId: string;
@@ -43,10 +44,11 @@ export default function ReviewSubmit({bookId}: ReviewSubmitProps) {
 
         let res: Response;
         try {
-            res = await fetch('/api/reviews', {
+            res = await fetch(publicApiUrl('/reviews'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    authorization: `Bearer ${session.data?.accessToken}`,
                 },
                 body: JSON.stringify({
                     bookId,

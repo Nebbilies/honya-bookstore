@@ -128,8 +128,11 @@ export interface Review {
     id: string;
     bookId: string;
     userId: string;
+    authorName: string | null;
     rating: number;
     content: string;
+    voteCount: number;
+    userVote: 'UP' | 'DOWN' | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -180,6 +183,11 @@ export interface MediaResponse {
 
 export interface OrderResponse {
     data: Order[];
+    meta: ResponseMetadata;
+}
+
+export interface ReviewResponse {
+    data: Review[];
     meta: ResponseMetadata;
 }
 
