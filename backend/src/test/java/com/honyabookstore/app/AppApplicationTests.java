@@ -1,4 +1,4 @@
-package com.honya.bookstore.app;
+package com.honyabookstore.app;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

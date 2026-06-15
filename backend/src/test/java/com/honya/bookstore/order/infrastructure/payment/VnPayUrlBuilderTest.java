@@ -19,7 +19,19 @@ class VnPayUrlBuilderTest {
         properties.setHashSecret(SECRET);
         properties.setPayUrl("https://sandbox.vnpayment.vn/paymentv2/vpcpay.html");
         properties.setReturnUrl("http://localhost:3000/checkout/payment/success");
+        properties.setPaymentReturnUrl("http://localhost:8081/api/orders/payment/vnpay/return");
         return new VnPayUrlBuilder(properties, new VnPaySigner());
+    }
+
+    private String paramValue(String url, String key) {
+        String query = url.substring(url.indexOf('?') + 1);
+        for (String pair : query.split("&")) {
+            int eq = pair.indexOf('=');
+            if (eq > 0 && pair.substring(0, eq).equals(key)) {
+                return pair.substring(eq + 1);
+            }
+        }
+        return null;
     }
 
     @Test
@@ -40,5 +52,26 @@ class VnPayUrlBuilderTest {
 
         // The transmitted hash must equal HMAC over the exact transmitted query string.
         assertEquals(signer.hmacSha512(SECRET, hashData), secureHash);
+    }
+
+    @Test
+    void txnRefCarriesUniqueSuffixButRecoversOrderId() {
+        UUID orderId = UUID.randomUUID();
+        Order order = Order.builder().id(orderId).totalAmount(150_000).build();
+
+        String txnRef = paramValue(builder().buildPaymentUrl(order, "127.0.0.1", null), "vnp_TxnRef");
+
+        // VNPay rejects a reused ref, so it must differ from the bare order id...
+        assertTrue(txnRef.length() > 36);
+        assertTrue(txnRef.startsWith(orderId.toString()));
+        // ...yet still resolve back to the order on callback.
+        assertEquals(orderId, VnPayUrlBuilder.extractOrderId(txnRef));
+    }
+
+    @Test
+    void extractOrderIdHandlesSuffixedAndBareRefs() {
+        UUID orderId = UUID.randomUUID();
+        assertEquals(orderId, VnPayUrlBuilder.extractOrderId(orderId + "-1718000000000"));
+        assertEquals(orderId, VnPayUrlBuilder.extractOrderId(orderId.toString()));
     }
 }

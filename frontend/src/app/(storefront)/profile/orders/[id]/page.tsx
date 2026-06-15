@@ -3,7 +3,8 @@ import Link from "next/link";
 import {auth} from "@/auth";
 import {Order} from "@/types/types";
 import Icon from "@/components/Icon";
-import {OrderStatusBadge, providerLabel, formatVnd, formatDate} from "@/app/(storefront)/profile/_components/order-format";
+import {OrderStatusBadge, providerLabel, formatVnd, formatDate, isRepayable} from "@/app/(storefront)/profile/_components/order-format";
+import RepayButton from "@/app/(storefront)/profile/_components/RepayButton";
 
 export const dynamic = 'force-dynamic';
 
@@ -81,6 +82,11 @@ export default async function OrderDetailPage({params}: {params: Promise<{id: st
                     <h3 className={'text-sm font-semibold uppercase tracking-wide text-gray-500'}>Payment</h3>
                     <p className={'mt-2 text-gray-900'}>{providerLabel(order.provider)}</p>
                     <p className={'text-gray-600'}>{order.isPaid ? 'Paid' : 'Not paid'}</p>
+                    {isRepayable(order) && (
+                        <div className={'mt-4'}>
+                            <RepayButton orderId={order.id}/>
+                        </div>
+                    )}
                 </div>
             </div>
         </section>

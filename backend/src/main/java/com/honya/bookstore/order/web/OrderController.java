@@ -15,6 +15,7 @@ import com.honya.bookstore.order.web.dto.OrderStatusUpdateDTO;
 import com.honya.bookstore.security.CustomerOnly;
 import com.honya.bookstore.security.StaffOrAdmin;
 import com.honya.bookstore.shared.error.InvalidOrderStatusException;
+import com.honya.bookstore.shared.error.OrderNotPayableException;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import com.honya.bookstore.shared.PageMetaDTO;
 import com.honya.bookstore.shared.PagedResponseDTO;
@@ -113,6 +114,37 @@ public class OrderController {
         }
 
         return ResponseEntity.ok(createdOrder);
+    }
+
+    @Operation(summary = "Repay order", description = "Regenerate a VNPay payment link for the user's own pending order")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Payment link regenerated"),
+            @ApiResponse(responseCode = "400", description = "Order not awaiting online payment",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404", description = "Order not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @CustomerOnly
+    @PostMapping("/me/{id}/repay")
+    public ResponseEntity<Order> repayOrder(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID id,
+            HttpServletRequest httpServletRequest) {
+        String userId = jwt.getSubject();
+        Order order = orderService.getOrderById(id);
+        if (!UUID.fromString(userId).equals(order.getUserId())) {
+            throw new ResourceNotFoundException("Order", id);
+        }
+        if (order.getProvider() != OrderProvider.VNPAY
+                || order.getStatus() != OrderStatus.PENDING
+                || Boolean.TRUE.equals(order.getIsPaid())) {
+            throw new OrderNotPayableException(id);
+        }
+
+        String clientIp = extractClientIp(httpServletRequest);
+        String paymentUrl = vnPayUrlBuilder.buildPaymentUrl(order, clientIp, null);
+        Order updatedOrder = orderService.updatePaymentUrl(id, paymentUrl);
+        return ResponseEntity.ok(updatedOrder);
     }
 
     @Operation(summary = "Get all orders", description = "Retrieve all orders")

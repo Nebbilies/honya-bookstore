@@ -48,6 +48,7 @@ export default async function ProfileOrdersPage({searchParams}: {searchParams: P
                             <th className={'px-4 py-3'}>Total</th>
                             <th className={'px-4 py-3'}>Status</th>
                             <th className={'px-4 py-3'}>Payment</th>
+                            <th className={'px-4 py-3'}/>
                         </tr>
                         </thead>
                         <tbody>

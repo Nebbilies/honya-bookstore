@@ -27,6 +27,10 @@ export function providerLabel(provider: Order['provider']) {
     return PROVIDER_LABELS[provider] ?? provider;
 }
 
+export function isRepayable(order: Order) {
+    return order.provider === 'VNPAY' && order.status === 'PENDING' && !order.isPaid;
+}
+
 export function formatVnd(amount: number) {
     return amount.toLocaleString('vi-VN', {style: 'currency', currency: 'VND'});
 }

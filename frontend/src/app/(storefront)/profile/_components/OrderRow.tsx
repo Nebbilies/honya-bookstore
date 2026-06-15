@@ -2,7 +2,8 @@
 
 import {useRouter} from "next/navigation";
 import {Order} from "@/types/types";
-import {OrderStatusBadge, providerLabel, formatVnd, formatDate} from "./order-format";
+import {OrderStatusBadge, providerLabel, formatVnd, formatDate, isRepayable} from "./order-format";
+import RepayButton from "./RepayButton";
 
 export default function OrderRow({order}: {order: Order}) {
     const router = useRouter();
@@ -15,6 +16,9 @@ export default function OrderRow({order}: {order: Order}) {
             <td className={'px-4 py-4 font-medium'}>{formatVnd(order.totalAmount)}</td>
             <td className={'px-4 py-4'}><OrderStatusBadge status={order.status}/></td>
             <td className={'px-4 py-4 text-gray-600'}>{providerLabel(order.provider)}</td>
+            <td className={'px-4 py-4 text-right'}>
+                {isRepayable(order) && <RepayButton orderId={order.id}/>}
+            </td>
         </tr>
     );
 }

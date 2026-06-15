@@ -11,6 +11,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -18,28 +19,42 @@ import java.util.stream.Collectors;
 public class VnPayUrlBuilder {
 
     private static final DateTimeFormatter VNP_TIME = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    private static final int ORDER_ID_LENGTH = 36;
 
     private final VnPayProperties properties;
     private final VnPaySigner signer;
+
+    /**
+     * VNPay rejects a reused vnp_TxnRef, so each attempt gets a unique suffix.
+     * The order id is the fixed-length UUID prefix; this recovers it on callback.
+     */
+    public static UUID extractOrderId(String txnRef) {
+        String orderId = (txnRef != null && txnRef.length() >= ORDER_ID_LENGTH)
+                ? txnRef.substring(0, ORDER_ID_LENGTH)
+                : txnRef;
+        return UUID.fromString(orderId);
+    }
 
     public String buildPaymentUrl(Order order, String clientIp, String requestedReturnUrl) {
         // VNPay must redirect to our backend return endpoint so payment status is confirmed
         // server-side; the handler then forwards the browser to the storefront success page.
         String returnUrl = properties.getPaymentReturnUrl();
 
+        OffsetDateTime now = OffsetDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+
         Map<String, String> params = new TreeMap<>();
         params.put("vnp_Version", "2.1.0");
         params.put("vnp_Command", "pay");
         params.put("vnp_TmnCode", properties.getTmnCode());
         params.put("vnp_Amount", String.valueOf(order.getTotalAmount() * 100));
-        params.put("vnp_CreateDate", OffsetDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).format(VNP_TIME));
+        params.put("vnp_CreateDate", now.format(VNP_TIME));
         params.put("vnp_CurrCode", "VND");
         params.put("vnp_IpAddr", clientIp);
         params.put("vnp_Locale", "vn");
         params.put("vnp_OrderInfo", "Thanh toan don hang " + order.getId());
         params.put("vnp_OrderType", "other");
         params.put("vnp_ReturnUrl", returnUrl);
-        params.put("vnp_TxnRef", order.getId().toString());
+        params.put("vnp_TxnRef", order.getId() + "-" + now.toInstant().toEpochMilli());
 
         String hashData = toQueryString(params);
         String secureHash = signer.hmacSha512(properties.getHashSecret(), hashData);

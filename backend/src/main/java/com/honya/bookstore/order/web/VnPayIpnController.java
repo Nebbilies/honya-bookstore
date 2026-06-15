@@ -50,10 +50,15 @@ public class VnPayIpnController {
     public ResponseEntity<Void> paymentReturn(@RequestParam Map<String, String> queryParams) {
         confirmPayment(queryParams);
 
-        String txnRef = queryParams.get("vnp_TxnRef");
         String responseCode = queryParams.get("vnp_ResponseCode");
+        String orderId;
+        try {
+            orderId = VnPayUrlBuilder.extractOrderId(queryParams.get("vnp_TxnRef")).toString();
+        } catch (Exception ex) {
+            orderId = "";
+        }
         String redirect = properties.getReturnUrl()
-                + "?orderId=" + encode(txnRef)
+                + "?orderId=" + encode(orderId)
                 + "&vnp_ResponseCode=" + encode(responseCode);
 
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirect)).build();
@@ -71,7 +76,7 @@ public class VnPayIpnController {
 
         UUID orderId;
         try {
-            orderId = UUID.fromString(txnRef);
+            orderId = VnPayUrlBuilder.extractOrderId(txnRef);
         } catch (Exception ex) {
             return vnpResponse("01", "Order not found");
         }
@@ -94,9 +99,9 @@ public class VnPayIpnController {
 
         if ("00".equals(responseCode)) {
             orderService.updatePaymentStatus(orderId, true, transactionNo, "PROCESSING");
-        } else {
-            orderService.updatePaymentStatus(orderId, false, transactionNo, "CANCELLED");
         }
+        // A non-success code means the payment was not completed; leave the order PENDING
+        // so the customer can retry via the repay endpoint.
 
         return vnpResponse("00", "Confirm Success");
     }
