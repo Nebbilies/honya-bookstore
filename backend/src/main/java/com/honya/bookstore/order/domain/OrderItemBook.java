@@ -9,7 +9,7 @@ import java.util.UUID;
 @Data @NoArgsConstructor @AllArgsConstructor
 @Builder
 public class OrderItemBook {
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
     private UUID id;
     private Integer price;
     private String author;

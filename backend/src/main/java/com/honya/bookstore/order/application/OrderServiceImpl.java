@@ -1,9 +1,12 @@
 package com.honya.bookstore.order.application;
 
 import com.honya.bookstore.order.domain.Order;
+import com.honya.bookstore.order.domain.OrderItem;
+import com.honya.bookstore.order.domain.OrderItemBook;
 import com.honya.bookstore.order.domain.OrderStatus;
 
 import java.time.OffsetDateTime;
+import com.honya.bookstore.order.infrastructure.persistence.OrderItemBookRepository;
 import com.honya.bookstore.order.infrastructure.persistence.OrderRepository;
 import com.honya.bookstore.order.infrastructure.persistence.OrderSpecifications;
 import org.springframework.data.domain.Page;
@@ -23,6 +26,7 @@ import java.util.UUID;
 class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+    private final OrderItemBookRepository orderItemBookRepository;
 
     @Override
     @Transactional
@@ -37,6 +41,12 @@ class OrderServiceImpl implements OrderService {
         // Spring Data publishes it during save(); OrderPlacedDomainEventListener relays
         // it to the outbox in this same transaction.
         orderDetails.place(UUID.fromString(userId));
+
+        if (orderDetails.getItems() != null) {
+            orderDetails.getItems().stream()
+                    .filter(item -> item.getBook() != null && item.getBook().getId() != null)
+                    .forEach(item -> item.setBook(orderItemBookRepository.save(item.getBook())));
+        }
 
         return orderRepository.save(orderDetails);
     }

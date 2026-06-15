@@ -4,6 +4,7 @@ import com.honya.bookstore.order.domain.Order;
 import com.honya.bookstore.order.domain.OrderItem;
 import com.honya.bookstore.order.domain.OrderItemBook;
 import com.honya.bookstore.order.domain.OrderStatus;
+import com.honya.bookstore.order.infrastructure.persistence.OrderItemBookRepository;
 import com.honya.bookstore.order.infrastructure.persistence.OrderRepository;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class OrderServiceImplTest {
@@ -24,6 +27,8 @@ class OrderServiceImplTest {
     void createOrderPlacesOrderAndPersists() {
         OrderRepository orderRepository = mock(OrderRepository.class);
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        OrderItemBookRepository orderItemBookRepository = mock(OrderItemBookRepository.class);
+        when(orderItemBookRepository.save(any(OrderItemBook.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         UUID userId = UUID.randomUUID();
         UUID bookId = UUID.randomUUID();
@@ -39,7 +44,8 @@ class OrderServiceImplTest {
                         .build()))
                 .build();
 
-        Order createdOrder = new OrderServiceImpl(orderRepository).createOrder(userId.toString(), orderDetails);
+        Order createdOrder = new OrderServiceImpl(orderRepository, orderItemBookRepository)
+                .createOrder(userId.toString(), orderDetails);
 
         // Aggregate placed: identity assigned, user set, items linked back, defaults applied.
         assertNotNull(createdOrder.getId());
@@ -49,5 +55,8 @@ class OrderServiceImplTest {
         assertFalse(createdOrder.getIsPaid());
         assertNotNull(createdOrder.getCreatedAt());
         assertNotNull(createdOrder.getUpdatedAt());
+
+        // Book snapshot is upserted before the order so the order_items FK is satisfied.
+        verify(orderItemBookRepository).save(argThat(book -> bookId.equals(book.getId())));
     }
 }

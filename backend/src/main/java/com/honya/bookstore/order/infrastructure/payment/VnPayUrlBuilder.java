@@ -70,7 +70,6 @@ public class VnPayUrlBuilder {
     }
 
     private String encode(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8)
-                .replace("+", "%20");
+        return URLEncoder.encode(value, StandardCharsets.US_ASCII);
     }
 }
