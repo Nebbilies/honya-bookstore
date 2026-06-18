@@ -8,6 +8,11 @@ spring:
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
           routes:
+            - id: media-service
+              uri: ${MEDIA_URI:http://localhost:8082}
+              order: -1
+              predicates:
+                - Path=/api/media/**
             - id: monolith-api
               uri: ${MONOLITH_URI:http://localhost:8081}
               predicates:
