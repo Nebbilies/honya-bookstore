@@ -2,6 +2,55 @@ spring:
   application:
     name: media
 
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/media_db}
+    username: ${SPRING_DATASOURCE_USERNAME:media}
+    password: ${SPRING_DATASOURCE_PASSWORD:media}
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/media_db}
+    user: ${SPRING_DATASOURCE_USERNAME:media}
+    password: ${SPRING_DATASOURCE_PASSWORD:media}
+    locations: classpath:db/migration
+    default-schema: public
+    baseline-on-migrate: true
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
+  minio:
+    internal-url: ${MINIO_INTERNAL_URL:http://localhost:9000}
+    public-url: ${MINIO_PUBLIC_URL:http://localhost:9000}
+    access-key: ${MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${MINIO_SECRET_KEY:minioadmin}
+    media-bucket-name: ${MINIO_MEDIA_BUCKET:media}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI:http://localhost:8080/realms/honya}
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+
+app:
+  security:
+    jwt:
+      audience: ${JWT_AUDIENCE:honya-api}
+      jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8080/realms/honya/protocol/openid-connect/certs}
+
 server:
   port: ${SERVER_PORT:8082}
 
@@ -10,3 +59,7 @@ management:
     web:
       exposure:
         include: health,info
+
+bookstore:
+  media-outbox:
+    relay-fixed-delay-ms: ${MEDIA_OUTBOX_RELAY_DELAY_MS:1000}
