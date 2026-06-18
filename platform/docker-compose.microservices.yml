@@ -1,0 +1,26 @@
+services:
+  gateway:
+    build:
+      context: ./services/gateway
+    image: honya-bookstore-gateway:latest
+    container_name: honya_gateway
+    environment:
+      MONOLITH_URI: http://backend:8081
+      FRONTEND_ORIGIN: http://localhost:3000
+      SERVER_PORT: 8090
+    ports:
+      - "8090:8090"
+    depends_on:
+      backend:
+        condition: service_started
+
+  frontend:
+    build:
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8090/api
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8090/api
+      API_INTERNAL_URL: http://gateway:8090/api
+    depends_on:
+      gateway:
+        condition: service_started
