@@ -59,6 +59,9 @@ springdoc:
     oauth:
       client-id: ${SWAGGER_CLIENT_ID:honya-swagger}
 
+media:
+  base-url: ${MEDIA_BASE_URL:http://localhost:8082}
+
 bookstore:
   catalog-outbox:
     relay-fixed-delay-ms: ${CATALOG_OUTBOX_RELAY_DELAY_MS:1000}

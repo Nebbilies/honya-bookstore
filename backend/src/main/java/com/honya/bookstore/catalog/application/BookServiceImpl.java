@@ -8,8 +8,8 @@ import com.honya.bookstore.catalog.infrastructure.persistence.BookSpecifications
 import com.honya.bookstore.catalog.outbox.CatalogOutboxWriter;
 import com.honya.bookstore.catalog.web.BookController.sortOrder;
 import com.honya.bookstore.catalog.web.dto.request.BookMediaRequestDTO;
-import com.honya.bookstore.media.api.MediaApi;
-import com.honya.bookstore.media.api.MediaView;
+import com.honya.bookstore.catalog.infrastructure.client.MediaClient;
+import com.honya.bookstore.catalog.infrastructure.client.MediaView;
 import com.honya.bookstore.shared.error.InsufficientStockException;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import com.honya.bookstore.shared.integration.catalog.event.ProductDetailsChangedEvent;
@@ -35,7 +35,7 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
     private final BookMediaRepository bookMediaRepository;
-    private final MediaApi mediaApi;
+    private final MediaClient mediaClient;
     private final CatalogOutboxWriter outboxWriter;
 
     @Override
@@ -169,7 +169,7 @@ public class BookServiceImpl implements BookService {
 
         List<BookMedia> bookMediaList = mediaRequests.stream()
                 .map(mediaRequest -> {
-                    MediaView media = mediaApi.getMediaById(mediaRequest.getMediaId());
+                    MediaView media = mediaClient.getMediaById(mediaRequest.getMediaId());
                     return BookMedia.builder()
                             .book(book)
                             .mediaId(media.id())

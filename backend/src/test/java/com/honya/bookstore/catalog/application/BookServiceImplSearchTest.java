@@ -5,7 +5,7 @@ import com.honya.bookstore.catalog.infrastructure.persistence.BookMediaRepositor
 import com.honya.bookstore.catalog.infrastructure.persistence.BookRepository;
 import com.honya.bookstore.catalog.outbox.CatalogOutboxWriter;
 import com.honya.bookstore.catalog.web.BookController.sortOrder;
-import com.honya.bookstore.media.api.MediaApi;
+import com.honya.bookstore.catalog.infrastructure.client.MediaClient;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.data.domain.Page;
@@ -31,7 +31,7 @@ class BookServiceImplSearchTest {
         BookRepository repository = mock(BookRepository.class);
         when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
 
-        BookServiceImpl service = new BookServiceImpl(repository, mock(BookMediaRepository.class), mock(MediaApi.class), mock(CatalogOutboxWriter.class));
+        BookServiceImpl service = new BookServiceImpl(repository, mock(BookMediaRepository.class), mock(MediaClient.class), mock(CatalogOutboxWriter.class));
         BookSearchCriteria criteria = new BookSearchCriteria(
                 100,
                 300,
@@ -57,7 +57,7 @@ class BookServiceImplSearchTest {
         BookRepository repository = mock(BookRepository.class);
         when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
 
-        BookServiceImpl service = new BookServiceImpl(repository, mock(BookMediaRepository.class), mock(MediaApi.class), mock(CatalogOutboxWriter.class));
+        BookServiceImpl service = new BookServiceImpl(repository, mock(BookMediaRepository.class), mock(MediaClient.class), mock(CatalogOutboxWriter.class));
         BookSearchCriteria criteria = new BookSearchCriteria(
                 null,
                 null,

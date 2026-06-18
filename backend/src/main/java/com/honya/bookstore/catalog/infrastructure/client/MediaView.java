@@ -1,4 +1,4 @@
-package com.honya.bookstore.media.api;
+package com.honya.bookstore.catalog.infrastructure.client;
 
 import java.util.UUID;
 
