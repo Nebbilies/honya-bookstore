@@ -16,6 +16,7 @@
 		<module>services/gateway</module>
 		<module>services/media</module>
 		<module>services/article</module>
+		<module>services/review</module>
 	</modules>
 
 </project>
