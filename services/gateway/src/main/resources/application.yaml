@@ -18,6 +18,11 @@ spring:
               order: -1
               predicates:
                 - Path=/api/articles/**
+            - id: review-service
+              uri: ${REVIEW_URI:http://localhost:8084}
+              order: -1
+              predicates:
+                - Path=/api/reviews/**
             - id: monolith-api
               uri: ${MONOLITH_URI:http://localhost:8081}
               predicates:
