@@ -23,6 +23,11 @@ spring:
               order: -1
               predicates:
                 - Path=/api/reviews/**
+            - id: user-service
+              uri: ${USER_URI:http://localhost:8085}
+              order: -1
+              predicates:
+                - Path=/api/users/**
             - id: monolith-api
               uri: ${MONOLITH_URI:http://localhost:8081}
               predicates:
