@@ -15,6 +15,7 @@
 		<module>backend</module>
 		<module>services/gateway</module>
 		<module>services/media</module>
+		<module>services/article</module>
 	</modules>
 
 </project>

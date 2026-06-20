@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: article
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/article_db}
+    username: ${SPRING_DATASOURCE_USERNAME:article}
+    password: ${SPRING_DATASOURCE_PASSWORD:article}
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/article_db}
+    user: ${SPRING_DATASOURCE_USERNAME:article}
+    password: ${SPRING_DATASOURCE_PASSWORD:article}
+    locations: classpath:db/migration
+    default-schema: public
+    baseline-on-migrate: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI:http://localhost:8080/realms/honya}
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+
+app:
+  security:
+    jwt:
+      audience: ${JWT_AUDIENCE:honya-api}
+      jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8080/realms/honya/protocol/openid-connect/certs}
+
+server:
+  port: ${SERVER_PORT:8083}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
