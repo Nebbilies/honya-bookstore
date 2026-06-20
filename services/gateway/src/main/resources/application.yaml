@@ -13,6 +13,11 @@ spring:
               order: -1
               predicates:
                 - Path=/api/media/**
+            - id: article-service
+              uri: ${ARTICLE_URI:http://localhost:8083}
+              order: -1
+              predicates:
+                - Path=/api/articles/**
             - id: monolith-api
               uri: ${MONOLITH_URI:http://localhost:8081}
               predicates:

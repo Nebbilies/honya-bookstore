@@ -34,6 +34,26 @@ services:
       keycloak:
         condition: service_started
 
+  article:
+    build:
+      context: ./services/article
+    image: honya-bookstore-article:latest
+    container_name: honya_article
+    environment:
+      SERVER_PORT: 8083
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/article_db
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8080/realms/honya
+      APP_SECURITY_JWT_JWK_SET_URI: http://keycloak:8080/realms/honya/protocol/openid-connect/certs
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+
   backend:
     environment:
       MEDIA_BASE_URL: http://media:8082
@@ -49,6 +69,7 @@ services:
     environment:
       MONOLITH_URI: http://backend:8081
       MEDIA_URI: http://media:8082
+      ARTICLE_URI: http://article:8083
       FRONTEND_ORIGIN: http://localhost:3000
       SERVER_PORT: 8090
     ports:
@@ -57,6 +78,8 @@ services:
       backend:
         condition: service_started
       media:
+        condition: service_started
+      article:
         condition: service_started
 
   frontend:
