@@ -19,7 +19,6 @@ class PackageNormalizationTest {
         assertEquals("com.honya.bookstore.order.application", Class.forName("com.honya.bookstore.order.application.OrderService").getPackageName());
         assertEquals("com.honya.bookstore.order.infrastructure.persistence", Class.forName("com.honya.bookstore.order.infrastructure.persistence.OrderRepository").getPackageName());
         assertEquals("com.honya.bookstore.user.domain", Class.forName("com.honya.bookstore.user.domain.User").getPackageName());
-        assertEquals("com.honya.bookstore.review.domain", Class.forName("com.honya.bookstore.review.domain.Review").getPackageName());
         assertEquals("com.honya.bookstore.discount.domain", Class.forName("com.honya.bookstore.discount.domain.Discount").getPackageName());
         assertEquals("com.honya.bookstore.ticket.domain", Class.forName("com.honya.bookstore.ticket.domain.Ticket").getPackageName());
     }
@@ -37,7 +36,6 @@ class PackageNormalizationTest {
         assertThrows(ClassNotFoundException.class, () -> Class.forName("com.honya.bookstore.order.OrderService"));
         assertThrows(ClassNotFoundException.class, () -> Class.forName("com.honya.bookstore.order.OrderRepository"));
         assertThrows(ClassNotFoundException.class, () -> Class.forName("com.honya.bookstore.user.User"));
-        assertThrows(ClassNotFoundException.class, () -> Class.forName("com.honya.bookstore.review.Review"));
         assertThrows(ClassNotFoundException.class, () -> Class.forName("com.honya.bookstore.discount.Discount"));
         assertThrows(ClassNotFoundException.class, () -> Class.forName("com.honya.bookstore.ticket.Ticket"));
     }
