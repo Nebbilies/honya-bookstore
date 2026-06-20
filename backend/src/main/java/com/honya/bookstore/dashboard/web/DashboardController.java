@@ -4,10 +4,10 @@ import com.honya.bookstore.dashboard.web.dto.response.BestSellerDTO;
 import com.honya.bookstore.dashboard.web.dto.response.DashboardSummaryDTO;
 import com.honya.bookstore.dashboard.web.dto.response.MonthlyPointDTO;
 import com.honya.bookstore.dashboard.web.dto.response.RecentOrderDTO;
+import com.honya.bookstore.dashboard.infrastructure.client.UserStatsClient;
 import com.honya.bookstore.order.api.OrderStatsApi;
 import com.honya.bookstore.order.api.StatsPeriod;
 import com.honya.bookstore.security.StaffOrAdmin;
-import com.honya.bookstore.user.api.UserStatsApi;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -28,14 +28,14 @@ import java.util.List;
 public class DashboardController {
 
     private final OrderStatsApi orderStatsApi;
-    private final UserStatsApi userStatsApi;
+    private final UserStatsClient userStatsClient;
 
     @Operation(summary = "Dashboard summary", description = "Sales this month, total users, new customers, orders this month")
     @GetMapping("/summary")
     public ResponseEntity<DashboardSummaryDTO> getSummary() {
         DashboardSummaryDTO summary = new DashboardSummaryDTO(
                 orderStatsApi.salesThisMonth(),
-                userStatsApi.totalUsers(),
+                userStatsClient.totalUsers(),
                 orderStatsApi.newCustomersThisMonth(),
                 orderStatsApi.ordersThisMonth());
         return ResponseEntity.ok(summary);
