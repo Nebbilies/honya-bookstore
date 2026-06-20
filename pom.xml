@@ -17,6 +17,7 @@
 		<module>services/media</module>
 		<module>services/article</module>
 		<module>services/review</module>
+		<module>services/user</module>
 	</modules>
 
 </project>

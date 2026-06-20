@@ -1,0 +1,5 @@
+CREATE SCHEMA IF NOT EXISTS "user";
+
+CREATE TABLE "user".users (
+    id VARCHAR(255) PRIMARY KEY
+);
