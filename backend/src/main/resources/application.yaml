@@ -68,9 +68,6 @@ cart:
 order:
   base-url: ${ORDER_BASE_URL:http://localhost:8088}
 
-user:
-  base-url: ${USER_BASE_URL:http://localhost:8085}
-
 bookstore:
   catalog-outbox:
     relay-fixed-delay-ms: ${CATALOG_OUTBOX_RELAY_DELAY_MS:1000}
