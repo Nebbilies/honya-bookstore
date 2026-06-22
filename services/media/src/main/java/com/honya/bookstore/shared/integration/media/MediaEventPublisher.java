@@ -12,7 +12,7 @@ public class MediaEventPublisher {
 
     public void publish(String eventType, String payloadJson) {
         rabbitTemplate.convertAndSend(
-                RabbitMediaIntegrationConfig.EXCHANGE,
+                MediaEventsTopology.EXCHANGE,
                 routingKeyFor(eventType),
                 payloadJson
         );
@@ -20,7 +20,7 @@ public class MediaEventPublisher {
 
     private String routingKeyFor(String eventType) {
         return switch (eventType) {
-            case "MEDIA_DELETED" -> RabbitMediaIntegrationConfig.DELETED;
+            case "MEDIA_DELETED" -> MediaEventsTopology.DELETED;
             default -> throw new IllegalArgumentException("Unsupported media event type: " + eventType);
         };
     }

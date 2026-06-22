@@ -10,13 +10,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMediaIntegrationConfig {
 
-    public static final String EXCHANGE = "media.events";
     public static final String CATALOG_QUEUE = "catalog.media.events";
-    public static final String DELETED = "media.deleted";
 
     @Bean
     DirectExchange mediaExchange() {
-        return new DirectExchange(EXCHANGE, true, false);
+        return new DirectExchange(MediaEventsTopology.EXCHANGE, true, false);
     }
 
     @Bean
@@ -26,6 +24,6 @@ public class RabbitMediaIntegrationConfig {
 
     @Bean
     Binding mediaDeletedBinding(Queue catalogMediaEventsQueue, DirectExchange mediaExchange) {
-        return BindingBuilder.bind(catalogMediaEventsQueue).to(mediaExchange).with(DELETED);
+        return BindingBuilder.bind(catalogMediaEventsQueue).to(mediaExchange).with(MediaEventsTopology.DELETED);
     }
 }

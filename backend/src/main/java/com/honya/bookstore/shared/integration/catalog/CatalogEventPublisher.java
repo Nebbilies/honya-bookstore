@@ -12,7 +12,7 @@ public class CatalogEventPublisher {
 
     public void publish(String eventType, String payloadJson) {
         rabbitTemplate.convertAndSend(
-                RabbitCatalogIntegrationConfig.EXCHANGE,
+                CatalogEventsTopology.EXCHANGE,
                 routingKeyFor(eventType),
                 payloadJson
         );
@@ -20,9 +20,9 @@ public class CatalogEventPublisher {
 
     private String routingKeyFor(String eventType) {
         return switch (eventType) {
-            case "PRODUCT_PRICE_CHANGED" -> RabbitCatalogIntegrationConfig.PRICE_CHANGED;
-            case "PRODUCT_DETAILS_CHANGED" -> RabbitCatalogIntegrationConfig.DETAILS_CHANGED;
-            case "PRODUCT_REMOVED" -> RabbitCatalogIntegrationConfig.REMOVED;
+            case "PRODUCT_PRICE_CHANGED" -> CatalogEventsTopology.PRICE_CHANGED;
+            case "PRODUCT_DETAILS_CHANGED" -> CatalogEventsTopology.DETAILS_CHANGED;
+            case "PRODUCT_REMOVED" -> CatalogEventsTopology.REMOVED;
             default -> throw new IllegalArgumentException("Unsupported catalog event type: " + eventType);
         };
     }

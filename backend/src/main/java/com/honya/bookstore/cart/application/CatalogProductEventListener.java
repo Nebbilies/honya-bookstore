@@ -4,6 +4,7 @@ import tools.jackson.databind.ObjectMapper;
 import com.honya.bookstore.shared.integration.catalog.event.ProductDetailsChangedEvent;
 import com.honya.bookstore.shared.integration.catalog.event.ProductPriceChangedEvent;
 import com.honya.bookstore.shared.integration.catalog.event.ProductRemovedEvent;
+import com.honya.bookstore.shared.integration.catalog.CatalogEventsTopology;
 import com.honya.bookstore.shared.integration.catalog.RabbitCatalogIntegrationConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,11 +27,11 @@ class CatalogProductEventListener {
 
         try {
             switch (routingKey) {
-                case RabbitCatalogIntegrationConfig.PRICE_CHANGED ->
+                case CatalogEventsTopology.PRICE_CHANGED ->
                         handlePriceChanged(objectMapper.readValue(payload, ProductPriceChangedEvent.class));
-                case RabbitCatalogIntegrationConfig.DETAILS_CHANGED ->
+                case CatalogEventsTopology.DETAILS_CHANGED ->
                         handleDetailsChanged(objectMapper.readValue(payload, ProductDetailsChangedEvent.class));
-                case RabbitCatalogIntegrationConfig.REMOVED ->
+                case CatalogEventsTopology.REMOVED ->
                         handleProductRemoved(objectMapper.readValue(payload, ProductRemovedEvent.class));
                 default -> log.warn("Skip unknown catalog routing key: {}", routingKey);
             }

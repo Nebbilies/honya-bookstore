@@ -12,7 +12,7 @@ public class OrderEventPublisher {
 
     public void publish(String eventType, String payloadJson) {
         rabbitTemplate.convertAndSend(
-                RabbitOrderIntegrationConfig.EXCHANGE,
+                OrderEventsTopology.EXCHANGE,
                 routingKeyFor(eventType),
                 payloadJson
         );
@@ -20,7 +20,7 @@ public class OrderEventPublisher {
 
     private String routingKeyFor(String eventType) {
         return switch (eventType) {
-            case "ORDER_PLACED" -> RabbitOrderIntegrationConfig.ORDER_PLACED;
+            case "ORDER_PLACED" -> OrderEventsTopology.ORDER_PLACED;
             default -> throw new IllegalArgumentException("Unsupported order event type: " + eventType);
         };
     }
