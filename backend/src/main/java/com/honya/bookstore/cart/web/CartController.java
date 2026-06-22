@@ -7,7 +7,6 @@ import com.honya.bookstore.cart.web.dto.request.UpdateCartItemRequestDTO;
 import com.honya.bookstore.cart.web.dto.response.CartItemBookResponseDTO;
 import com.honya.bookstore.cart.web.dto.response.CartItemResponseDTO;
 import com.honya.bookstore.cart.web.dto.response.CartResponseDTO;
-import com.honya.bookstore.catalog.api.CatalogStockApi;
 import com.honya.bookstore.security.CustomerOnly;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,7 +31,6 @@ import java.util.stream.Collectors;
 public class CartController {
 
     private final CartService cartService;
-    private final CatalogStockApi catalogStockApi;
 
     @Operation(summary = "Get cart", description = "Retrieve current user cart")
     @ApiResponses(value = {

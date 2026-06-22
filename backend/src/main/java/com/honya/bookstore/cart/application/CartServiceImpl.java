@@ -3,8 +3,8 @@ package com.honya.bookstore.cart.application;
 import com.honya.bookstore.cart.domain.Cart;
 import com.honya.bookstore.cart.domain.CartItem;
 import com.honya.bookstore.cart.infrastructure.persistence.CartRepository;
-import com.honya.bookstore.catalog.api.CatalogCartSnapshot;
-import com.honya.bookstore.catalog.api.CatalogStockApi;
+import com.honya.bookstore.shared.integration.catalog.CatalogBookView;
+import com.honya.bookstore.shared.integration.catalog.CatalogClient;
 import com.honya.bookstore.shared.error.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.UUID;
 class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
-    private final CatalogStockApi catalogStockApi;
+    private final CatalogClient catalogClient;
 
     @Override
     @Transactional
@@ -43,7 +43,7 @@ class CartServiceImpl implements CartService {
     @Transactional
     public Cart addItemToCart(String userId, UUID bookId, Integer quantity) {
         Cart cart = getCartByUserId(userId);
-        CatalogCartSnapshot snapshot = catalogStockApi.getCartSnapshot(bookId);
+        CatalogBookView snapshot = catalogClient.getBook(bookId);
 
         Optional<CartItem> existingItem = cart.getItems().stream()
                 .filter(item -> snapshot.id().equals(item.getCatalogItemId()))

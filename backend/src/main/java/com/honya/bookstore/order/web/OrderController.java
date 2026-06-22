@@ -1,8 +1,8 @@
 package com.honya.bookstore.order.web;
 
 import com.honya.bookstore.cart.api.CartApi;
-import com.honya.bookstore.catalog.api.CatalogCartSnapshot;
-import com.honya.bookstore.catalog.api.CatalogStockApi;
+import com.honya.bookstore.shared.integration.catalog.CatalogBookView;
+import com.honya.bookstore.shared.integration.catalog.CatalogClient;
 import com.honya.bookstore.order.application.OrderService;
 import com.honya.bookstore.order.domain.Order;
 import com.honya.bookstore.order.domain.OrderItem;
@@ -48,7 +48,7 @@ public class OrderController {
 
     private final OrderService orderService;
     private final CartApi cartApi;
-    private final CatalogStockApi catalogStockApi;
+    private final CatalogClient catalogClient;
     private final VnPayUrlBuilder vnPayUrlBuilder;
 
     @Operation(summary = "Create order", description = "Create order from authenticated user's cart snapshot")
@@ -72,7 +72,7 @@ public class OrderController {
 
         List<OrderItem> items = cartApi.getCheckoutSnapshot(userId).items().stream()
                 .map(item -> {
-                    CatalogCartSnapshot snapshot = catalogStockApi.getCartSnapshot(item.bookId());
+                    CatalogBookView snapshot = catalogClient.getBook(item.bookId());
                     return OrderItem.builder()
                             .book(OrderItemBook.builder()
                                     .id(snapshot.id())

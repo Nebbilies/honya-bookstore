@@ -59,8 +59,8 @@ springdoc:
     oauth:
       client-id: ${SWAGGER_CLIENT_ID:honya-swagger}
 
-media:
-  base-url: ${MEDIA_BASE_URL:http://localhost:8082}
+catalog:
+  base-url: ${CATALOG_BASE_URL:http://localhost:8086}
 
 user:
   base-url: ${USER_BASE_URL:http://localhost:8085}

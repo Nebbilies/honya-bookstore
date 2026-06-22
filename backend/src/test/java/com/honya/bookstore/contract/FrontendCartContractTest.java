@@ -4,7 +4,6 @@ import com.honya.bookstore.cart.application.CartService;
 import com.honya.bookstore.cart.domain.Cart;
 import com.honya.bookstore.cart.domain.CartItem;
 import com.honya.bookstore.cart.web.CartController;
-import com.honya.bookstore.catalog.api.CatalogStockApi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -30,14 +29,11 @@ class FrontendCartContractTest {
 
     private MockMvc mockMvc;
     private CartService cartService;
-    private CatalogStockApi catalogStockApi;
 
     @BeforeEach
     void setUp() {
         cartService = mock(CartService.class);
-        catalogStockApi = mock(CatalogStockApi.class);
-        when(catalogStockApi.getBookPrice(any(UUID.class))).thenReturn(1000);
-        CartController cartController = new CartController(cartService, catalogStockApi);
+        CartController cartController = new CartController(cartService);
 
         mockMvc = MockMvcBuilders.standaloneSetup(cartController).build();
     }

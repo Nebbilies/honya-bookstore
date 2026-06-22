@@ -3,7 +3,8 @@ package com.honya.bookstore.checkout.application;
 import com.honya.bookstore.cart.api.CartApi;
 import com.honya.bookstore.cart.api.CartItemSnapshot;
 import com.honya.bookstore.cart.api.CartSnapshot;
-import com.honya.bookstore.catalog.api.CatalogStockApi;
+import com.honya.bookstore.shared.integration.catalog.CatalogBookView;
+import com.honya.bookstore.shared.integration.catalog.CatalogClient;
 import com.honya.bookstore.order.api.OrderApi;
 import com.honya.bookstore.order.api.OrderItemRequest;
 import com.honya.bookstore.order.api.OrderRequest;
@@ -30,7 +31,7 @@ class CheckoutServiceTest {
     void checkoutBuildsOrderItemsFromPublicCartAndCatalogApis() {
         OrderApi orderApi = mock(OrderApi.class);
         CartApi cartApi = mock(CartApi.class);
-        CatalogStockApi catalogStockApi = mock(CatalogStockApi.class);
+        CatalogClient catalogClient = mock(CatalogClient.class);
         UUID userId = UUID.randomUUID();
         UUID firstBookId = UUID.randomUUID();
         UUID secondBookId = UUID.randomUUID();
@@ -44,8 +45,8 @@ class CheckoutServiceTest {
                 new CartItemSnapshot(firstBookId, 2),
                 new CartItemSnapshot(secondBookId, 1)
         )));
-        when(catalogStockApi.getBookPrice(firstBookId)).thenReturn(100);
-        when(catalogStockApi.getBookPrice(secondBookId)).thenReturn(250);
+        when(catalogClient.getBook(firstBookId)).thenReturn(new CatalogBookView(firstBookId, "First", "Author", "img", 100));
+        when(catalogClient.getBook(secondBookId)).thenReturn(new CatalogBookView(secondBookId, "Second", "Author", "img", 250));
         OrderResponse response = new OrderResponse(
                 UUID.randomUUID(),
                 "Ada",
@@ -66,7 +67,7 @@ class CheckoutServiceTest {
         );
         when(orderApi.createOrder(org.mockito.ArgumentMatchers.eq(userId.toString()), any(OrderRequest.class))).thenReturn(response);
 
-        OrderResponse createdOrder = new CheckoutService(orderApi, cartApi, catalogStockApi)
+        OrderResponse createdOrder = new CheckoutService(orderApi, cartApi, catalogClient)
                 .checkout(userId.toString(), request);
 
         ArgumentCaptor<OrderRequest> orderCaptor = ArgumentCaptor.forClass(OrderRequest.class);

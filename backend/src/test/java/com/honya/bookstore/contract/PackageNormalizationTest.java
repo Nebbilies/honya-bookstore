@@ -9,9 +9,6 @@ class PackageNormalizationTest {
 
     @Test
     void moduleTypesMustLiveInStandardPackages() throws Exception {
-        assertEquals("com.honya.bookstore.catalog.web", Class.forName("com.honya.bookstore.catalog.web.BookController").getPackageName());
-        assertEquals("com.honya.bookstore.catalog.application", Class.forName("com.honya.bookstore.catalog.application.BookService").getPackageName());
-        assertEquals("com.honya.bookstore.catalog.infrastructure.persistence", Class.forName("com.honya.bookstore.catalog.infrastructure.persistence.BookRepository").getPackageName());
         assertEquals("com.honya.bookstore.cart.web", Class.forName("com.honya.bookstore.cart.web.CartController").getPackageName());
         assertEquals("com.honya.bookstore.cart.application", Class.forName("com.honya.bookstore.cart.application.CartService").getPackageName());
         assertEquals("com.honya.bookstore.cart.infrastructure.persistence", Class.forName("com.honya.bookstore.cart.infrastructure.persistence.CartRepository").getPackageName());
@@ -25,9 +22,6 @@ class PackageNormalizationTest {
     @Test
     void legacyFeatureRootEntitiesMustNotExist() {
         assertThrows(ClassNotFoundException.class, () -> Class.forName("com.honya.bookstore.domain.entity.User"));
-        assertThrows(ClassNotFoundException.class, () -> Class.forName("com.honya.bookstore.catalog.controller.BookController"));
-        assertThrows(ClassNotFoundException.class, () -> Class.forName("com.honya.bookstore.catalog.service.BookService"));
-        assertThrows(ClassNotFoundException.class, () -> Class.forName("com.honya.bookstore.catalog.repo.BookRepository"));
         assertThrows(ClassNotFoundException.class, () -> Class.forName("com.honya.bookstore.cart.CartController"));
         assertThrows(ClassNotFoundException.class, () -> Class.forName("com.honya.bookstore.cart.CartService"));
         assertThrows(ClassNotFoundException.class, () -> Class.forName("com.honya.bookstore.cart.CartRepository"));
