@@ -1,7 +1,7 @@
 package com.honya.bookstore.user.security;
 
 import com.honya.bookstore.user.application.UserStatsService;
-import com.honya.bookstore.user.config.UserSecurityConfig;
+import com.honya.platform.security.HonyaResourceServerSecurity;
 import com.honya.bookstore.user.web.UserStatsController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserStatsController.class)
-@Import(UserSecurityConfig.class)
+@Import(HonyaResourceServerSecurity.class)
 class UserStatsSecurityTest {
 
     @Autowired

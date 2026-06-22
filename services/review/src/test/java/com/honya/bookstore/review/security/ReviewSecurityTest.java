@@ -2,7 +2,8 @@ package com.honya.bookstore.review.security;
 
 import com.honya.bookstore.review.application.ReviewService;
 import com.honya.bookstore.review.application.ReviewVoteResult;
-import com.honya.bookstore.review.config.ReviewSecurityConfig;
+import com.honya.bookstore.review.config.ReviewPublicEndpoints;
+import com.honya.platform.security.HonyaResourceServerSecurity;
 import com.honya.bookstore.review.domain.Review;
 import com.honya.bookstore.review.web.ReviewController;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ReviewController.class)
-@Import(ReviewSecurityConfig.class)
+@Import({HonyaResourceServerSecurity.class, ReviewPublicEndpoints.class})
 class ReviewSecurityTest {
 
     @Autowired

@@ -1,7 +1,7 @@
 package com.honya.bookstore.media.security;
 
 import com.honya.bookstore.media.application.MediaService;
-import com.honya.bookstore.media.config.MediaSecurityConfig;
+import com.honya.platform.security.HonyaResourceServerSecurity;
 import com.honya.bookstore.media.web.MediaController;
 import com.honya.bookstore.media.web.dto.response.MediaResponseDTO;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(MediaController.class)
-@Import(MediaSecurityConfig.class)
+@Import(HonyaResourceServerSecurity.class)
 class MediaCsrfSecurityTest {
 
     @Autowired

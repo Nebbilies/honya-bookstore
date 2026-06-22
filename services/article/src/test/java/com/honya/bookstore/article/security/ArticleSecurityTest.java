@@ -1,7 +1,8 @@
 package com.honya.bookstore.article.security;
 
 import com.honya.bookstore.article.application.ArticleService;
-import com.honya.bookstore.article.config.ArticleSecurityConfig;
+import com.honya.bookstore.article.config.ArticlePublicEndpoints;
+import com.honya.platform.security.HonyaResourceServerSecurity;
 import com.honya.bookstore.article.domain.Article;
 import com.honya.bookstore.article.domain.ArticleStatus;
 import com.honya.bookstore.article.web.ArticleController;
@@ -31,7 +32,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ArticleController.class)
-@Import(ArticleSecurityConfig.class)
+@Import({HonyaResourceServerSecurity.class, ArticlePublicEndpoints.class})
 class ArticleSecurityTest {
 
     @Autowired
