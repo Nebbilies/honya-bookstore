@@ -1,0 +1,16 @@
+**/target
+**/node_modules
+**/.next
+.git
+.gitignore
+.env*
+.claude
+.idea
+.vscode
+frontend
+docs
+keycloak
+platform
+backend/seed
+*.log
+modular-monolith-analyze.txt

@@ -1,0 +1,17 @@
+# syntax=docker/dockerfile:1
+# Reactor-aware build for any JVM service module. The build context is the repo root so
+# Maven can resolve the in-repo libraries (honya-security-starter, *-events-contract) via -am.
+# Pass the module path with --build-arg MODULE=<path> (e.g. backend, services/catalog).
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /workspace
+COPY . .
+ARG MODULE
+RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -pl ${MODULE} -am -DskipTests clean package
+
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+ARG MODULE
+RUN addgroup -S spring && adduser -S spring -G spring
+COPY --from=build /workspace/${MODULE}/target/*.jar app.jar
+USER spring:spring
+ENTRYPOINT ["java", "-jar", "app.jar"]

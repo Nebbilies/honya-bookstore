@@ -5,7 +5,10 @@ services:
 
   media:
     build:
-      context: ./services/media
+      context: .
+      dockerfile: Dockerfile.services
+      args:
+        MODULE: services/media
     image: honya-bookstore-media:latest
     container_name: honya_media
     environment:
@@ -36,7 +39,10 @@ services:
 
   article:
     build:
-      context: ./services/article
+      context: .
+      dockerfile: Dockerfile.services
+      args:
+        MODULE: services/article
     image: honya-bookstore-article:latest
     container_name: honya_article
     environment:
@@ -56,7 +62,10 @@ services:
 
   review:
     build:
-      context: ./services/review
+      context: .
+      dockerfile: Dockerfile.services
+      args:
+        MODULE: services/review
     image: honya-bookstore-review:latest
     container_name: honya_review
     environment:
@@ -76,7 +85,10 @@ services:
 
   user:
     build:
-      context: ./services/user
+      context: .
+      dockerfile: Dockerfile.services
+      args:
+        MODULE: services/user
     image: honya-bookstore-user:latest
     container_name: honya_user
     environment:
@@ -96,7 +108,10 @@ services:
 
   catalog:
     build:
-      context: ./services/catalog
+      context: .
+      dockerfile: Dockerfile.services
+      args:
+        MODULE: services/catalog
     image: honya-bookstore-catalog:latest
     container_name: honya_catalog
     environment:
@@ -134,7 +149,10 @@ services:
 
   gateway:
     build:
-      context: ./services/gateway
+      context: .
+      dockerfile: Dockerfile.services
+      args:
+        MODULE: services/gateway
     image: honya-bookstore-gateway:latest
     container_name: honya_gateway
     environment:
