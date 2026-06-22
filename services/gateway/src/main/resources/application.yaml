@@ -43,6 +43,11 @@ spring:
               order: -1
               predicates:
                 - Path=/api/orders/**
+            - id: dashboard-service
+              uri: ${DASHBOARD_URI:http://localhost:8089}
+              order: -1
+              predicates:
+                - Path=/api/dashboard/**
             - id: monolith-api
               uri: ${MONOLITH_URI:http://localhost:8081}
               predicates:

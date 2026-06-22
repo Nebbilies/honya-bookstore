@@ -206,20 +206,41 @@ services:
       cart:
         condition: service_started
 
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.services
+      args:
+        MODULE: services/dashboard
+    image: honya-bookstore-dashboard:latest
+    container_name: honya_dashboard
+    environment:
+      SERVER_PORT: 8089
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8080/realms/honya
+      APP_SECURITY_JWT_JWK_SET_URI: http://keycloak:8080/realms/honya/protocol/openid-connect/certs
+      ORDER_BASE_URL: http://order:8088
+      USER_BASE_URL: http://user:8085
+    ports:
+      - "8089:8089"
+    depends_on:
+      keycloak:
+        condition: service_started
+      order:
+        condition: service_started
+      user:
+        condition: service_started
+
   backend:
     environment:
       CATALOG_BASE_URL: http://catalog:8086
       CART_BASE_URL: http://cart:8087
       ORDER_BASE_URL: http://order:8088
-      USER_BASE_URL: http://user:8085
     depends_on:
       catalog:
         condition: service_started
       cart:
         condition: service_started
       order:
-        condition: service_started
-      user:
         condition: service_started
 
   gateway:
@@ -239,6 +260,7 @@ services:
       CATALOG_URI: http://catalog:8086
       CART_URI: http://cart:8087
       ORDER_URI: http://order:8088
+      DASHBOARD_URI: http://dashboard:8089
       FRONTEND_ORIGIN: http://localhost:3000
       SERVER_PORT: 8090
     ports:
@@ -259,6 +281,8 @@ services:
       cart:
         condition: service_started
       order:
+        condition: service_started
+      dashboard:
         condition: service_started
 
   frontend:
