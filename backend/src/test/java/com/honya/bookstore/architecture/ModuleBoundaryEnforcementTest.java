@@ -33,7 +33,7 @@ class ModuleBoundaryEnforcementTest {
     @Test
     void crossModuleAccessMustUseApiPackagesOnly() {
         JavaClasses classes = new ClassFileImporter().importPackages("com.honya.bookstore");
-        List<String> modules = List.of("article", "cart", "discount", "media", "order", "review", "ticket", "user");
+        List<String> modules = List.of("article", "discount", "media", "order", "review", "ticket", "user");
 
         for (String sourceModule : modules) {
             for (String targetModule : modules) {
@@ -47,7 +47,6 @@ class ModuleBoundaryEnforcementTest {
                 }
             }
         }
-        assertNoDependency(classes, "com.honya.bookstore.cart", "com.honya.bookstore.order.outbox");
     }
 
     private void assertNoDependencyFromPackagesToPackages(JavaClasses classes, List<String> sourceMarkers, List<String> targetMarkers) {

@@ -1,11 +1,5 @@
 package com.honya.bookstore.contract;
 
-import com.honya.bookstore.cart.domain.Cart;
-import com.honya.bookstore.cart.web.CartController;
-import com.honya.bookstore.cart.domain.CartItem;
-import com.honya.bookstore.cart.api.CartApi;
-import com.honya.bookstore.cart.application.CartService;
-import com.honya.bookstore.cart.web.dto.request.AddItemRequestDTO;
 import com.honya.bookstore.checkout.application.CheckoutService;
 import com.honya.bookstore.checkout.web.CheckoutController;
 import com.honya.bookstore.checkout.web.dto.CheckoutRequestDTO;
@@ -19,6 +13,7 @@ import com.honya.bookstore.order.domain.OrderProvider;
 import com.honya.bookstore.order.infrastructure.payment.VnPayUrlBuilder;
 import com.honya.bookstore.order.domain.OrderStatus;
 import com.honya.bookstore.order.domain.OrderItemBook;
+import com.honya.bookstore.shared.integration.cart.CartClient;
 import com.honya.bookstore.shared.integration.catalog.CatalogClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,10 +35,8 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -53,25 +46,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class CoreApiContractFreezeTest {
 
     private MockMvc mockMvc;
-    private CartService cartService;
     private OrderService orderService;
     private CheckoutService checkoutService;
 
     @BeforeEach
     void setUp() {
-        cartService = mock(CartService.class);
         orderService = mock(OrderService.class);
         checkoutService = mock(CheckoutService.class);
 
-        CartController cartController = new CartController(cartService);
-        CartApi cartApi = mock(CartApi.class);
+        CartClient cartClient = mock(CartClient.class);
         CatalogClient catalogClient = mock(CatalogClient.class);
         VnPayUrlBuilder vnPayUrlBuilder = mock(VnPayUrlBuilder.class);
-        OrderController orderController = new OrderController(orderService, cartApi, catalogClient, vnPayUrlBuilder);
+        OrderController orderController = new OrderController(orderService, cartClient, catalogClient, vnPayUrlBuilder);
         CheckoutController checkoutController = new CheckoutController(checkoutService);
 
         mockMvc = MockMvcBuilders.standaloneSetup(
-                cartController,
                 orderController,
                 checkoutController
         ).setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver()).build();
@@ -90,91 +79,6 @@ class CoreApiContractFreezeTest {
                 .subject(userId)
                 .build();
         SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt));
-    }
-
-    @Test
-    void getCartWithHeaderReturns200AndExpectedFields() throws Exception {
-        String userId = UUID.randomUUID().toString();
-        Cart cart = sampleCart(UUID.fromString(userId));
-
-        when(cartService.getCartByUserId(userId)).thenReturn(cart);
-
-        mockMvc.perform(get("/api/cart")
-                        .header("X-User-Id", userId))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.ownerId").value(userId))
-                .andExpect(jsonPath("$.updatedAt").exists())
-                .andExpect(jsonPath("$.items[0].id").exists())
-                .andExpect(jsonPath("$.items[0].book.id").exists())
-                .andExpect(jsonPath("$.items[0].quantity").value(2));
-    }
-
-    @Test
-    void getCartWithoutAuthReturnsEmptyOk() throws Exception {
-        mockMvc.perform(get("/api/cart"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void addCartItemWithHeaderReturns200() throws Exception {
-        String userId = UUID.randomUUID().toString();
-        UUID cartId = UUID.randomUUID();
-        UUID bookId = UUID.randomUUID();
-        Cart cart = sampleCart(UUID.fromString(userId));
-
-        when(cartService.addItemToCart(eq(userId), eq(bookId), eq(2))).thenReturn(cart);
-
-        AddItemRequestDTO request = new AddItemRequestDTO();
-        request.setBookId(bookId);
-        request.setQuantity(2);
-
-        mockMvc.perform(post("/api/cart/{cartId}/items", cartId)
-                        .header("X-User-Id", userId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.items[0].quantity").value(2));
-    }
-
-    @Test
-    void removeCartItemWithHeaderReturns200() throws Exception {
-        String userId = UUID.randomUUID().toString();
-        UUID cartId = UUID.randomUUID();
-        UUID itemId = UUID.randomUUID();
-        Cart cart = sampleCart(UUID.fromString(userId));
-
-        when(cartService.removeItemFromCart(userId, itemId)).thenReturn(cart);
-
-        mockMvc.perform(delete("/api/cart/{cartId}/items/{itemId}", cartId, itemId)
-                        .header("X-User-Id", userId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists());
-    }
-
-    @Test
-    void removeCartItemInvalidUuidReturns400() throws Exception {
-        mockMvc.perform(delete("/api/cart/{cartId}/items/not-a-uuid", UUID.randomUUID())
-                        .header("X-User-Id", UUID.randomUUID().toString()))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void clearCartWithUuidHeaderReturns204() throws Exception {
-        UUID userId = UUID.randomUUID();
-        doNothing().when(cartService).clearCart(userId);
-
-        mockMvc.perform(delete("/api/cart")
-                        .header("X-User-Id", userId.toString()))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
-    void clearCartWithoutHeaderReturns400() throws Exception {
-        mockMvc.perform(delete("/api/cart"))
-                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -256,26 +160,6 @@ class CoreApiContractFreezeTest {
                 .andExpect(jsonPath("$.userId").value(userId));
     }
 
-    private Cart sampleCart(UUID userId) {
-        UUID catalogItemId = UUID.randomUUID();
-        CartItem item = CartItem.builder()
-                .id(UUID.randomUUID())
-                .catalogItemId(catalogItemId)
-                .title("Sample Book")
-                .author("Sample Author")
-                .imageUrl("https://example.com/cover.jpg")
-                .unitPrice(1000)
-                .quantity(2)
-                .build();
-
-        return Cart.builder()
-                .id(UUID.randomUUID())
-                .ownerId(userId)
-                .updatedAt(OffsetDateTime.parse("2026-05-04T10:15:30Z"))
-                .items(List.of(item))
-                .build();
-    }
-
     private String toJson(Object source) throws IllegalAccessException {
         StringBuilder sb = new StringBuilder("{");
         Field[] fields = source.getClass().getDeclaredFields();
@@ -291,22 +175,6 @@ class CoreApiContractFreezeTest {
                 sb.append("null");
             } else if (value instanceof Number || value instanceof Boolean) {
                 sb.append(value);
-            } else if (value instanceof List<?> list) {
-                sb.append("[");
-                for (int i = 0; i < list.size(); i++) {
-                    Object item = list.get(i);
-                    if (item == null) {
-                        sb.append("null");
-                    } else if (item instanceof Number || item instanceof Boolean) {
-                        sb.append(item);
-                    } else {
-                        sb.append("\"").append(item.toString().replace("\"", "\\\"")).append("\"");
-                    }
-                    if (i < list.size() - 1) {
-                        sb.append(",");
-                    }
-                }
-                sb.append("]");
             } else {
                 sb.append("\"").append(value.toString().replace("\"", "\\\"")).append("\"");
             }

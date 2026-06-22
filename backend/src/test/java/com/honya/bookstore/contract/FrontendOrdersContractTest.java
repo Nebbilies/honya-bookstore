@@ -1,6 +1,6 @@
 package com.honya.bookstore.contract;
 
-import com.honya.bookstore.cart.api.CartApi;
+import com.honya.bookstore.shared.integration.cart.CartClient;
 import com.honya.bookstore.shared.integration.catalog.CatalogClient;
 import com.honya.bookstore.order.application.OrderService;
 import com.honya.bookstore.order.domain.Order;
@@ -44,10 +44,10 @@ class FrontendOrdersContractTest {
     @BeforeEach
     void setUp() {
         orderService = mock(OrderService.class);
-        CartApi cartApi = mock(CartApi.class);
+        CartClient cartClient = mock(CartClient.class);
         CatalogClient catalogClient = mock(CatalogClient.class);
         VnPayUrlBuilder vnPayUrlBuilder = mock(VnPayUrlBuilder.class);
-        OrderController orderController = new OrderController(orderService, cartApi, catalogClient, vnPayUrlBuilder);
+        OrderController orderController = new OrderController(orderService, cartClient, catalogClient, vnPayUrlBuilder);
 
         mockMvc = MockMvcBuilders.standaloneSetup(orderController)
                 .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())

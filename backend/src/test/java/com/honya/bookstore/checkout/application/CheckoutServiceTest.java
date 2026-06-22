@@ -1,8 +1,8 @@
 package com.honya.bookstore.checkout.application;
 
-import com.honya.bookstore.cart.api.CartApi;
-import com.honya.bookstore.cart.api.CartItemSnapshot;
-import com.honya.bookstore.cart.api.CartSnapshot;
+import com.honya.bookstore.shared.integration.cart.CartClient;
+import com.honya.bookstore.shared.integration.cart.CartItemSnapshot;
+import com.honya.bookstore.shared.integration.cart.CartSnapshot;
 import com.honya.bookstore.shared.integration.catalog.CatalogBookView;
 import com.honya.bookstore.shared.integration.catalog.CatalogClient;
 import com.honya.bookstore.order.api.OrderApi;
@@ -30,7 +30,7 @@ class CheckoutServiceTest {
     @Test
     void checkoutBuildsOrderItemsFromPublicCartAndCatalogApis() {
         OrderApi orderApi = mock(OrderApi.class);
-        CartApi cartApi = mock(CartApi.class);
+        CartClient cartClient = mock(CartClient.class);
         CatalogClient catalogClient = mock(CatalogClient.class);
         UUID userId = UUID.randomUUID();
         UUID firstBookId = UUID.randomUUID();
@@ -41,7 +41,7 @@ class CheckoutServiceTest {
         request.setAddress("12 Example Street");
         request.setCity("London");
 
-        when(cartApi.getCheckoutSnapshot(userId.toString())).thenReturn(new CartSnapshot(userId, List.of(
+        when(cartClient.getCheckoutSnapshot(userId.toString())).thenReturn(new CartSnapshot(userId, List.of(
                 new CartItemSnapshot(firstBookId, 2),
                 new CartItemSnapshot(secondBookId, 1)
         )));
@@ -67,7 +67,7 @@ class CheckoutServiceTest {
         );
         when(orderApi.createOrder(org.mockito.ArgumentMatchers.eq(userId.toString()), any(OrderRequest.class))).thenReturn(response);
 
-        OrderResponse createdOrder = new CheckoutService(orderApi, cartApi, catalogClient)
+        OrderResponse createdOrder = new CheckoutService(orderApi, cartClient, catalogClient)
                 .checkout(userId.toString(), request);
 
         ArgumentCaptor<OrderRequest> orderCaptor = ArgumentCaptor.forClass(OrderRequest.class);
@@ -88,6 +88,5 @@ class CheckoutServiceTest {
         assertEquals(secondBookId, secondItem.bookId());
         assertEquals(1, secondItem.quantity());
         assertEquals(250, secondItem.price());
-        verify(cartApi, never()).clearCart(any(UUID.class));
     }
 }

@@ -1,6 +1,6 @@
 package com.honya.bookstore.order.web;
 
-import com.honya.bookstore.cart.api.CartApi;
+import com.honya.bookstore.shared.integration.cart.CartClient;
 import com.honya.bookstore.shared.integration.catalog.CatalogBookView;
 import com.honya.bookstore.shared.integration.catalog.CatalogClient;
 import com.honya.bookstore.order.application.OrderService;
@@ -47,7 +47,7 @@ import java.util.UUID;
 public class OrderController {
 
     private final OrderService orderService;
-    private final CartApi cartApi;
+    private final CartClient cartClient;
     private final CatalogClient catalogClient;
     private final VnPayUrlBuilder vnPayUrlBuilder;
 
@@ -70,7 +70,7 @@ public class OrderController {
                 ? OrderProvider.COD
                 : OrderProvider.valueOf(request.getProvider().toUpperCase());
 
-        List<OrderItem> items = cartApi.getCheckoutSnapshot(userId).items().stream()
+        List<OrderItem> items = cartClient.getCheckoutSnapshot(userId).items().stream()
                 .map(item -> {
                     CatalogBookView snapshot = catalogClient.getBook(item.bookId());
                     return OrderItem.builder()

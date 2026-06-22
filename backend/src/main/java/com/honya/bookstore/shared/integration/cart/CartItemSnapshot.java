@@ -1,4 +1,4 @@
-package com.honya.bookstore.cart.api;
+package com.honya.bookstore.shared.integration.cart;
 
 import java.util.UUID;
 

@@ -1,6 +1,6 @@
 package com.honya.bookstore.checkout.application;
 
-import com.honya.bookstore.cart.api.CartApi;
+import com.honya.bookstore.shared.integration.cart.CartClient;
 import com.honya.bookstore.shared.integration.catalog.CatalogClient;
 import com.honya.bookstore.order.api.OrderApi;
 import com.honya.bookstore.order.api.OrderItemRequest;
@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
 public class CheckoutService {
 
     private final OrderApi orderApi;
-    private final CartApi cartApi;
+    private final CartClient cartClient;
     private final CatalogClient catalogClient;
 
     public OrderResponse checkout(String userId, CheckoutRequestDTO request) {
-        List<OrderItemRequest> items = cartApi.getCheckoutSnapshot(userId).items().stream()
+        List<OrderItemRequest> items = cartClient.getCheckoutSnapshot(userId).items().stream()
                 .map(item -> {
                     Integer price = catalogClient.getBook(item.bookId()).price();
                     return new OrderItemRequest(item.bookId(), item.quantity(), price);

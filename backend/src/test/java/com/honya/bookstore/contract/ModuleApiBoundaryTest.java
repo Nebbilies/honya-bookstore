@@ -10,12 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ModuleApiBoundaryTest {
 
     @Test
-    void cartApiContractMustExist() throws Exception {
-        Class<?> type = Class.forName("com.honya.bookstore.cart.api.CartApi");
-        assertEquals("com.honya.bookstore.cart.api", type.getPackageName());
-    }
-
-    @Test
     void orderApiContractMustExist() throws Exception {
         Class<?> type = Class.forName("com.honya.bookstore.order.api.OrderApi");
         assertEquals("com.honya.bookstore.order.api", type.getPackageName());
@@ -25,25 +19,12 @@ class ModuleApiBoundaryTest {
     void serviceInterfacesMustNotExtendApiContracts() {
         assertTrue(Arrays.stream(com.honya.bookstore.order.application.OrderService.class.getInterfaces())
                 .noneMatch(type -> type.getName().equals("com.honya.bookstore.order.api.OrderApi")));
-        assertTrue(Arrays.stream(com.honya.bookstore.cart.application.CartService.class.getInterfaces())
-                .noneMatch(type -> type.getName().equals("com.honya.bookstore.cart.api.CartApi")));
     }
 
     @Test
     void apiAdaptersMustExistInEachModule() throws Exception {
-        Class<?> cartAdapter = Class.forName("com.honya.bookstore.cart.api.CartApiAdapter");
         Class<?> orderAdapter = Class.forName("com.honya.bookstore.order.api.OrderApiAdapter");
 
-        assertEquals("com.honya.bookstore.cart.api", cartAdapter.getPackageName());
         assertEquals("com.honya.bookstore.order.api", orderAdapter.getPackageName());
-    }
-
-    @Test
-    void cartApiSnapshotTypesMustExist() throws Exception {
-        Class<?> cartSnapshot = Class.forName("com.honya.bookstore.cart.api.CartSnapshot");
-        Class<?> cartItemSnapshot = Class.forName("com.honya.bookstore.cart.api.CartItemSnapshot");
-
-        assertEquals("com.honya.bookstore.cart.api", cartSnapshot.getPackageName());
-        assertEquals("com.honya.bookstore.cart.api", cartItemSnapshot.getPackageName());
     }
 }
