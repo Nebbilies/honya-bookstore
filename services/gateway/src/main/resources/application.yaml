@@ -28,6 +28,11 @@ spring:
               order: -1
               predicates:
                 - Path=/api/users/**
+            - id: catalog-service
+              uri: ${CATALOG_URI:http://localhost:8086}
+              order: -1
+              predicates:
+                - Path=/api/books/**,/api/categories/**
             - id: monolith-api
               uri: ${MONOLITH_URI:http://localhost:8081}
               predicates:
