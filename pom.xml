@@ -24,6 +24,7 @@
 		<module>services/user</module>
 		<module>services/catalog</module>
 		<module>services/cart</module>
+		<module>services/order</module>
 	</modules>
 
 </project>

@@ -1,0 +1,71 @@
+spring:
+  application:
+    name: order
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/order_db}
+    username: ${SPRING_DATASOURCE_USERNAME:order}
+    password: ${SPRING_DATASOURCE_PASSWORD:order}
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/order_db}
+    user: ${SPRING_DATASOURCE_USERNAME:order}
+    password: ${SPRING_DATASOURCE_PASSWORD:order}
+    locations: classpath:db/migration
+    default-schema: public
+    baseline-on-migrate: true
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI:http://localhost:8080/realms/honya}
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+
+app:
+  security:
+    jwt:
+      audience: ${JWT_AUDIENCE:honya-api}
+      jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8080/realms/honya/protocol/openid-connect/certs}
+
+catalog:
+  base-url: ${CATALOG_BASE_URL:http://localhost:8086}
+
+cart:
+  base-url: ${CART_BASE_URL:http://localhost:8087}
+
+server:
+  port: ${SERVER_PORT:8088}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+bookstore:
+  outbox:
+    relay-fixed-delay-ms: ${ORDER_OUTBOX_RELAY_DELAY_MS:1000}
+  vnpay:
+    tmn-code: ${VNPAY_TMN_CODE:}
+    hash-secret: ${VNPAY_HASH_SECRET:}
+    pay-url: ${VNPAY_PAY_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
+    return-url: ${VNPAY_RETURN_URL:http://localhost:3000/checkout/payment/success}
+    payment-return-url: ${VNPAY_PAYMENT_RETURN_URL:http://localhost:8088/api/orders/payment/vnpay/return}
+    ipn-url: ${VNPAY_IPN_URL:http://localhost:8088/api/orders/payment/vnpay/ipn}
