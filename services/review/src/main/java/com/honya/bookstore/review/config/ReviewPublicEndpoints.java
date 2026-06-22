@@ -11,7 +11,7 @@ import java.util.List;
 public class ReviewPublicEndpoints {
 
     @Bean
-    PublicEndpointsContributor reviewPublicEndpoints() {
+    PublicEndpointsContributor publicEndpoints() {
         return () -> List.of(PublicEndpoint.get("/api/reviews", "/api/reviews/**"));
     }
 }
