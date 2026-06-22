@@ -33,6 +33,11 @@ spring:
               order: -1
               predicates:
                 - Path=/api/books/**,/api/categories/**
+            - id: cart-service
+              uri: ${CART_URI:http://localhost:8087}
+              order: -1
+              predicates:
+                - Path=/api/cart/**
             - id: monolith-api
               uri: ${MONOLITH_URI:http://localhost:8081}
               predicates:

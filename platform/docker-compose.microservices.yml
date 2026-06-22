@@ -137,12 +137,46 @@ services:
       media:
         condition: service_started
 
+  cart:
+    build:
+      context: .
+      dockerfile: Dockerfile.services
+      args:
+        MODULE: services/cart
+    image: honya-bookstore-cart:latest
+    container_name: honya_cart
+    environment:
+      SERVER_PORT: 8087
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cart_db
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: user
+      SPRING_RABBITMQ_PASSWORD: password
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8080/realms/honya
+      APP_SECURITY_JWT_JWK_SET_URI: http://keycloak:8080/realms/honya/protocol/openid-connect/certs
+      CATALOG_BASE_URL: http://catalog:8086
+    ports:
+      - "8087:8087"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+      catalog:
+        condition: service_started
+
   backend:
     environment:
       CATALOG_BASE_URL: http://catalog:8086
+      CART_BASE_URL: http://cart:8087
       USER_BASE_URL: http://user:8085
     depends_on:
       catalog:
+        condition: service_started
+      cart:
         condition: service_started
       user:
         condition: service_started
@@ -162,6 +196,7 @@ services:
       REVIEW_URI: http://review:8084
       USER_URI: http://user:8085
       CATALOG_URI: http://catalog:8086
+      CART_URI: http://cart:8087
       FRONTEND_ORIGIN: http://localhost:3000
       SERVER_PORT: 8090
     ports:
@@ -178,6 +213,8 @@ services:
       user:
         condition: service_started
       catalog:
+        condition: service_started
+      cart:
         condition: service_started
 
   frontend:
