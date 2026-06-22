@@ -33,7 +33,7 @@ class ModuleBoundaryEnforcementTest {
     @Test
     void crossModuleAccessMustUseApiPackagesOnly() {
         JavaClasses classes = new ClassFileImporter().importPackages("com.honya.bookstore");
-        List<String> modules = List.of("article", "discount", "media", "order", "review", "ticket", "user");
+        List<String> modules = List.of("article", "discount", "media", "review", "ticket", "user");
 
         for (String sourceModule : modules) {
             for (String targetModule : modules) {

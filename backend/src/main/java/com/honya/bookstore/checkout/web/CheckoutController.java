@@ -2,7 +2,7 @@ package com.honya.bookstore.checkout.web;
 
 import com.honya.bookstore.checkout.application.CheckoutService;
 import com.honya.bookstore.checkout.web.dto.CheckoutRequestDTO;
-import com.honya.bookstore.order.api.OrderResponse;
+import com.honya.bookstore.shared.integration.order.OrderResponse;
 import com.honya.bookstore.security.CustomerOnly;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

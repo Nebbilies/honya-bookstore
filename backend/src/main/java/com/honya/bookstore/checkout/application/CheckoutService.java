@@ -2,10 +2,10 @@ package com.honya.bookstore.checkout.application;
 
 import com.honya.bookstore.shared.integration.cart.CartClient;
 import com.honya.bookstore.shared.integration.catalog.CatalogClient;
-import com.honya.bookstore.order.api.OrderApi;
-import com.honya.bookstore.order.api.OrderItemRequest;
-import com.honya.bookstore.order.api.OrderRequest;
-import com.honya.bookstore.order.api.OrderResponse;
+import com.honya.bookstore.shared.integration.order.OrderClient;
+import com.honya.bookstore.shared.integration.order.OrderItemRequest;
+import com.honya.bookstore.shared.integration.order.OrderRequest;
+import com.honya.bookstore.shared.integration.order.OrderResponse;
 import com.honya.bookstore.checkout.web.dto.CheckoutRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CheckoutService {
 
-    private final OrderApi orderApi;
+    private final OrderClient orderClient;
     private final CartClient cartClient;
     private final CatalogClient catalogClient;
 
@@ -44,6 +44,6 @@ public class CheckoutService {
                         .sum()
         );
 
-        return orderApi.createOrder(userId, order);
+        return orderClient.createOrder(userId, order);
     }
 }

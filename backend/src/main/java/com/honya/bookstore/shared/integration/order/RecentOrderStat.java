@@ -1,4 +1,4 @@
-package com.honya.bookstore.order.api;
+package com.honya.bookstore.shared.integration.order;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;

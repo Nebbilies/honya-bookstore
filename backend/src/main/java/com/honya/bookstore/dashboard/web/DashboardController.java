@@ -5,8 +5,8 @@ import com.honya.bookstore.dashboard.web.dto.response.DashboardSummaryDTO;
 import com.honya.bookstore.dashboard.web.dto.response.MonthlyPointDTO;
 import com.honya.bookstore.dashboard.web.dto.response.RecentOrderDTO;
 import com.honya.bookstore.dashboard.infrastructure.client.UserStatsClient;
-import com.honya.bookstore.order.api.OrderStatsApi;
-import com.honya.bookstore.order.api.StatsPeriod;
+import com.honya.bookstore.shared.integration.order.OrderStatsClient;
+import com.honya.bookstore.shared.integration.order.StatsPeriod;
 import com.honya.bookstore.security.StaffOrAdmin;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,17 +27,17 @@ import java.util.List;
 @StaffOrAdmin
 public class DashboardController {
 
-    private final OrderStatsApi orderStatsApi;
+    private final OrderStatsClient orderStatsClient;
     private final UserStatsClient userStatsClient;
 
     @Operation(summary = "Dashboard summary", description = "Sales this month, total users, new customers, orders this month")
     @GetMapping("/summary")
     public ResponseEntity<DashboardSummaryDTO> getSummary() {
         DashboardSummaryDTO summary = new DashboardSummaryDTO(
-                orderStatsApi.salesThisMonth(),
+                orderStatsClient.salesThisMonth(),
                 userStatsClient.totalUsers(),
-                orderStatsApi.newCustomersThisMonth(),
-                orderStatsApi.ordersThisMonth());
+                orderStatsClient.newCustomersThisMonth(),
+                orderStatsClient.ordersThisMonth());
         return ResponseEntity.ok(summary);
     }
 
@@ -45,7 +45,7 @@ public class DashboardController {
     @GetMapping("/sales-per-year")
     public ResponseEntity<List<MonthlyPointDTO>> getSalesPerYear(
             @RequestParam(required = false) Integer year) {
-        List<MonthlyPointDTO> points = orderStatsApi.revenuePerYear(resolveYear(year)).stream()
+        List<MonthlyPointDTO> points = orderStatsClient.revenuePerYear(resolveYear(year)).stream()
                 .map(p -> new MonthlyPointDTO(p.month(), p.value()))
                 .toList();
         return ResponseEntity.ok(points);
@@ -55,7 +55,7 @@ public class DashboardController {
     @GetMapping("/orders-per-year")
     public ResponseEntity<List<MonthlyPointDTO>> getOrdersPerYear(
             @RequestParam(required = false) Integer year) {
-        List<MonthlyPointDTO> points = orderStatsApi.ordersPerYear(resolveYear(year)).stream()
+        List<MonthlyPointDTO> points = orderStatsClient.ordersPerYear(resolveYear(year)).stream()
                 .map(p -> new MonthlyPointDTO(p.month(), p.value()))
                 .toList();
         return ResponseEntity.ok(points);
@@ -66,7 +66,7 @@ public class DashboardController {
     public ResponseEntity<List<BestSellerDTO>> getBestSellers(
             @RequestParam(required = false, defaultValue = "YEAR") String period,
             @RequestParam(required = false, defaultValue = "10") int limit) {
-        List<BestSellerDTO> sellers = orderStatsApi.bestSellers(parsePeriod(period), limit).stream()
+        List<BestSellerDTO> sellers = orderStatsClient.bestSellers(parsePeriod(period), limit).stream()
                 .map(s -> new BestSellerDTO(s.title(), s.author(), s.totalSold()))
                 .toList();
         return ResponseEntity.ok(sellers);
@@ -76,7 +76,7 @@ public class DashboardController {
     @GetMapping("/recent-orders")
     public ResponseEntity<List<RecentOrderDTO>> getRecentOrders(
             @RequestParam(required = false, defaultValue = "10") int limit) {
-        List<RecentOrderDTO> orders = orderStatsApi.recentOrders(limit).stream()
+        List<RecentOrderDTO> orders = orderStatsClient.recentOrders(limit).stream()
                 .map(o -> new RecentOrderDTO(o.id(), o.createdAt(), o.totalAmount()))
                 .toList();
         return ResponseEntity.ok(orders);

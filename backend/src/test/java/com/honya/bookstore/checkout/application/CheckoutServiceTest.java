@@ -5,10 +5,10 @@ import com.honya.bookstore.shared.integration.cart.CartItemSnapshot;
 import com.honya.bookstore.shared.integration.cart.CartSnapshot;
 import com.honya.bookstore.shared.integration.catalog.CatalogBookView;
 import com.honya.bookstore.shared.integration.catalog.CatalogClient;
-import com.honya.bookstore.order.api.OrderApi;
-import com.honya.bookstore.order.api.OrderItemRequest;
-import com.honya.bookstore.order.api.OrderRequest;
-import com.honya.bookstore.order.api.OrderResponse;
+import com.honya.bookstore.shared.integration.order.OrderClient;
+import com.honya.bookstore.shared.integration.order.OrderItemRequest;
+import com.honya.bookstore.shared.integration.order.OrderRequest;
+import com.honya.bookstore.shared.integration.order.OrderResponse;
 import com.honya.bookstore.checkout.web.dto.CheckoutRequestDTO;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -29,7 +29,7 @@ class CheckoutServiceTest {
 
     @Test
     void checkoutBuildsOrderItemsFromPublicCartAndCatalogApis() {
-        OrderApi orderApi = mock(OrderApi.class);
+        OrderClient orderClient = mock(OrderClient.class);
         CartClient cartClient = mock(CartClient.class);
         CatalogClient catalogClient = mock(CatalogClient.class);
         UUID userId = UUID.randomUUID();
@@ -65,13 +65,13 @@ class CheckoutServiceTest {
                 OffsetDateTime.now(),
                 List.of()
         );
-        when(orderApi.createOrder(org.mockito.ArgumentMatchers.eq(userId.toString()), any(OrderRequest.class))).thenReturn(response);
+        when(orderClient.createOrder(org.mockito.ArgumentMatchers.eq(userId.toString()), any(OrderRequest.class))).thenReturn(response);
 
-        OrderResponse createdOrder = new CheckoutService(orderApi, cartClient, catalogClient)
+        OrderResponse createdOrder = new CheckoutService(orderClient, cartClient, catalogClient)
                 .checkout(userId.toString(), request);
 
         ArgumentCaptor<OrderRequest> orderCaptor = ArgumentCaptor.forClass(OrderRequest.class);
-        verify(orderApi).createOrder(org.mockito.ArgumentMatchers.eq(userId.toString()), orderCaptor.capture());
+        verify(orderClient).createOrder(org.mockito.ArgumentMatchers.eq(userId.toString()), orderCaptor.capture());
         OrderRequest order = orderCaptor.getValue();
         assertSame(response, createdOrder);
         assertEquals("Ada", order.firstName());

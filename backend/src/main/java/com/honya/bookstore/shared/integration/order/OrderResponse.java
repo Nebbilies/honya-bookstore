@@ -1,5 +1,6 @@
-package com.honya.bookstore.order.api;
+package com.honya.bookstore.shared.integration.order;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,8 +18,8 @@ public record OrderResponse(
         Boolean isPaid,
         Integer totalAmount,
         UUID userId,
-        java.time.OffsetDateTime createdAt,
-        java.time.OffsetDateTime updatedAt,
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt,
         List<OrderItemResponse> items
 ) {
 }
