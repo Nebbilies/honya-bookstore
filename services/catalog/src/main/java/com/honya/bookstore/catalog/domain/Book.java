@@ -1,0 +1,45 @@
+package com.honya.bookstore.catalog.domain;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@Entity
+@Table(name = "books", schema = "catalog")
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
+public class Book {
+    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+    private String title;
+    @Column(columnDefinition = "TEXT")
+    private String description;
+    private String author;
+    private Integer price;
+    private Integer pagesCount;
+    private Integer yearPublished;
+    private String publisher;
+    private Float weight;
+    private Integer stockQuantity;
+    private Integer purchaseCount;
+    private Float rating;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+    private OffsetDateTime deletedAt;
+
+    @ManyToMany
+    @JoinTable(
+            name = "book_categories",
+            schema = "catalog",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<Category> categories;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<BookMedia> media;
+}
