@@ -1,5 +1,6 @@
 package com.honya.bookstore.shared.integration.order;
 
+import com.honya.platform.resilience.ResilientCalls;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
@@ -16,9 +17,13 @@ import java.util.Optional;
 @Component
 public class OrderStatsClient {
 
-    private final RestClient restClient;
+    private static final String BREAKER = "order-stats";
 
-    public OrderStatsClient(@Value("${order.base-url:http://localhost:8088}") String baseUrl) {
+    private final RestClient restClient;
+    private final ResilientCalls resilientCalls;
+
+    public OrderStatsClient(@Value("${order.base-url:http://localhost:8088}") String baseUrl,
+                            ResilientCalls resilientCalls) {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(Duration.ofSeconds(2));
         factory.setReadTimeout(Duration.ofSeconds(5));
@@ -26,6 +31,7 @@ public class OrderStatsClient {
                 .baseUrl(baseUrl)
                 .requestFactory(factory)
                 .build();
+        this.resilientCalls = resilientCalls;
     }
 
     public long salesThisMonth() {
@@ -41,47 +47,59 @@ public class OrderStatsClient {
     }
 
     public List<MonthlyPoint> revenuePerYear(int year) {
-        return restClient.get()
-                .uri(uri -> uri.path("/api/orders/stats/revenue-per-year").queryParam("year", year).build())
-                .headers(this::relayAuth)
-                .retrieve()
-                .body(new ParameterizedTypeReference<List<MonthlyPoint>>() {});
+        return resilientCalls.callOrDefault(BREAKER, true,
+                () -> restClient.get()
+                        .uri(uri -> uri.path("/api/orders/stats/revenue-per-year").queryParam("year", year).build())
+                        .headers(this::relayAuth)
+                        .retrieve()
+                        .body(new ParameterizedTypeReference<List<MonthlyPoint>>() {}),
+                List::of);
     }
 
     public List<MonthlyPoint> ordersPerYear(int year) {
-        return restClient.get()
-                .uri(uri -> uri.path("/api/orders/stats/orders-per-year").queryParam("year", year).build())
-                .headers(this::relayAuth)
-                .retrieve()
-                .body(new ParameterizedTypeReference<List<MonthlyPoint>>() {});
+        return resilientCalls.callOrDefault(BREAKER, true,
+                () -> restClient.get()
+                        .uri(uri -> uri.path("/api/orders/stats/orders-per-year").queryParam("year", year).build())
+                        .headers(this::relayAuth)
+                        .retrieve()
+                        .body(new ParameterizedTypeReference<List<MonthlyPoint>>() {}),
+                List::of);
     }
 
     public List<BestSellerStat> bestSellers(StatsPeriod period, int limit) {
-        return restClient.get()
-                .uri(uri -> uri.path("/api/orders/stats/best-sellers")
-                        .queryParam("period", period)
-                        .queryParam("limit", limit)
-                        .build())
-                .headers(this::relayAuth)
-                .retrieve()
-                .body(new ParameterizedTypeReference<List<BestSellerStat>>() {});
+        return resilientCalls.callOrDefault(BREAKER, true,
+                () -> restClient.get()
+                        .uri(uri -> uri.path("/api/orders/stats/best-sellers")
+                                .queryParam("period", period)
+                                .queryParam("limit", limit)
+                                .build())
+                        .headers(this::relayAuth)
+                        .retrieve()
+                        .body(new ParameterizedTypeReference<List<BestSellerStat>>() {}),
+                List::of);
     }
 
     public List<RecentOrderStat> recentOrders(int limit) {
-        return restClient.get()
-                .uri(uri -> uri.path("/api/orders/stats/recent-orders").queryParam("limit", limit).build())
-                .headers(this::relayAuth)
-                .retrieve()
-                .body(new ParameterizedTypeReference<List<RecentOrderStat>>() {});
+        return resilientCalls.callOrDefault(BREAKER, true,
+                () -> restClient.get()
+                        .uri(uri -> uri.path("/api/orders/stats/recent-orders").queryParam("limit", limit).build())
+                        .headers(this::relayAuth)
+                        .retrieve()
+                        .body(new ParameterizedTypeReference<List<RecentOrderStat>>() {}),
+                List::of);
     }
 
     private long getLong(String path) {
-        Long value = restClient.get()
-                .uri(path)
-                .headers(this::relayAuth)
-                .retrieve()
-                .body(Long.class);
-        return value == null ? 0L : value;
+        return resilientCalls.callOrDefault(BREAKER, true,
+                () -> {
+                    Long value = restClient.get()
+                            .uri(path)
+                            .headers(this::relayAuth)
+                            .retrieve()
+                            .body(Long.class);
+                    return value == null ? 0L : value;
+                },
+                () -> 0L);
     }
 
     private void relayAuth(HttpHeaders headers) {
