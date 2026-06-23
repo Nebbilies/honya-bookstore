@@ -27,7 +27,7 @@ class OrderOutboxWriterTest {
         UUID bookId = UUID.randomUUID();
         OrderPlacedEvent event = new OrderPlacedEvent(orderId, userId, List.of(new OrderItemEventDTO(bookId, 2)));
 
-        new OrderOutboxWriter(repository, serializer).enqueue(event);
+        new OrderOutboxWriter(repository, serializer).enqueue("ORDER_PLACED", orderId, event);
 
         ArgumentCaptor<OrderOutboxMessage> messageCaptor = ArgumentCaptor.forClass(OrderOutboxMessage.class);
         verify(repository).save(messageCaptor.capture());

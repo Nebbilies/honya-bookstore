@@ -70,4 +70,32 @@ class OrderTest {
 
         assertEquals(1, domainEvents(order).size());
     }
+
+    @Test
+    void markPaymentConfirmedRegistersPaymentConfirmedEvent() {
+        Order order = orderWithOneItem(UUID.randomUUID());
+        order.place(UUID.randomUUID());
+
+        order.markPaymentConfirmed("txn-1");
+
+        List<Object> events = domainEvents(order);
+        assertEquals(1, events.size());
+        PaymentConfirmedDomainEvent event = (PaymentConfirmedDomainEvent) events.get(0);
+        assertEquals(order.getId(), event.orderId());
+        assertEquals("txn-1", event.transactionNo());
+    }
+
+    @Test
+    void markPaymentFailedRegistersPaymentFailedEvent() {
+        Order order = orderWithOneItem(UUID.randomUUID());
+        order.place(UUID.randomUUID());
+
+        order.markPaymentFailed("VNPAY_24");
+
+        List<Object> events = domainEvents(order);
+        assertEquals(1, events.size());
+        PaymentFailedDomainEvent event = (PaymentFailedDomainEvent) events.get(0);
+        assertEquals(order.getId(), event.orderId());
+        assertEquals("VNPAY_24", event.reason());
+    }
 }

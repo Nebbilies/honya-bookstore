@@ -99,9 +99,12 @@ public class VnPayIpnController {
 
         if ("00".equals(responseCode)) {
             orderService.updatePaymentStatus(orderId, true, transactionNo, "PROCESSING");
+        } else {
+            // A non-success code means the payment was not completed; leave the order PENDING
+            // so the customer can retry via the repay endpoint, and emit PaymentFailed so the
+            // checkout saga can record the failed attempt.
+            orderService.recordPaymentFailure(orderId, "VNPAY_" + responseCode);
         }
-        // A non-success code means the payment was not completed; leave the order PENDING
-        // so the customer can retry via the repay endpoint.
 
         return vnpResponse("00", "Confirm Success");
     }

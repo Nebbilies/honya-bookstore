@@ -118,7 +118,17 @@ class OrderServiceImpl implements OrderService {
         if (paid) {
             order.setPaidAt(OffsetDateTime.now());
             order.confirm();
+            order.markPaymentConfirmed(transactionNo);
         }
+        order.setUpdatedAt(OffsetDateTime.now());
+        return orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public Order recordPaymentFailure(UUID orderId, String reason) {
+        Order order = getOrderById(orderId);
+        order.markPaymentFailed(reason);
         order.setUpdatedAt(OffsetDateTime.now());
         return orderRepository.save(order);
     }

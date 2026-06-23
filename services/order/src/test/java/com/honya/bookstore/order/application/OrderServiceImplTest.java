@@ -4,6 +4,8 @@ import com.honya.bookstore.order.domain.Order;
 import com.honya.bookstore.order.domain.OrderItem;
 import com.honya.bookstore.order.domain.OrderItemBook;
 import com.honya.bookstore.order.domain.OrderPlacedDomainEvent;
+import com.honya.bookstore.order.domain.PaymentConfirmedDomainEvent;
+import com.honya.bookstore.order.domain.PaymentFailedDomainEvent;
 import com.honya.bookstore.order.domain.OrderProvider;
 import com.honya.bookstore.order.domain.OrderStatus;
 import com.honya.bookstore.order.infrastructure.persistence.OrderItemBookRepository;
@@ -134,10 +136,47 @@ class OrderServiceImplTest {
                 .updatePaymentStatus(orderId, true, "txn-1", "PROCESSING");
 
         List<Object> events = domainEvents(result);
-        assertEquals(1, events.size());
-        OrderPlacedDomainEvent event = (OrderPlacedDomainEvent) events.get(0);
-        assertEquals(orderId, event.orderId());
-        assertEquals(userId, event.userId());
-        assertEquals(bookId, event.lines().get(0).bookId());
+        OrderPlacedDomainEvent placed = events.stream()
+                .filter(e -> e instanceof OrderPlacedDomainEvent)
+                .map(e -> (OrderPlacedDomainEvent) e)
+                .findFirst().orElseThrow();
+        assertEquals(orderId, placed.orderId());
+        assertEquals(userId, placed.userId());
+        assertEquals(bookId, placed.lines().get(0).bookId());
+
+        PaymentConfirmedDomainEvent confirmed = events.stream()
+                .filter(e -> e instanceof PaymentConfirmedDomainEvent)
+                .map(e -> (PaymentConfirmedDomainEvent) e)
+                .findFirst().orElseThrow();
+        assertEquals(orderId, confirmed.orderId());
+        assertEquals("txn-1", confirmed.transactionNo());
+    }
+
+    @Test
+    void recordPaymentFailureRegistersPaymentFailedEvent() {
+        OrderRepository orderRepository = mock(OrderRepository.class);
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        OrderItemBookRepository orderItemBookRepository = mock(OrderItemBookRepository.class);
+
+        UUID orderId = UUID.randomUUID();
+        Order existing = Order.builder()
+                .id(orderId)
+                .userId(UUID.randomUUID())
+                .provider(OrderProvider.VNPAY)
+                .status(OrderStatus.PENDING)
+                .isPaid(false)
+                .items(List.of())
+                .build();
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(existing));
+
+        Order result = new OrderServiceImpl(orderRepository, orderItemBookRepository)
+                .recordPaymentFailure(orderId, "VNPAY_24");
+
+        PaymentFailedDomainEvent failed = domainEvents(result).stream()
+                .filter(e -> e instanceof PaymentFailedDomainEvent)
+                .map(e -> (PaymentFailedDomainEvent) e)
+                .findFirst().orElseThrow();
+        assertEquals(orderId, failed.orderId());
+        assertEquals("VNPAY_24", failed.reason());
     }
 }

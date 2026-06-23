@@ -27,6 +27,6 @@ class OrderPlacedDomainEventListener {
                 .map(line -> new OrderItemEventDTO(line.bookId(), line.quantity()))
                 .toList();
 
-        outboxWriter.enqueue(new OrderPlacedEvent(event.orderId(), event.userId(), items));
+        outboxWriter.enqueue("ORDER_PLACED", event.orderId(), new OrderPlacedEvent(event.orderId(), event.userId(), items));
     }
 }

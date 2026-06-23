@@ -21,6 +21,8 @@ public class OrderEventPublisher {
     private String routingKeyFor(String eventType) {
         return switch (eventType) {
             case "ORDER_PLACED" -> OrderEventsTopology.ORDER_PLACED;
+            case "PAYMENT_CONFIRMED" -> OrderEventsTopology.PAYMENT_CONFIRMED;
+            case "PAYMENT_FAILED" -> OrderEventsTopology.PAYMENT_FAILED;
             default -> throw new IllegalArgumentException("Unsupported order event type: " + eventType);
         };
     }

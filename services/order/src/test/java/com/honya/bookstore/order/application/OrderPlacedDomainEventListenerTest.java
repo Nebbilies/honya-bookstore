@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -30,7 +31,7 @@ class OrderPlacedDomainEventListenerTest {
         new OrderPlacedDomainEventListener(outboxWriter).on(domainEvent);
 
         ArgumentCaptor<OrderPlacedEvent> captor = ArgumentCaptor.forClass(OrderPlacedEvent.class);
-        verify(outboxWriter).enqueue(captor.capture());
+        verify(outboxWriter).enqueue(eq("ORDER_PLACED"), eq(orderId), captor.capture());
 
         OrderPlacedEvent integrationEvent = captor.getValue();
         assertEquals(orderId, integrationEvent.orderId());

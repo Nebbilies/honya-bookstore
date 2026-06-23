@@ -101,4 +101,18 @@ public class Order extends AbstractAggregateRoot<Order> implements Persistable<U
         registerEvent(new OrderPlacedDomainEvent(this.id, this.userId, lines));
         this.placed = true;
     }
+
+    /**
+     * Registers the PaymentConfirmedDomainEvent for relay to the outbox.
+     */
+    public void markPaymentConfirmed(String transactionNo) {
+        registerEvent(new PaymentConfirmedDomainEvent(this.id, transactionNo));
+    }
+
+    /**
+     * Registers the PaymentFailedDomainEvent for relay to the outbox.
+     */
+    public void markPaymentFailed(String reason) {
+        registerEvent(new PaymentFailedDomainEvent(this.id, reason));
+    }
 }
