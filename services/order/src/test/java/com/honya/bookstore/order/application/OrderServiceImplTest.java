@@ -3,12 +3,16 @@ package com.honya.bookstore.order.application;
 import com.honya.bookstore.order.domain.Order;
 import com.honya.bookstore.order.domain.OrderItem;
 import com.honya.bookstore.order.domain.OrderItemBook;
+import com.honya.bookstore.order.domain.OrderPlacedDomainEvent;
+import com.honya.bookstore.order.domain.OrderProvider;
 import com.honya.bookstore.order.domain.OrderStatus;
 import com.honya.bookstore.order.infrastructure.persistence.OrderItemBookRepository;
 import com.honya.bookstore.order.infrastructure.persistence.OrderRepository;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,5 +62,82 @@ class OrderServiceImplTest {
 
         // Book snapshot is upserted before the order so the order_items FK is satisfied.
         verify(orderItemBookRepository).save(argThat(book -> bookId.equals(book.getId())));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<Object> domainEvents(Order order) {
+        return (List<Object>) ReflectionTestUtils.getField(order, "domainEvents");
+    }
+
+    private static Order orderDetailsWithProvider(OrderProvider provider, UUID bookId) {
+        return Order.builder()
+                .firstName("Ada")
+                .provider(provider)
+                .items(List.of(OrderItem.builder()
+                        .book(OrderItemBook.builder().id(bookId).build())
+                        .quantity(2)
+                        .price(100)
+                        .build()))
+                .build();
+    }
+
+    @Test
+    void createOrderForCodConfirmsAndRegistersOrderPlaced() {
+        OrderRepository orderRepository = mock(OrderRepository.class);
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        OrderItemBookRepository orderItemBookRepository = mock(OrderItemBookRepository.class);
+        when(orderItemBookRepository.save(any(OrderItemBook.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Order created = new OrderServiceImpl(orderRepository, orderItemBookRepository)
+                .createOrder(UUID.randomUUID().toString(), orderDetailsWithProvider(OrderProvider.COD, UUID.randomUUID()));
+
+        assertEquals(1, domainEvents(created).size());
+    }
+
+    @Test
+    void createOrderForVnpayDoesNotRegisterOrderPlaced() {
+        OrderRepository orderRepository = mock(OrderRepository.class);
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        OrderItemBookRepository orderItemBookRepository = mock(OrderItemBookRepository.class);
+        when(orderItemBookRepository.save(any(OrderItemBook.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Order created = new OrderServiceImpl(orderRepository, orderItemBookRepository)
+                .createOrder(UUID.randomUUID().toString(), orderDetailsWithProvider(OrderProvider.VNPAY, UUID.randomUUID()));
+
+        assertEquals(0, domainEvents(created).size());
+    }
+
+    @Test
+    void updatePaymentStatusPaidConfirmsAndRegistersOrderPlaced() {
+        OrderRepository orderRepository = mock(OrderRepository.class);
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        OrderItemBookRepository orderItemBookRepository = mock(OrderItemBookRepository.class);
+
+        UUID orderId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        UUID bookId = UUID.randomUUID();
+        Order existing = Order.builder()
+                .id(orderId)
+                .userId(userId)
+                .provider(OrderProvider.VNPAY)
+                .status(OrderStatus.PENDING)
+                .isPaid(false)
+                .items(List.of(OrderItem.builder()
+                        .book(OrderItemBook.builder().id(bookId).build())
+                        .quantity(2)
+                        .price(100)
+                        .build()))
+                .build();
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(existing));
+
+        Order result = new OrderServiceImpl(orderRepository, orderItemBookRepository)
+                .updatePaymentStatus(orderId, true, "txn-1", "PROCESSING");
+
+        List<Object> events = domainEvents(result);
+        assertEquals(1, events.size());
+        OrderPlacedDomainEvent event = (OrderPlacedDomainEvent) events.get(0);
+        assertEquals(orderId, event.orderId());
+        assertEquals(userId, event.userId());
+        assertEquals(bookId, event.lines().get(0).bookId());
     }
 }

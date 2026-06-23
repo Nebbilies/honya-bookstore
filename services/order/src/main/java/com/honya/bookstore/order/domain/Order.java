@@ -52,6 +52,10 @@ public class Order extends AbstractAggregateRoot<Order> implements Persistable<U
     @Builder.Default
     private boolean isNew = true;
 
+    @Transient
+    @Builder.Default
+    private boolean placed = false;
+
     @Override
     public boolean isNew() {
         return isNew;
@@ -64,23 +68,37 @@ public class Order extends AbstractAggregateRoot<Order> implements Persistable<U
     }
 
     /**
-     * Places this order: assigns identity, links its items, and registers the
-     * OrderPlacedDomainEvent. Spring Data publishes registered events
-     * during repository.save(this); an internal listener relays them to
-     * the outbox.
+     * Places this order: assigns identity and links its items. Does not emit
+     * OrderPlaced — that happens on confirm(), once the order is committed
+     * (immediately for COD, after payment for online providers).
      */
     public void place(UUID userId) {
         this.id = UUID.randomUUID();
         this.userId = userId;
 
-        List<OrderPlacedDomainEvent.Line> lines = List.of();
         if (this.items != null) {
             this.items.forEach(item -> item.setOrder(this));
+        }
+    }
+
+    /**
+     * Confirms this order and registers the OrderPlacedDomainEvent once.
+     * Spring Data publishes registered events during repository.save(this);
+     * an internal listener relays them to the outbox.
+     */
+    public void confirm() {
+        if (this.placed) {
+            return;
+        }
+
+        List<OrderPlacedDomainEvent.Line> lines = List.of();
+        if (this.items != null) {
             lines = this.items.stream()
                     .map(item -> new OrderPlacedDomainEvent.Line(item.getBook().getId(), item.getQuantity()))
                     .toList();
         }
 
-        registerEvent(new OrderPlacedDomainEvent(this.id, userId, lines));
+        registerEvent(new OrderPlacedDomainEvent(this.id, this.userId, lines));
+        this.placed = true;
     }
 }

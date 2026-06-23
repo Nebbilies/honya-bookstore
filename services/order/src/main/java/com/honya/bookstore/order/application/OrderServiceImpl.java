@@ -3,6 +3,7 @@ package com.honya.bookstore.order.application;
 import com.honya.bookstore.order.domain.Order;
 import com.honya.bookstore.order.domain.OrderItem;
 import com.honya.bookstore.order.domain.OrderItemBook;
+import com.honya.bookstore.order.domain.OrderProvider;
 import com.honya.bookstore.order.domain.OrderStatus;
 
 import java.time.OffsetDateTime;
@@ -46,6 +47,10 @@ class OrderServiceImpl implements OrderService {
             orderDetails.getItems().stream()
                     .filter(item -> item.getBook() != null && item.getBook().getId() != null)
                     .forEach(item -> item.setBook(orderItemBookRepository.save(item.getBook())));
+        }
+
+        if (orderDetails.getProvider() == OrderProvider.COD) {
+            orderDetails.confirm();
         }
 
         return orderRepository.save(orderDetails);
@@ -112,6 +117,7 @@ class OrderServiceImpl implements OrderService {
         }
         if (paid) {
             order.setPaidAt(OffsetDateTime.now());
+            order.confirm();
         }
         order.setUpdatedAt(OffsetDateTime.now());
         return orderRepository.save(order);
