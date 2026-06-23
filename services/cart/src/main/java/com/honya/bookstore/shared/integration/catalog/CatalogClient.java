@@ -1,5 +1,6 @@
 package com.honya.bookstore.shared.integration.catalog;
 
+import com.honya.platform.resilience.ResilientCalls;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -19,8 +20,10 @@ public class CatalogClient {
     private static final String FALLBACK_COVER = "/images/fallbackBookImage.png";
 
     private final RestClient restClient;
+    private final ResilientCalls resilientCalls;
 
-    public CatalogClient(@Value("${catalog.base-url:http://localhost:8086}") String baseUrl) {
+    public CatalogClient(@Value("${catalog.base-url:http://localhost:8086}") String baseUrl,
+                         ResilientCalls resilientCalls) {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(Duration.ofSeconds(2));
         factory.setReadTimeout(Duration.ofSeconds(5));
@@ -28,22 +31,25 @@ public class CatalogClient {
                 .baseUrl(baseUrl)
                 .requestFactory(factory)
                 .build();
+        this.resilientCalls = resilientCalls;
     }
 
     public CatalogBookView getBook(UUID bookId) {
-        CatalogBookResponse book = restClient.get()
-                .uri("/api/books/{id}", bookId)
-                .headers(headers -> currentAuthorization().ifPresent(value -> headers.set(HttpHeaders.AUTHORIZATION, value)))
-                .retrieve()
-                .body(CatalogBookResponse.class);
+        return resilientCalls.call("catalog-getBook", true, () -> {
+            CatalogBookResponse book = restClient.get()
+                    .uri("/api/books/{id}", bookId)
+                    .headers(headers -> currentAuthorization().ifPresent(value -> headers.set(HttpHeaders.AUTHORIZATION, value)))
+                    .retrieve()
+                    .body(CatalogBookResponse.class);
 
-        return new CatalogBookView(
-                book.id(),
-                book.title(),
-                book.author() == null ? "Unknown" : book.author(),
-                coverUrl(book),
-                book.price()
-        );
+            return new CatalogBookView(
+                    book.id(),
+                    book.title(),
+                    book.author() == null ? "Unknown" : book.author(),
+                    coverUrl(book),
+                    book.price()
+            );
+        });
     }
 
     private static String coverUrl(CatalogBookResponse book) {
