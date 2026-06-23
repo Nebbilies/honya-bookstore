@@ -1,2 +1,0 @@
-ALTER TABLE event_publication
-ADD COLUMN IF NOT EXISTS status VARCHAR(255);

@@ -53,14 +53,6 @@ spring:
               order: -1
               predicates:
                 - Path=/api/checkout/**
-            - id: monolith-api
-              uri: ${MONOLITH_URI:http://localhost:8081}
-              predicates:
-                - Path=/api/**
-            - id: monolith-swagger
-              uri: ${MONOLITH_URI:http://localhost:8081}
-              predicates:
-                - Path=/swagger-ui/**,/swagger-ui.html,/v3/api-docs/**
           globalcors:
             cors-configurations:
               '[/**]':

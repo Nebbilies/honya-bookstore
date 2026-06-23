@@ -1,3 +1,0 @@
-ALTER TABLE "order".orders
-    ADD COLUMN IF NOT EXISTS payment_transaction_no VARCHAR(255),
-    ADD COLUMN IF NOT EXISTS paid_at TIMESTAMP WITH TIME ZONE;

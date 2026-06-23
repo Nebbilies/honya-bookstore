@@ -266,7 +266,6 @@ services:
     image: honya-bookstore-gateway:latest
     container_name: honya_gateway
     environment:
-      MONOLITH_URI: http://backend:8081
       MEDIA_URI: http://media:8082
       ARTICLE_URI: http://article:8083
       REVIEW_URI: http://review:8084
@@ -281,8 +280,6 @@ services:
     ports:
       - "8090:8090"
     depends_on:
-      backend:
-        condition: service_started
       media:
         condition: service_started
       article:

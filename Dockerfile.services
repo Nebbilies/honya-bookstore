@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # Reactor-aware build for any JVM service module. The build context is the repo root so
 # Maven can resolve the in-repo libraries (honya-security-starter, *-events-contract) via -am.
-# Pass the module path with --build-arg MODULE=<path> (e.g. backend, services/catalog).
+# Pass the module path with --build-arg MODULE=<path> (e.g. services/gateway, services/catalog).
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /workspace
 COPY . .
