@@ -106,9 +106,10 @@ class OrderServiceImpl implements OrderService {
     @Transactional
     public Order updatePaymentStatus(UUID orderId, boolean paid, String transactionNo, String status) {
         Order order = getOrderById(orderId);
+        boolean cancelled = order.getStatus() == OrderStatus.CANCELLED;
         order.setIsPaid(paid);
         order.setPaymentTransactionNo(transactionNo);
-        if (status != null) {
+        if (status != null && !cancelled) {
             try {
                 order.setStatus(OrderStatus.valueOf(status.toUpperCase()));
             } catch (IllegalArgumentException ex) {
@@ -117,7 +118,12 @@ class OrderServiceImpl implements OrderService {
         }
         if (paid) {
             order.setPaidAt(OffsetDateTime.now());
-            order.confirm();
+            // A payment landing on an already-cancelled order (timed-out saga) must not
+            // resurrect it: record the payment and emit PaymentConfirmed so the saga can
+            // flag a refund, but do not place the order (no OrderPlaced) or change its status.
+            if (!cancelled) {
+                order.confirm();
+            }
             order.markPaymentConfirmed(transactionNo);
         }
         order.setUpdatedAt(OffsetDateTime.now());
@@ -129,6 +135,15 @@ class OrderServiceImpl implements OrderService {
     public Order recordPaymentFailure(UUID orderId, String reason) {
         Order order = getOrderById(orderId);
         order.markPaymentFailed(reason);
+        order.setUpdatedAt(OffsetDateTime.now());
+        return orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public Order recordPaymentRetry(UUID orderId) {
+        Order order = getOrderById(orderId);
+        order.markPaymentRetried();
         order.setUpdatedAt(OffsetDateTime.now());
         return orderRepository.save(order);
     }

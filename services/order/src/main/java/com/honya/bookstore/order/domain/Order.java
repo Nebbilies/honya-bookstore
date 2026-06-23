@@ -115,4 +115,12 @@ public class Order extends AbstractAggregateRoot<Order> implements Persistable<U
     public void markPaymentFailed(String reason) {
         registerEvent(new PaymentFailedDomainEvent(this.id, reason));
     }
+
+    /**
+     * Registers the PaymentRetriedDomainEvent for relay to the outbox so the
+     * checkout saga can extend its payment window.
+     */
+    public void markPaymentRetried() {
+        registerEvent(new PaymentRetriedDomainEvent(this.id));
+    }
 }

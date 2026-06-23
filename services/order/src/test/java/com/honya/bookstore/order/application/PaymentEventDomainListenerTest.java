@@ -2,9 +2,11 @@ package com.honya.bookstore.order.application;
 
 import com.honya.bookstore.order.domain.PaymentConfirmedDomainEvent;
 import com.honya.bookstore.order.domain.PaymentFailedDomainEvent;
+import com.honya.bookstore.order.domain.PaymentRetriedDomainEvent;
 import com.honya.bookstore.order.outbox.OrderOutboxWriter;
 import com.honya.bookstore.shared.integration.order.event.PaymentConfirmedEvent;
 import com.honya.bookstore.shared.integration.order.event.PaymentFailedEvent;
+import com.honya.bookstore.shared.integration.order.event.PaymentRetriedEvent;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -43,5 +45,18 @@ class PaymentEventDomainListenerTest {
         verify(outboxWriter).enqueue(eq("PAYMENT_FAILED"), eq(orderId), captor.capture());
         assertEquals(orderId, captor.getValue().orderId());
         assertEquals("VNPAY_24", captor.getValue().reason());
+    }
+
+    @Test
+    void relaysPaymentRetriedToOutbox() {
+        OrderOutboxWriter outboxWriter = mock(OrderOutboxWriter.class);
+        UUID orderId = UUID.randomUUID();
+
+        new PaymentEventDomainListener(outboxWriter)
+                .on(new PaymentRetriedDomainEvent(orderId));
+
+        ArgumentCaptor<PaymentRetriedEvent> captor = ArgumentCaptor.forClass(PaymentRetriedEvent.class);
+        verify(outboxWriter).enqueue(eq("PAYMENT_RETRIED"), eq(orderId), captor.capture());
+        assertEquals(orderId, captor.getValue().orderId());
     }
 }

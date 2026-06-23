@@ -55,6 +55,7 @@ public class VnPayUrlBuilder {
         params.put("vnp_OrderType", "other");
         params.put("vnp_ReturnUrl", returnUrl);
         params.put("vnp_TxnRef", order.getId() + "-" + now.toInstant().toEpochMilli());
+        params.put("vnp_ExpireDate", now.plusMinutes(properties.getExpireMinutes()).format(VNP_TIME));
 
         String hashData = toQueryString(params);
         String secureHash = signer.hmacSha512(properties.getHashSecret(), hashData);

@@ -19,4 +19,5 @@ public interface OrderService {
     Order updatePaymentStatus(UUID orderId, boolean paid, String transactionNo, String status);
     Order recordPaymentFailure(UUID orderId, String reason);
     Order cancelOrder(UUID orderId);
+    Order recordPaymentRetry(UUID orderId);
 }

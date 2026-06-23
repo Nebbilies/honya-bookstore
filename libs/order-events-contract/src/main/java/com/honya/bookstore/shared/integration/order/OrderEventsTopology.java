@@ -6,6 +6,7 @@ public final class OrderEventsTopology {
     public static final String ORDER_PLACED = "order.placed";
     public static final String PAYMENT_CONFIRMED = "order.payment.confirmed";
     public static final String PAYMENT_FAILED = "order.payment.failed";
+    public static final String PAYMENT_RETRIED = "order.payment.retried";
 
     private OrderEventsTopology() {
     }

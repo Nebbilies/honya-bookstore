@@ -23,6 +23,7 @@ public class OrderEventPublisher {
             case "ORDER_PLACED" -> OrderEventsTopology.ORDER_PLACED;
             case "PAYMENT_CONFIRMED" -> OrderEventsTopology.PAYMENT_CONFIRMED;
             case "PAYMENT_FAILED" -> OrderEventsTopology.PAYMENT_FAILED;
+            case "PAYMENT_RETRIED" -> OrderEventsTopology.PAYMENT_RETRIED;
             default -> throw new IllegalArgumentException("Unsupported order event type: " + eventType);
         };
     }

@@ -6,6 +6,7 @@ import com.honya.bookstore.order.domain.OrderItemBook;
 import com.honya.bookstore.order.domain.OrderPlacedDomainEvent;
 import com.honya.bookstore.order.domain.PaymentConfirmedDomainEvent;
 import com.honya.bookstore.order.domain.PaymentFailedDomainEvent;
+import com.honya.bookstore.order.domain.PaymentRetriedDomainEvent;
 import com.honya.bookstore.order.domain.OrderProvider;
 import com.honya.bookstore.order.domain.OrderStatus;
 import com.honya.bookstore.order.infrastructure.persistence.OrderItemBookRepository;
@@ -179,6 +180,45 @@ class OrderServiceImplTest {
                 .findFirst().orElseThrow();
         assertEquals(orderId, failed.orderId());
         assertEquals("VNPAY_24", failed.reason());
+    }
+
+    @Test
+    void latePaymentOnCancelledOrderDoesNotResurrectButEmitsPaymentConfirmed() {
+        OrderRepository orderRepository = mock(OrderRepository.class);
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        OrderItemBookRepository orderItemBookRepository = mock(OrderItemBookRepository.class);
+        UUID orderId = UUID.randomUUID();
+        Order existing = Order.builder()
+                .id(orderId).userId(UUID.randomUUID()).provider(OrderProvider.VNPAY)
+                .status(OrderStatus.CANCELLED).isPaid(false).items(List.of()).build();
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(existing));
+
+        Order result = new OrderServiceImpl(orderRepository, orderItemBookRepository)
+                .updatePaymentStatus(orderId, true, "late-txn", "PROCESSING");
+
+        assertEquals(OrderStatus.CANCELLED, result.getStatus());
+        org.junit.jupiter.api.Assertions.assertTrue(result.getIsPaid());
+        List<Object> events = domainEvents(result);
+        org.junit.jupiter.api.Assertions.assertTrue(events.stream().anyMatch(e -> e instanceof PaymentConfirmedDomainEvent));
+        org.junit.jupiter.api.Assertions.assertTrue(events.stream().noneMatch(e -> e instanceof OrderPlacedDomainEvent));
+    }
+
+    @Test
+    void recordPaymentRetryRegistersPaymentRetriedEvent() {
+        OrderRepository orderRepository = mock(OrderRepository.class);
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        OrderItemBookRepository orderItemBookRepository = mock(OrderItemBookRepository.class);
+        UUID orderId = UUID.randomUUID();
+        Order existing = Order.builder().id(orderId).status(OrderStatus.PENDING).items(List.of()).build();
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(existing));
+
+        Order result = new OrderServiceImpl(orderRepository, orderItemBookRepository).recordPaymentRetry(orderId);
+
+        PaymentRetriedDomainEvent retried = domainEvents(result).stream()
+                .filter(e -> e instanceof PaymentRetriedDomainEvent)
+                .map(e -> (PaymentRetriedDomainEvent) e)
+                .findFirst().orElseThrow();
+        assertEquals(orderId, retried.orderId());
     }
 
     @Test

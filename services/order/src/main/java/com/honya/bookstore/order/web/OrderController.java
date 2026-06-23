@@ -144,6 +144,7 @@ public class OrderController {
         String clientIp = extractClientIp(httpServletRequest);
         String paymentUrl = vnPayUrlBuilder.buildPaymentUrl(order, clientIp, null);
         Order updatedOrder = orderService.updatePaymentUrl(id, paymentUrl);
+        orderService.recordPaymentRetry(id);
         return ResponseEntity.ok(updatedOrder);
     }
 
