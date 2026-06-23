@@ -56,6 +56,7 @@ order:
 bookstore:
   saga:
     payment-timeout-minutes: ${SAGA_PAYMENT_TIMEOUT_MINUTES:15}
+    max-lifetime-minutes: ${SAGA_MAX_LIFETIME_MINUTES:60}
     sweep-fixed-delay-ms: ${SAGA_SWEEP_DELAY_MS:5000}
   outbox:
     relay-fixed-delay-ms: ${CHECKOUT_OUTBOX_RELAY_DELAY_MS:1000}

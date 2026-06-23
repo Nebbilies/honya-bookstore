@@ -28,7 +28,7 @@ class SagaRecoveryServiceTest {
     private final SagaInstanceRepository sagaRepository = mock(SagaInstanceRepository.class);
     private final CheckoutOutboxWriter outboxWriter = mock(CheckoutOutboxWriter.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final SagaRecoveryService service = new SagaRecoveryService(sagaRepository, outboxWriter, objectMapper);
+    private final SagaRecoveryService service = new SagaRecoveryService(sagaRepository, outboxWriter, objectMapper, 15, 60);
 
     @Test
     void confirmPaymentCompletesAwaitingSaga() {
@@ -52,6 +52,46 @@ class SagaRecoveryServiceTest {
 
         assertEquals(SagaStatus.COMPLETED, saga.getStatus());
         verify(sagaRepository, never()).save(any());
+    }
+
+    @Test
+    void confirmPaymentOnCompensatedSagaFlagsRefundRequired() {
+        UUID orderId = UUID.randomUUID();
+        SagaInstance saga = SagaInstance.builder().id(UUID.randomUUID()).orderId(orderId).status(SagaStatus.COMPENSATED).build();
+        when(sagaRepository.findByOrderId(orderId)).thenReturn(Optional.of(saga));
+
+        service.confirmPayment(orderId);
+
+        assertEquals(SagaStatus.REFUND_REQUIRED, saga.getStatus());
+        verify(sagaRepository).save(saga);
+    }
+
+    @Test
+    void extendPaymentWindowPushesExpiryForwardWhenWithinCap() {
+        UUID orderId = UUID.randomUUID();
+        OffsetDateTime original = OffsetDateTime.now().plusSeconds(1);
+        SagaInstance saga = SagaInstance.builder()
+                .id(UUID.randomUUID()).orderId(orderId).status(SagaStatus.AWAITING_PAYMENT)
+                .createdAt(OffsetDateTime.now().minusMinutes(1)).expiresAt(original).build();
+        when(sagaRepository.findByOrderId(orderId)).thenReturn(Optional.of(saga));
+
+        service.extendPaymentWindow(orderId);
+
+        org.junit.jupiter.api.Assertions.assertTrue(saga.getExpiresAt().isAfter(original));
+    }
+
+    @Test
+    void extendPaymentWindowCapsAtMaxLifetime() {
+        UUID orderId = UUID.randomUUID();
+        OffsetDateTime createdAt = OffsetDateTime.now().minusMinutes(58);
+        SagaInstance saga = SagaInstance.builder()
+                .id(UUID.randomUUID()).orderId(orderId).status(SagaStatus.AWAITING_PAYMENT)
+                .createdAt(createdAt).expiresAt(OffsetDateTime.now()).build();
+        when(sagaRepository.findByOrderId(orderId)).thenReturn(Optional.of(saga));
+
+        service.extendPaymentWindow(orderId);
+
+        assertEquals(createdAt.plusMinutes(60), saga.getExpiresAt());
     }
 
     @Test

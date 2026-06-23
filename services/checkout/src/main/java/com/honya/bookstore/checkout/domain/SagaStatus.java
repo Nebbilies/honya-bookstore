@@ -6,5 +6,6 @@ public enum SagaStatus {
     ORDER_CREATED,
     AWAITING_PAYMENT,
     COMPLETED,
-    COMPENSATED
+    COMPENSATED,
+    REFUND_REQUIRED
 }

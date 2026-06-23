@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitOrderEventsConfig {
 
     public static final String CHECKOUT_PAYMENT_QUEUE = "checkout.payment.events";
+    public static final String CHECKOUT_PAYMENT_RETRIED_QUEUE = "checkout.payment.retried";
 
     @Bean
     DirectExchange orderEventsExchange() {
@@ -25,5 +26,15 @@ public class RabbitOrderEventsConfig {
     @Bean
     Binding paymentConfirmedBinding(Queue checkoutPaymentEventsQueue, DirectExchange orderEventsExchange) {
         return BindingBuilder.bind(checkoutPaymentEventsQueue).to(orderEventsExchange).with(OrderEventsTopology.PAYMENT_CONFIRMED);
+    }
+
+    @Bean
+    Queue checkoutPaymentRetriedQueue() {
+        return new Queue(CHECKOUT_PAYMENT_RETRIED_QUEUE, true);
+    }
+
+    @Bean
+    Binding paymentRetriedBinding(Queue checkoutPaymentRetriedQueue, DirectExchange orderEventsExchange) {
+        return BindingBuilder.bind(checkoutPaymentRetriedQueue).to(orderEventsExchange).with(OrderEventsTopology.PAYMENT_RETRIED);
     }
 }
