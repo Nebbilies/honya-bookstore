@@ -240,6 +240,9 @@ services:
     container_name: honya_checkout
     environment:
       SERVER_PORT: 8091
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/checkout_db
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8080/realms/honya
       APP_SECURITY_JWT_JWK_SET_URI: http://keycloak:8080/realms/honya/protocol/openid-connect/certs
       CATALOG_BASE_URL: http://catalog:8086
@@ -248,6 +251,8 @@ services:
     ports:
       - "8091:8091"
     depends_on:
+      postgres:
+        condition: service_healthy
       keycloak:
         condition: service_started
       catalog:

@@ -2,11 +2,15 @@ package com.honya.bookstore.shared.integration.catalog;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.util.List;
@@ -60,11 +64,41 @@ public class CatalogClient {
                         .orElse(FALLBACK_COVER));
     }
 
+    public void reserve(UUID sagaId, UUID bookId, Integer quantity) {
+        try {
+            restClient.post()
+                    .uri("/api/books/{id}/reserve", bookId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(headers -> currentAuthorization().ifPresent(value -> headers.set(HttpHeaders.AUTHORIZATION, value)))
+                    .body(new StockCommand(sagaId, quantity))
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (HttpClientErrorException ex) {
+            if (ex.getStatusCode().value() == HttpStatus.CONFLICT.value()) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Insufficient stock");
+            }
+            throw ex;
+        }
+    }
+
+    public void release(UUID sagaId, UUID bookId, Integer quantity) {
+        restClient.post()
+                .uri("/api/books/{id}/release", bookId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .headers(headers -> currentAuthorization().ifPresent(value -> headers.set(HttpHeaders.AUTHORIZATION, value)))
+                .body(new StockCommand(sagaId, quantity))
+                .retrieve()
+                .toBodilessEntity();
+    }
+
     private Optional<String> currentAuthorization() {
         if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes) {
             return Optional.ofNullable(attributes.getRequest().getHeader(HttpHeaders.AUTHORIZATION));
         }
         return Optional.empty();
+    }
+
+    private record StockCommand(UUID sagaId, Integer quantity) {
     }
 
     private record CatalogBookResponse(UUID id, String title, String author, Integer price, List<CatalogMedia> media) {

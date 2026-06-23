@@ -8,4 +8,5 @@ public class CheckoutRequestDTO {
     private String lastName;
     private String address;
     private String city;
+    private String provider;
 }

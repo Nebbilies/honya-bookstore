@@ -2,6 +2,30 @@ spring:
   application:
     name: checkout
 
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/checkout_db}
+    username: ${SPRING_DATASOURCE_USERNAME:checkout}
+    password: ${SPRING_DATASOURCE_PASSWORD:checkout}
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/checkout_db}
+    user: ${SPRING_DATASOURCE_USERNAME:checkout}
+    password: ${SPRING_DATASOURCE_PASSWORD:checkout}
+    locations: classpath:db/migration
+    default-schema: public
+    baseline-on-migrate: true
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+
   security:
     oauth2:
       resourceserver:
@@ -22,6 +46,10 @@ cart:
 
 order:
   base-url: ${ORDER_BASE_URL:http://localhost:8088}
+
+bookstore:
+  saga:
+    payment-timeout-minutes: ${SAGA_PAYMENT_TIMEOUT_MINUTES:15}
 
 server:
   port: ${SERVER_PORT:8091}
