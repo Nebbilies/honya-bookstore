@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -178,5 +179,34 @@ class OrderServiceImplTest {
                 .findFirst().orElseThrow();
         assertEquals(orderId, failed.orderId());
         assertEquals("VNPAY_24", failed.reason());
+    }
+
+    @Test
+    void cancelOrderSetsStatusCancelled() {
+        OrderRepository orderRepository = mock(OrderRepository.class);
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        OrderItemBookRepository orderItemBookRepository = mock(OrderItemBookRepository.class);
+        UUID orderId = UUID.randomUUID();
+        Order existing = Order.builder().id(orderId).status(OrderStatus.PENDING).items(List.of()).build();
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(existing));
+
+        Order result = new OrderServiceImpl(orderRepository, orderItemBookRepository).cancelOrder(orderId);
+
+        assertEquals(OrderStatus.CANCELLED, result.getStatus());
+        verify(orderRepository).save(existing);
+    }
+
+    @Test
+    void cancelOrderIsIdempotentWhenAlreadyCancelled() {
+        OrderRepository orderRepository = mock(OrderRepository.class);
+        OrderItemBookRepository orderItemBookRepository = mock(OrderItemBookRepository.class);
+        UUID orderId = UUID.randomUUID();
+        Order existing = Order.builder().id(orderId).status(OrderStatus.CANCELLED).items(List.of()).build();
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(existing));
+
+        Order result = new OrderServiceImpl(orderRepository, orderItemBookRepository).cancelOrder(orderId);
+
+        assertEquals(OrderStatus.CANCELLED, result.getStatus());
+        verify(orderRepository, never()).save(any());
     }
 }

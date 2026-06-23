@@ -132,4 +132,16 @@ class OrderServiceImpl implements OrderService {
         order.setUpdatedAt(OffsetDateTime.now());
         return orderRepository.save(order);
     }
+
+    @Override
+    @Transactional
+    public Order cancelOrder(UUID orderId) {
+        Order order = getOrderById(orderId);
+        if (order.getStatus() != OrderStatus.CANCELLED) {
+            order.setStatus(OrderStatus.CANCELLED);
+            order.setUpdatedAt(OffsetDateTime.now());
+            orderRepository.save(order);
+        }
+        return order;
+    }
 }
