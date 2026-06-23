@@ -105,6 +105,17 @@ class OrderSecurityTest {
     }
 
     @Test
+    void customerCannotCreateOrderDirectly() throws Exception {
+        when(jwtDecoder.decode("customer-token")).thenReturn(buildToken("customer-token", "CUSTOMER"));
+
+        mockMvc.perform(post("/api/orders")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer customer-token")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
     void internalCreateWithoutTokenIsUnauthorized() throws Exception {
         mockMvc.perform(post("/api/orders/internal")
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
