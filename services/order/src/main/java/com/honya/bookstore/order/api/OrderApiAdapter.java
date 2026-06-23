@@ -5,6 +5,8 @@ import com.honya.bookstore.order.domain.Order;
 import com.honya.bookstore.order.domain.OrderItem;
 import com.honya.bookstore.order.domain.OrderItemBook;
 import com.honya.bookstore.order.domain.OrderProvider;
+import com.honya.bookstore.order.domain.OrderStatus;
+import com.honya.bookstore.order.infrastructure.payment.VnPayUrlBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,11 +17,19 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderApiAdapter implements OrderApi {
 
+    private static final String INTERNAL_CLIENT_IP = "127.0.0.1";
+
     private final OrderService orderService;
+    private final VnPayUrlBuilder vnPayUrlBuilder;
 
     @Override
     public OrderResponse createOrder(String userId, OrderRequest orderDetails) {
-        return toResponse(orderService.createOrder(userId, toOrder(orderDetails)));
+        Order created = orderService.createOrder(userId, toOrder(orderDetails));
+        if (created.getProvider() == OrderProvider.VNPAY) {
+            String paymentUrl = vnPayUrlBuilder.buildPaymentUrl(created, INTERNAL_CLIENT_IP, orderDetails.returnUrl());
+            created = orderService.updatePaymentUrl(created.getId(), paymentUrl);
+        }
+        return toResponse(created);
     }
 
     @Override
@@ -35,6 +45,7 @@ public class OrderApiAdapter implements OrderApi {
     }
 
     private Order toOrder(OrderRequest request) {
+        OrderProvider provider = request.provider() == null ? null : OrderProvider.valueOf(request.provider());
         return Order.builder()
                 .firstName(request.firstName())
                 .lastName(request.lastName())
@@ -42,7 +53,8 @@ public class OrderApiAdapter implements OrderApi {
                 .city(request.city())
                 .email(request.email())
                 .phone(request.phone())
-                .provider(request.provider() == null ? null : OrderProvider.valueOf(request.provider()))
+                .provider(provider)
+                .status(provider == OrderProvider.COD ? OrderStatus.PROCESSING : OrderStatus.PENDING)
                 .items(request.items().stream()
                         .map(item -> OrderItem.builder()
                                 .book(OrderItemBook.builder().id(item.bookId()).build())
