@@ -230,12 +230,26 @@ services:
       user:
         condition: service_started
 
-  backend:
+  checkout:
+    build:
+      context: .
+      dockerfile: Dockerfile.services
+      args:
+        MODULE: services/checkout
+    image: honya-bookstore-checkout:latest
+    container_name: honya_checkout
     environment:
+      SERVER_PORT: 8091
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8080/realms/honya
+      APP_SECURITY_JWT_JWK_SET_URI: http://keycloak:8080/realms/honya/protocol/openid-connect/certs
       CATALOG_BASE_URL: http://catalog:8086
       CART_BASE_URL: http://cart:8087
       ORDER_BASE_URL: http://order:8088
+    ports:
+      - "8091:8091"
     depends_on:
+      keycloak:
+        condition: service_started
       catalog:
         condition: service_started
       cart:
@@ -261,6 +275,7 @@ services:
       CART_URI: http://cart:8087
       ORDER_URI: http://order:8088
       DASHBOARD_URI: http://dashboard:8089
+      CHECKOUT_URI: http://checkout:8091
       FRONTEND_ORIGIN: http://localhost:3000
       SERVER_PORT: 8090
     ports:
@@ -283,6 +298,8 @@ services:
       order:
         condition: service_started
       dashboard:
+        condition: service_started
+      checkout:
         condition: service_started
 
   frontend:
