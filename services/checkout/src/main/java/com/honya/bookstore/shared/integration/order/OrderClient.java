@@ -1,5 +1,6 @@
 package com.honya.bookstore.shared.integration.order;
 
+import com.honya.platform.resilience.ResilientCalls;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,8 +17,10 @@ import java.util.Optional;
 public class OrderClient {
 
     private final RestClient restClient;
+    private final ResilientCalls resilientCalls;
 
-    public OrderClient(@Value("${order.base-url:http://localhost:8088}") String baseUrl) {
+    public OrderClient(@Value("${order.base-url:http://localhost:8088}") String baseUrl,
+                       ResilientCalls resilientCalls) {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(Duration.ofSeconds(2));
         factory.setReadTimeout(Duration.ofSeconds(5));
@@ -25,10 +28,11 @@ public class OrderClient {
                 .baseUrl(baseUrl)
                 .requestFactory(factory)
                 .build();
+        this.resilientCalls = resilientCalls;
     }
 
     public OrderResponse createOrder(String userId, OrderRequest request) {
-        return restClient.post()
+        return resilientCalls.call("order-createOrder", false, () -> restClient.post()
                 .uri("/api/orders/internal")
                 .contentType(MediaType.APPLICATION_JSON)
                 .headers(headers -> {
@@ -37,7 +41,7 @@ public class OrderClient {
                 })
                 .body(request)
                 .retrieve()
-                .body(OrderResponse.class);
+                .body(OrderResponse.class));
     }
 
     private Optional<String> currentAuthorization() {
