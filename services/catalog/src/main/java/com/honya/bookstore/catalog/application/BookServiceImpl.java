@@ -5,6 +5,7 @@ import com.honya.bookstore.catalog.domain.BookMedia;
 import com.honya.bookstore.catalog.infrastructure.persistence.BookMediaRepository;
 import com.honya.bookstore.catalog.infrastructure.persistence.BookRepository;
 import com.honya.bookstore.catalog.infrastructure.persistence.BookSpecifications;
+import com.honya.bookstore.catalog.infrastructure.persistence.CatalogStockReservationRepository;
 import com.honya.bookstore.catalog.outbox.CatalogOutboxWriter;
 import com.honya.bookstore.catalog.web.BookController.sortOrder;
 import com.honya.bookstore.catalog.web.dto.request.BookMediaRequestDTO;
@@ -24,6 +25,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -37,6 +39,7 @@ public class BookServiceImpl implements BookService {
     private final BookMediaRepository bookMediaRepository;
     private final MediaClient mediaClient;
     private final CatalogOutboxWriter outboxWriter;
+    private final CatalogStockReservationRepository reservationRepository;
 
     @Override
     public Page<Book> getAllBooks(BookSearchCriteria criteria, Pageable pageable) {
@@ -162,6 +165,24 @@ public class BookServiceImpl implements BookService {
         book.setStockQuantity(book.getStockQuantity() + quantity);
 
         bookRepository.save(book);
+    }
+
+    @Override
+    @Transactional
+    public void reserveStock(UUID sagaId, UUID bookId, Integer quantity) {
+        if (reservationRepository.insertIfAbsent(sagaId, bookId, quantity, OffsetDateTime.now()) == 0) {
+            return;
+        }
+        reduceStock(bookId, quantity);
+    }
+
+    @Override
+    @Transactional
+    public void releaseStock(UUID sagaId, UUID bookId, Integer quantity) {
+        if (reservationRepository.markReleasedIfReserved(sagaId, bookId) == 0) {
+            return;
+        }
+        addStock(bookId, quantity);
     }
 
     private void syncBookMedia(Book book, List<BookMediaRequestDTO> mediaRequests) {

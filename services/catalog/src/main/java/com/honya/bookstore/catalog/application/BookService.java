@@ -18,4 +18,6 @@ public interface BookService {
     String getBookCoverUrl(UUID bookId);
     void reduceStock(UUID bookId, Integer quantity);
     void addStock(UUID bookId, Integer quantity);
+    void reserveStock(UUID sagaId, UUID bookId, Integer quantity);
+    void releaseStock(UUID sagaId, UUID bookId, Integer quantity);
 }

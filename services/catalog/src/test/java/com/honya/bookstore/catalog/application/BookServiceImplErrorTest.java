@@ -3,6 +3,7 @@ package com.honya.bookstore.catalog.application;
 import com.honya.bookstore.catalog.domain.Book;
 import com.honya.bookstore.catalog.infrastructure.persistence.BookMediaRepository;
 import com.honya.bookstore.catalog.infrastructure.persistence.BookRepository;
+import com.honya.bookstore.catalog.infrastructure.persistence.CatalogStockReservationRepository;
 import com.honya.bookstore.catalog.outbox.CatalogOutboxWriter;
 import com.honya.bookstore.catalog.infrastructure.client.MediaClient;
 import com.honya.bookstore.shared.error.InsufficientStockException;
@@ -28,7 +29,7 @@ class BookServiceImplErrorTest {
         UUID id = UUID.randomUUID();
         when(repository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> new BookServiceImpl(repository, mock(BookMediaRepository.class), mock(MediaClient.class), mock(CatalogOutboxWriter.class)).getBookById(id));
+        assertThrows(ResourceNotFoundException.class, () -> new BookServiceImpl(repository, mock(BookMediaRepository.class), mock(MediaClient.class), mock(CatalogOutboxWriter.class), mock(CatalogStockReservationRepository.class)).getBookById(id));
     }
 
     @Test
@@ -38,7 +39,7 @@ class BookServiceImplErrorTest {
         Book book = Book.builder().id(id).title("Demo Book").stockQuantity(2).build();
         when(repository.findById(id)).thenReturn(Optional.of(book));
 
-        assertThrows(InsufficientStockException.class, () -> new BookServiceImpl(repository, mock(BookMediaRepository.class), mock(MediaClient.class), mock(CatalogOutboxWriter.class)).reduceStock(id, 5));
+        assertThrows(InsufficientStockException.class, () -> new BookServiceImpl(repository, mock(BookMediaRepository.class), mock(MediaClient.class), mock(CatalogOutboxWriter.class), mock(CatalogStockReservationRepository.class)).reduceStock(id, 5));
     }
 
     @Test
@@ -50,7 +51,7 @@ class BookServiceImplErrorTest {
         Book existingBook = Book.builder().id(id).title("Demo Book").price(120).build();
         when(repository.findById(id)).thenReturn(Optional.of(existingBook));
 
-        new BookServiceImpl(repository, mediaRepository, mock(MediaClient.class), outboxWriter).deleteBook(id);
+        new BookServiceImpl(repository, mediaRepository, mock(MediaClient.class), outboxWriter, mock(CatalogStockReservationRepository.class)).deleteBook(id);
 
         verify(outboxWriter).enqueue(eq("PRODUCT_REMOVED"), eq(id), any(ProductRemovedEvent.class));
         verify(mediaRepository).deleteByBookId(id);
