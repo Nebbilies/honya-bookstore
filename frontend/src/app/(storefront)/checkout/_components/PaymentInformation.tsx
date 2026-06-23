@@ -19,7 +19,7 @@ export default function PaymentInformation() {
             provider: paymentMethod === 'credit-card' ? 'VNPAY' : 'COD',
         });
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checkout/checkout`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
