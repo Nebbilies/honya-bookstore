@@ -81,10 +81,10 @@ public class CheckoutService {
                     request.getLastName(),
                     request.getAddress(),
                     request.getCity(),
-                    null,
-                    null,
+                    request.getEmail(),
+                    request.getPhone(),
                     request.getProvider(),
-                    null,
+                    request.getReturnUrl(),
                     items,
                     items.stream().mapToInt(item -> item.price() * item.quantity()).sum()));
         } catch (RuntimeException ex) {
