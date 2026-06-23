@@ -16,6 +16,7 @@
 		<module>libs/media-events-contract</module>
 		<module>libs/catalog-events-contract</module>
 		<module>libs/order-events-contract</module>
+		<module>libs/saga-commands-contract</module>
 		<module>services/gateway</module>
 		<module>services/media</module>
 		<module>services/article</module>
