@@ -39,6 +39,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.honya.bookstore</groupId>
+			<artifactId>honya-resilience-starter</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.honya.bookstore</groupId>
 			<artifactId>media-events-contract</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
