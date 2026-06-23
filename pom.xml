@@ -26,6 +26,7 @@
 		<module>services/cart</module>
 		<module>services/order</module>
 		<module>services/dashboard</module>
+		<module>services/checkout</module>
 	</modules>
 
 </project>

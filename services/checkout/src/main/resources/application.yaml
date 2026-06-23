@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: checkout
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI:http://localhost:8080/realms/honya}
+
+app:
+  security:
+    jwt:
+      audience: ${JWT_AUDIENCE:honya-api}
+      jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8080/realms/honya/protocol/openid-connect/certs}
+
+catalog:
+  base-url: ${CATALOG_BASE_URL:http://localhost:8086}
+
+cart:
+  base-url: ${CART_BASE_URL:http://localhost:8087}
+
+order:
+  base-url: ${ORDER_BASE_URL:http://localhost:8088}
+
+server:
+  port: ${SERVER_PORT:8091}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
