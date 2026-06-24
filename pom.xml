@@ -14,6 +14,7 @@
 	<modules>
 		<module>libs/honya-security-starter</module>
 		<module>libs/honya-resilience-starter</module>
+		<module>libs/honya-messaging-starter</module>
 		<module>libs/media-events-contract</module>
 		<module>libs/catalog-events-contract</module>
 		<module>libs/order-events-contract</module>
