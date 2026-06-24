@@ -60,6 +60,10 @@ bookstore:
     sweep-fixed-delay-ms: ${SAGA_SWEEP_DELAY_MS:5000}
   outbox:
     relay-fixed-delay-ms: ${CHECKOUT_OUTBOX_RELAY_DELAY_MS:1000}
+  messaging:
+    dead-letter:
+      exchange: ${MESSAGING_DEAD_LETTER_EXCHANGE:checkout.dlx}
+      queue: ${MESSAGING_DEAD_LETTER_QUEUE:checkout.dlq}
 
 server:
   port: ${SERVER_PORT:8091}
