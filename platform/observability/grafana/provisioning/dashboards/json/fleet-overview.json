@@ -15,7 +15,7 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
-          "expr": "count(group by (exported_job) (jvm_memory_used_bytes))",
+          "expr": "count(group by (service_name) (jvm_memory_used_bytes))",
           "legendFormat": "services",
           "refId": "A"
         }
@@ -46,7 +46,7 @@
       "targets": [
         {
           "expr": "rate(http_server_requests_milliseconds_count[1m])",
-          "legendFormat": "{{exported_job}}",
+          "legendFormat": "{{service_name}}",
           "refId": "A"
         }
       ],
@@ -64,8 +64,8 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (le, exported_job) (rate(http_server_requests_milliseconds_bucket[5m])))",
-          "legendFormat": "{{exported_job}} p95",
+          "expr": "histogram_quantile(0.95, sum by (le, service_name) (rate(http_server_requests_milliseconds_bucket[5m])))",
+          "legendFormat": "{{service_name}} p95",
           "refId": "A"
         }
       ],
@@ -84,7 +84,7 @@
       "targets": [
         {
           "expr": "rate(http_server_requests_milliseconds_count{status=~\"5..\"}[1m])",
-          "legendFormat": "{{exported_job}} 5xx",
+          "legendFormat": "{{service_name}} 5xx",
           "refId": "A"
         }
       ],
