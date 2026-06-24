@@ -55,3 +55,9 @@ management:
     web:
       exposure:
         include: health,info
+
+bookstore:
+  messaging:
+    dead-letter:
+      exchange: ${MESSAGING_DEAD_LETTER_EXCHANGE:cart.dlx}
+      queue: ${MESSAGING_DEAD_LETTER_QUEUE:cart.dlq}

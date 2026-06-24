@@ -44,6 +44,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.honya.bookstore</groupId>
+			<artifactId>honya-messaging-starter</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.honya.bookstore</groupId>
 			<artifactId>catalog-events-contract</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
