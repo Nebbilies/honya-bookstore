@@ -2,8 +2,12 @@ package com.honya.platform.resilience;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics;
+import io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,5 +50,21 @@ public class HonyaResilience {
     @Bean
     public ResilientCalls resilientCalls(CircuitBreakerRegistry circuitBreakers, RetryRegistry retries) {
         return new ResilientCalls(circuitBreakers, retries);
+    }
+
+    @Bean
+    public TaggedCircuitBreakerMetrics honyaCircuitBreakerMetrics(CircuitBreakerRegistry circuitBreakers,
+                                                                 ObjectProvider<MeterRegistry> meterRegistry) {
+        TaggedCircuitBreakerMetrics metrics = TaggedCircuitBreakerMetrics.ofCircuitBreakerRegistry(circuitBreakers);
+        meterRegistry.ifAvailable(metrics::bindTo);
+        return metrics;
+    }
+
+    @Bean
+    public TaggedRetryMetrics honyaRetryMetrics(RetryRegistry retries,
+                                                ObjectProvider<MeterRegistry> meterRegistry) {
+        TaggedRetryMetrics metrics = TaggedRetryMetrics.ofRetryRegistry(retries);
+        meterRegistry.ifAvailable(metrics::bindTo);
+        return metrics;
     }
 }
