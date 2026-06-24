@@ -1,0 +1,86 @@
+{
+  "id": null,
+  "uid": "honya-resilience",
+  "title": "Resilience",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Open Circuit Breakers",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "resilience4j_circuitbreaker_state{state=\"open\"} == 1",
+          "legendFormat": "{{service_name}} / {{name}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Circuit Breaker Failure Rate (%)",
+      "gridPos": { "x": 0, "y": 5, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "resilience4j_circuitbreaker_failure_rate >= 0",
+          "legendFormat": "{{service_name}} / {{name}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100 } }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Rejected Calls (open circuit) /s",
+      "gridPos": { "x": 12, "y": 5, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "rate(resilience4j_circuitbreaker_not_permitted_calls_total[5m])",
+          "legendFormat": "{{service_name}} / {{name}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "cps" } }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Retry Calls /s by outcome",
+      "gridPos": { "x": 0, "y": 13, "w": 24, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "rate(resilience4j_retry_calls_total[5m])",
+          "legendFormat": "{{service_name}} / {{name}} / {{kind}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "cps" } }
+    }
+  ]
+}
