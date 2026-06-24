@@ -37,6 +37,10 @@ management:
         enabled: ${OTEL_ENABLED:false}
         url: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}/v1/metrics
   opentelemetry:
+    logging:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}/v1/logs
     tracing:
       export:
         otlp:

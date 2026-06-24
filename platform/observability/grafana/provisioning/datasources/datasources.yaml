@@ -11,3 +11,14 @@ datasources:
     uid: tempo
     access: proxy
     url: http://tempo:3200
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: loki
+        filterByTraceID: true
+      serviceMap:
+        datasourceUid: prometheus
+  - name: Loki
+    type: loki
+    uid: loki
+    access: proxy
+    url: http://loki:3100
