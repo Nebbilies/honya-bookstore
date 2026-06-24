@@ -41,8 +41,22 @@ app:
 server:
   port: ${SERVER_PORT:8083}
 
+otel:
+  enabled: ${OTEL_ENABLED:false}
+
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus,metrics
+  otlp:
+    metrics:
+      export:
+        enabled: ${OTEL_ENABLED:false}
+        url: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}/v1/metrics
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}/v1/traces
+  tracing:
+    enabled: ${OTEL_ENABLED:false}
+    sampling:
+      probability: ${OTEL_SAMPLING:1.0}

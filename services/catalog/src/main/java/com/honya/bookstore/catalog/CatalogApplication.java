@@ -1,5 +1,6 @@
 package com.honya.bookstore.catalog;
 
+import com.honya.platform.observability.HonyaObservability;
 import com.honya.platform.resilience.HonyaResilience;
 import com.honya.platform.security.HonyaResourceServerSecurity;
 import org.springframework.boot.SpringApplication;
@@ -9,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(scanBasePackages = "com.honya.bookstore")
 @EnableScheduling
-@Import({HonyaResourceServerSecurity.class, HonyaResilience.class})
+@Import({HonyaResourceServerSecurity.class, HonyaResilience.class, HonyaObservability.class})
 public class CatalogApplication {
 
     public static void main(String[] args) {
