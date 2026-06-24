@@ -10,20 +10,20 @@
     {
       "id": 1,
       "type": "stat",
-      "title": "Services Up",
+      "title": "Services Reporting Metrics",
       "gridPos": { "x": 0, "y": 0, "w": 24, "h": 4 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
-          "expr": "up",
-          "legendFormat": "{{job}}",
+          "expr": "count(group by (exported_job) (jvm_memory_used_bytes))",
+          "legendFormat": "services",
           "refId": "A"
         }
       ],
       "options": {
         "reduceOptions": { "calcs": ["lastNotNull"] },
-        "colorMode": "background",
-        "graphMode": "none"
+        "colorMode": "value",
+        "graphMode": "area"
       },
       "fieldConfig": {
         "defaults": {
@@ -33,10 +33,7 @@
               { "color": "red", "value": null },
               { "color": "green", "value": 1 }
             ]
-          },
-          "mappings": [
-            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }
-          ]
+          }
         }
       }
     },
