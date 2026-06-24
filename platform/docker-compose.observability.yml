@@ -21,6 +21,7 @@ services:
     command: ["--config.file=/etc/prometheus/prometheus.yml"]
     volumes:
       - ./platform/observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./platform/observability/prometheus/rules:/etc/prometheus/rules:ro
       - prometheus_data:/prometheus
     ports:
       - "9090:9090"

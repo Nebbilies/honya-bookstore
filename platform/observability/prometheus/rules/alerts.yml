@@ -1,0 +1,45 @@
+groups:
+  - name: honya
+    rules:
+      - alert: DlqNotEmpty
+        expr: rabbitmq_queue_messages{queue=~".*\\.dlq"} > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Dead-letter queue {{ $labels.queue }} has {{ $value }} parked messages"
+
+      - alert: CircuitBreakerOpen
+        expr: resilience4j_circuitbreaker_state{state="open"} == 1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Circuit breaker {{ $labels.name }} is OPEN on {{ $labels.service_name }}"
+
+      - alert: ScrapeTargetDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Scrape target {{ $labels.job }} is down"
+
+      - alert: ServiceDown
+        expr: |
+          count by (service_name) (count_over_time(jvm_memory_used_bytes[15m]))
+            unless
+          count by (service_name) (jvm_memory_used_bytes)
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.service_name }} stopped reporting metrics"
+
+      - alert: HighHttp5xx
+        expr: sum by (service_name) (rate(http_server_requests_milliseconds_count{status=~"5.."}[5m])) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.service_name }} 5xx rate elevated"
