@@ -47,3 +47,6 @@ target/
 next-env.d.ts
 TempDocs/
 docs/
+
+# k8s local secrets
+k8s/overlays/local/secrets.env

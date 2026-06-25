@@ -1,0 +1,41 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: honya
+
+resources:
+  - namespace.yaml
+  - config.yaml
+  - infra/postgres.yaml
+  - infra/rabbitmq.yaml
+  - infra/keycloak.yaml
+  - infra/minio.yaml
+  - services/media.yaml
+  - services/article.yaml
+  - services/review.yaml
+  - services/user.yaml
+  - services/catalog.yaml
+  - services/cart.yaml
+  - services/order.yaml
+  - services/dashboard.yaml
+  - services/checkout.yaml
+  - services/gateway.yaml
+  - frontend.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: honya-postgres-init
+    files:
+      - infra/postgres-init/01-create-media-db.sql
+      - infra/postgres-init/02-create-article-db.sql
+      - infra/postgres-init/03-create-review-db.sql
+      - infra/postgres-init/04-create-user-db.sql
+      - infra/postgres-init/05-create-catalog-db.sql
+      - infra/postgres-init/06-create-cart-db.sql
+      - infra/postgres-init/07-create-order-db.sql
+      - infra/postgres-init/08-create-checkout-db.sql
+  - name: honya-keycloak-realm
+    files:
+      - infra/keycloak/honya-realm.json

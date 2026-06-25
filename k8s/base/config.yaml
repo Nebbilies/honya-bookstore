@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: honya-config
+  labels:
+    app.kubernetes.io/part-of: honya
+data:
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8080/realms/honya
+  APP_SECURITY_JWT_JWK_SET_URI: http://keycloak:8080/realms/honya/protocol/openid-connect/certs
+  SPRING_RABBITMQ_HOST: rabbitmq
+  SPRING_RABBITMQ_USERNAME: user
+  MEDIA_BASE_URL: http://media:8082
+  CATALOG_BASE_URL: http://catalog:8086
+  CART_BASE_URL: http://cart:8087
+  ORDER_BASE_URL: http://order:8088
+  USER_BASE_URL: http://user:8085
+  MEDIA_URI: http://media:8082
+  ARTICLE_URI: http://article:8083
+  REVIEW_URI: http://review:8084
+  USER_URI: http://user:8085
+  CATALOG_URI: http://catalog:8086
+  CART_URI: http://cart:8087
+  ORDER_URI: http://order:8088
+  DASHBOARD_URI: http://dashboard:8089
+  CHECKOUT_URI: http://checkout:8091
+  FRONTEND_ORIGIN: http://localhost:3000
+  SPRING_MINIO_INTERNAL_URL: http://minio:9000
+  SPRING_MINIO_PUBLIC_URL: http://localhost:9000
+  VNPAY_PAYMENT_RETURN_URL: http://localhost:8090/api/orders/payment/vnpay/return
+  VNPAY_IPN_URL: http://localhost:8090/api/orders/payment/vnpay/ipn
