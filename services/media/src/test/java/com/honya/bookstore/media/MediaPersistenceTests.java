@@ -19,7 +19,7 @@ import java.time.OffsetDateTime;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest
 @Testcontainers
 @TestPropertySource(properties = {
         "spring.jpa.hibernate.ddl-auto=validate",
